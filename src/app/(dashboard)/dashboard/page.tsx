@@ -639,142 +639,125 @@ function ResidentDashboard({
   return (
     <>
       {/* Mobile view: hidden on lg screens, visible on mobile/tablet */}
-      <div className="block lg:hidden bg-white min-h-screen pb-24 max-w-[420px] mx-auto overflow-hidden -m-3 sm:-m-4 lg:-m-6">
-        {/* SECTION 1 - Top Header */}
-        <div className="px-5 pt-10 pb-5 flex justify-between items-start bg-white">
-          <div>
-            <p className="text-gray-500 text-xs font-medium flex items-center gap-1">
-              {t(greeting().charAt(0).toUpperCase() + greeting().slice(1))} <span className="text-base">👋</span>
-            </p>
-            <h1 className="text-lg font-bold text-gray-900 leading-tight mt-0.5">
-              {user?.name || t("Resident")}
-            </h1>
-            <p className="text-gray-400 text-[11px] font-medium mt-0.5">
-              {user?.societyName || t("Your society")}
-            </p>
-          </div>
-          <div className="relative">
-            <div className="w-11 h-11 rounded-full bg-[#F97316] flex items-center justify-center text-white text-lg font-bold overflow-hidden">
-              {user?.name?.slice(0, 1) || "R"}
-            </div>
-            <div className="absolute -top-0.5 -right-0.5 bg-[#EF4444] text-white text-[8px] font-bold w-4 h-4 rounded-full flex items-center justify-center border-[1.5px] border-white">
-              5
-            </div>
-          </div>
+      <div className="block lg:hidden w-full pb-24 text-gray-900 space-y-4">
+        {/* SECTION 1 - Top Header (directly on cream, clean typography) */}
+        <div className="px-1 pt-4 pb-2">
+          <p className="text-gray-500 text-[10px] font-bold uppercase tracking-[0.14em]">
+            {t(greeting().charAt(0).toUpperCase() + greeting().slice(1))} <span className="text-base">👋</span>
+          </p>
+          <h1 className="text-2xl font-black text-gray-900 mt-1 leading-tight">
+            {user?.name || t("Resident")}
+          </h1>
+          <p className="text-gray-500 text-xs font-semibold mt-1">
+            {user?.societyName || t("Your society")} · {user?.flatNumber || ""}
+          </p>
         </div>
 
         {/* SECTION 2 - Outstanding Balance Card */}
-        <div className="px-5 mb-5">
-          <div className="bg-[#F97316] rounded-2xl px-5 py-4 shadow-[0_4px_14px_rgba(249,115,22,0.3)] flex justify-between items-center">
-            <div>
-              <p className="text-white/80 text-[11px] font-medium mb-0.5">{t("Total Outstanding")}</p>
-              <h2 className="text-white text-2xl font-bold tracking-tight">₹ {formatCurrency(pendingDues).replace("₹", "").trim()}</h2>
-            </div>
-            <Link href="/my-bills" className="bg-white text-[#F97316] font-bold text-xs px-4 py-2 rounded-lg shadow-sm hover:bg-orange-50 transition-colors">
-              {t("Pay Now")}
-            </Link>
+        <div className="bg-[#F97316] rounded-2xl px-5 py-4 shadow-[0_8px_20px_rgba(249,115,22,0.22)] flex justify-between items-center text-white">
+          <div>
+            <p className="text-white/80 text-[10px] font-bold uppercase tracking-wider mb-0.5">{t("Total Outstanding")}</p>
+            <h2 className="text-2xl font-black tracking-tight">₹ {formatCurrency(pendingDues).replace("₹", "").trim()}</h2>
           </div>
+          <Link href="/my-bills" className="bg-white text-[#F97316] font-bold text-xs px-4 py-2 rounded-xl shadow-sm hover:bg-orange-50 transition-colors">
+            {t("Pay Now")}
+          </Link>
         </div>
 
         {/* SECTION 3 - Stats Row */}
-        <div className="px-5 mb-6">
-          <div className="bg-white rounded-2xl py-4 px-2 shadow-[0_1px_8px_rgba(0,0,0,0.06)] border border-gray-100 flex justify-between items-center">
-            <div className="flex-1 flex flex-col items-center">
-              <span className="text-[11px] font-semibold text-gray-500 mb-1">{t("Notices")}</span>
-              <span className="text-xl font-extrabold text-gray-900 leading-none">{String(unreadNotices).padStart(2, "0")}</span>
-              <span className="text-[10px] text-gray-400 mt-1 font-medium">{t("Unread")}</span>
-            </div>
-            <div className="w-px h-10 bg-gray-100"></div>
-            <div className="flex-1 flex flex-col items-center">
-              <span className="text-[11px] font-semibold text-gray-500 mb-1">{t("Complaints")}</span>
-              <span className="text-xl font-extrabold text-gray-900 leading-none">{String(openComplaints).padStart(2, "0")}</span>
-              <span className="text-[10px] text-gray-400 mt-1 font-medium">{t("Open")}</span>
-            </div>
-            <div className="w-px h-10 bg-gray-100"></div>
-            <div className="flex-1 flex flex-col items-center">
-              <span className="text-[11px] font-semibold text-gray-500 mb-1">{t("Visitors")}</span>
-              <span className="text-xl font-extrabold text-gray-900 leading-none">{String(visitorsToday).padStart(2, "0")}</span>
-              <span className="text-[10px] text-gray-400 mt-1 font-medium">{t("Today")}</span>
-            </div>
+        <div className="bg-white rounded-2xl py-4 px-2 shadow-[0_2px_12px_rgba(0,0,0,0.04)] border border-[#FED7AA]/40 flex justify-between items-center">
+          <div className="flex-1 flex flex-col items-center">
+            <span className="text-[11px] font-bold text-gray-500 mb-1">{t("Notices")}</span>
+            <span className="text-xl font-extrabold text-[#F97316] leading-none">{String(unreadNotices).padStart(2, "0")}</span>
+            <span className="text-[10px] text-gray-400 mt-1 font-medium">{t("Unread")}</span>
+          </div>
+          <div className="w-px h-10 bg-gray-100"></div>
+          <div className="flex-1 flex flex-col items-center">
+            <span className="text-[11px] font-bold text-gray-500 mb-1">{t("Complaints")}</span>
+            <span className="text-xl font-extrabold text-gray-900 leading-none">{String(openComplaints).padStart(2, "0")}</span>
+            <span className="text-[10px] text-gray-400 mt-1 font-medium">{t("Open")}</span>
+          </div>
+          <div className="w-px h-10 bg-gray-100"></div>
+          <div className="flex-1 flex flex-col items-center">
+            <span className="text-[11px] font-bold text-gray-500 mb-1">{t("Visitors")}</span>
+            <span className="text-xl font-extrabold text-[#2563EB] leading-none">{String(visitorsToday).padStart(2, "0")}</span>
+            <span className="text-[10px] text-gray-400 mt-1 font-medium">{t("Today")}</span>
           </div>
         </div>
 
-        {/* SECTION 4 - Quick Access Grid */}
-        <div className="px-5 mb-6">
-          <h3 className="text-[15px] font-bold text-gray-900 mb-4">{t("Quick Access")}</h3>
+        {/* SECTION 4 - Quick Access Grid (wrapped in white rounded card) */}
+        <div className="bg-white rounded-2xl p-4 shadow-[0_2px_12px_rgba(0,0,0,0.04)] border border-[#FED7AA]/40">
+          <h3 className="text-xs font-bold text-gray-800 uppercase tracking-wider mb-4 px-1">{t("Quick Access")}</h3>
           <div className="grid grid-cols-4 gap-y-5 gap-x-2">
             {/* Row 1 */}
             <Link href="/my-bills" className="flex flex-col items-center gap-1.5">
-              <div className="w-12 h-12 rounded-[14px] bg-[#FFF7ED] flex items-center justify-center">
+              <div className="w-11 h-11 rounded-[12px] bg-[#FFF7ED] flex items-center justify-center border border-orange-50">
                 <Receipt className="w-5 h-5 text-[#F97316]" strokeWidth={2} />
               </div>
-              <span className="text-[11px] font-medium text-gray-700">{t("My Bills")}</span>
+              <span className="text-[11px] font-semibold text-gray-700">{t("My Bills")}</span>
             </Link>
             <Link href="/complaints" className="flex flex-col items-center gap-1.5">
-              <div className="w-12 h-12 rounded-[14px] bg-[#FEF3C7] flex items-center justify-center">
+              <div className="w-11 h-11 rounded-[12px] bg-[#FEF3C7] flex items-center justify-center border border-yellow-50">
                 <AlertTriangle className="w-5 h-5 text-[#D97706]" strokeWidth={2} />
               </div>
-              <span className="text-[11px] font-medium text-gray-700">{t("Complaints")}</span>
+              <span className="text-[11px] font-semibold text-gray-700">{t("Complaints")}</span>
             </Link>
             <Link href="/my-visitors" className="flex flex-col items-center gap-1.5">
-              <div className="w-12 h-12 rounded-[14px] bg-[#EFF6FF] flex items-center justify-center">
+              <div className="w-11 h-11 rounded-[12px] bg-[#EFF6FF] flex items-center justify-center border border-blue-50">
                 <UserCheck className="w-5 h-5 text-[#2563EB]" strokeWidth={2} />
               </div>
-              <span className="text-[11px] font-medium text-gray-700">{t("Visitors")}</span>
+              <span className="text-[11px] font-semibold text-gray-700">{t("Visitors")}</span>
             </Link>
             <Link href="/notices" className="flex flex-col items-center gap-1.5">
-              <div className="w-12 h-12 rounded-[14px] bg-[#FFF7ED] flex items-center justify-center">
+              <div className="w-11 h-11 rounded-[12px] bg-[#FFF7ED] flex items-center justify-center border border-orange-50">
                 <Megaphone className="w-5 h-5 text-[#F97316]" strokeWidth={2} />
               </div>
-              <span className="text-[11px] font-medium text-gray-700">{t("Notices")}</span>
+              <span className="text-[11px] font-semibold text-gray-700">{t("Notices")}</span>
             </Link>
 
             {/* Row 2 */}
             <Link href="/amenities" className="flex flex-col items-center gap-1.5">
-              <div className="w-12 h-12 rounded-[14px] bg-[#F5F3FF] flex items-center justify-center">
+              <div className="w-11 h-11 rounded-[12px] bg-[#F5F3FF] flex items-center justify-center border border-purple-50">
                 <Building2 className="w-5 h-5 text-[#8B5CF6]" strokeWidth={2} />
               </div>
-              <span className="text-[11px] font-medium text-gray-700">{t("Amenities")}</span>
+              <span className="text-[11px] font-semibold text-gray-700">{t("Amenities")}</span>
             </Link>
             <Link href="/packages" className="flex flex-col items-center gap-1.5">
-              <div className="w-12 h-12 rounded-[14px] bg-[#FEF2F2] flex items-center justify-center">
+              <div className="w-11 h-11 rounded-[12px] bg-[#FEF2F2] flex items-center justify-center border border-red-50">
                 <Package className="w-5 h-5 text-[#EF4444]" strokeWidth={2} />
               </div>
-              <span className="text-[11px] font-medium text-gray-700">{t("Packages")}</span>
+              <span className="text-[11px] font-semibold text-gray-700">{t("Packages")}</span>
             </Link>
             <Link href="/events" className="flex flex-col items-center gap-1.5">
-              <div className="w-12 h-12 rounded-[14px] bg-[#F5F3FF] flex items-center justify-center">
+              <div className="w-11 h-11 rounded-[12px] bg-[#F5F3FF] flex items-center justify-center border border-purple-50">
                 <CalendarCheck className="w-5 h-5 text-[#8B5CF6]" strokeWidth={2} />
               </div>
-              <span className="text-[11px] font-medium text-gray-700">{t("Events")}</span>
+              <span className="text-[11px] font-semibold text-gray-700">{t("Events")}</span>
             </Link>
             <button className="flex flex-col items-center gap-1.5">
-              <div className="w-12 h-12 rounded-[14px] bg-[#F3F4F6] flex items-center justify-center">
+              <div className="w-11 h-11 rounded-[12px] bg-[#F3F4F6] flex items-center justify-center border border-gray-100">
                 <MoreHorizontal className="w-5 h-5 text-[#6B7280]" strokeWidth={2} />
               </div>
-              <span className="text-[11px] font-medium text-gray-700">{t("More")}</span>
+              <span className="text-[11px] font-semibold text-gray-700">{t("More")}</span>
             </button>
           </div>
         </div>
 
         {/* SECTION 5 - Go Digital Go Green Banner */}
-        <div className="px-5 mb-6">
-          <div className="bg-[#FFF7ED] rounded-2xl p-5 flex items-center justify-between relative overflow-hidden border border-orange-100">
-            <div className="relative z-10 flex-1 pr-3">
-              <h3 className="text-[#92400E] font-bold text-[15px] leading-tight mb-1">{t("Go Digital. Go Green.")}</h3>
-              <p className="text-[#92400E]/70 text-[11px] font-medium leading-relaxed">
-                {t("Get e-receipts &")}<br/>{t("secure payments.")}
-              </p>
-            </div>
-            {/* Phone illustration */}
-            <div className="relative z-10 flex-shrink-0">
-              <div className="relative w-14 h-20 bg-white rounded-xl border-2 border-[#FED7AA] shadow-sm flex flex-col items-center overflow-hidden">
-                <div className="w-5 h-1 bg-[#FED7AA] rounded-b-full"></div>
-                <div className="flex-1 flex flex-col items-center justify-center gap-1">
-                  <div className="w-7 h-7 rounded-full bg-[#D1FAE5] flex items-center justify-center">
-                    <span className="text-[#059669] text-xs font-bold">₹</span>
-                  </div>
-                  <div className="w-7 h-1 bg-[#D1FAE5] rounded-full"></div>
+        <div className="bg-[#FFF7ED] rounded-2xl p-4 flex items-center justify-between relative overflow-hidden border border-orange-100 shadow-sm">
+          <div className="relative z-10 flex-1 pr-3">
+            <h3 className="text-[#92400E] font-bold text-sm leading-tight mb-1">{t("Go Digital. Go Green.")}</h3>
+            <p className="text-[#92400E]/70 text-[10px] font-semibold leading-relaxed">
+              {t("Get e-receipts &")}<br/>{t("secure payments.")}
+            </p>
+          </div>
+          {/* Phone illustration */}
+          <div className="relative z-10 flex-shrink-0">
+            <div className="relative w-12 h-16 bg-white rounded-xl border border-[#FED7AA] shadow-sm flex flex-col items-center overflow-hidden">
+              <div className="w-4 h-0.5 bg-[#FED7AA] rounded-b-full"></div>
+              <div className="flex-1 flex flex-col items-center justify-center gap-1">
+                <div className="w-6 h-6 rounded-full bg-[#D1FAE5] flex items-center justify-center">
+                  <span className="text-[#059669] text-[10px] font-bold">₹</span>
                 </div>
               </div>
             </div>
