@@ -631,449 +631,359 @@ function ResidentDashboard({
   const notices = bootstrap?.notices || [];
   const visitors = bootstrap?.visitors || [];
   const packages = bootstrap?.packages || [];
-  const staff = bootstrap?.staff || [];
-  const forumThreads = bootstrap?.forumThreads || [];
-  const events = bootstrap?.events || [];
-  const parkingSlot = bootstrap?.parkingSlots?.[0];
-  const pendingPackages = packages.filter((pkg) => !["collected", "returned"].includes(pkg.status)).length;
-  const activeVisitors = visitors.filter((visitor) => ["pending_approval", "expected", "inside", "approved"].includes(visitor.status)).length;
   const openComplaints = data?.openComplaints || 0;
   const pendingDues = myBills?.stats?.totalPending || 0;
-  const paidTotal = myBills?.stats?.totalPaid || 0;
-  const roleLabel = user?.role === "tenant" ? t("Tenant") : t("Flat Member");
-  const timelineItems = [
-    ...visitors.slice(0, 2).map((visitor) => ({
-      id: `visitor-${visitor.id}`,
-      title: visitor.visitorName,
-      meta: `${t("Visitor")} · ${visitor.purpose}`,
-      time: formatShortTime(visitor.entryTime || visitor.expectedAt, language) || t("Today"),
-      tone: "bg-[#57534E]",
-      href: "/my-visitors",
-    })),
-    ...packages.slice(0, 2).map((pkg) => ({
-      id: `package-${pkg.id}`,
-      title: pkg.courierName || t("Parcel Desk"),
-      meta: t(pkg.status),
-      time: formatShortDate(pkg.receivedAt, language),
-      tone: "bg-[#FDE047]",
-      href: "/packages",
-    })),
-    ...notices.slice(0, 2).map((notice) => ({
-      id: `notice-${notice.id}`,
-      title: notice.title,
-      meta: notice.category,
-      time: formatShortDate(notice.createdAt, language),
-      tone: "bg-[#F97316]",
-      href: "/notices",
-    })),
-    ...events.slice(0, 2).map((event) => ({
-      id: `event-${event.id}`,
-      title: event.title,
-      meta: event.venue || t("Society event"),
-      time: formatShortDate(event.startDate, language),
-      tone: "bg-[#10B981]",
-      href: "/events",
-    })),
-  ].slice(0, 6);
-  const premiumDashboard = true;
-
-  if (premiumDashboard) {
-    return (
-    <div className="-m-3 min-h-full overflow-x-hidden bg-[#FFFBEB] p-2 text-[#1C1917] dark:bg-[#141414] dark:text-[#FAF7F5] sm:-m-4 sm:p-3 lg:-m-6 lg:p-4 xl:p-5">
-        <div className="pointer-events-none fixed inset-0 opacity-80 dark:opacity-45">
-          <div className="absolute left-[18%] top-[-12rem] h-[30rem] w-[30rem] rounded-full bg-[#FDE047]/25 blur-3xl" />
-          <div className="absolute right-[8%] top-[7rem] h-[24rem] w-[24rem] rounded-full bg-[#57534E]/[0.18] blur-3xl" />
-          <div className="absolute bottom-[-12rem] right-[28%] h-[26rem] w-[26rem] rounded-full bg-[#F97316]/[0.16] blur-3xl" />
-        </div>
-
-        <div className="relative mx-auto max-w-[1520px] pb-20 lg:pb-4">
-          <motion.section initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }} className="grid grid-cols-1 gap-3 xl:grid-cols-12">
-            <div className="relative overflow-hidden rounded-[1.5rem] border border-white/80 bg-white/[0.88] p-4 shadow-[0_20px_64px_-54px_rgba(28,25,23,0.72)] backdrop-blur-xl dark:border-[#303030] dark:bg-[#1E1E1E]/[0.88] lg:p-5 xl:col-span-8">
-              <div
-                className="absolute inset-0 bg-cover bg-center opacity-[0.46] saturate-[1.05] contrast-110 dark:opacity-[0.24]"
-                style={{ backgroundImage: "url('https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1600&q=80')" }}
-              />
-              <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(255,255,255,0.96)_0%,rgba(255,255,255,0.82)_42%,rgba(245,245,247,0.26)_100%)] dark:bg-[linear-gradient(90deg,rgba(22,15,18,0.98)_0%,rgba(22,15,18,0.88)_48%,rgba(44,26,26,0.54)_100%)]" />
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_88%_18%,rgba(255,219,88,0.18),transparent_18rem),radial-gradient(circle_at_0%_100%,rgba(33,150,243,0.12),transparent_20rem)]" />
-              <div className="relative z-10 flex min-h-[224px] items-center">
-                <div className="w-full max-w-[1120px]">
-                  <div className="mb-3 flex flex-wrap items-center gap-2">
-                    <span className="inline-flex min-h-7 items-center rounded-full border border-[#F97316]/20 bg-[#F97316]/10 px-3 text-[11px] font-bold uppercase tracking-[0.14em] text-[#F97316] dark:text-[#FB923C]">
-                      {roleLabel}
-                    </span>
-                    {user?.flatNumber && (
-                      <span className="inline-flex min-h-7 items-center rounded-full border border-[#57534E]/20 bg-[#57534E]/10 px-3 text-[11px] font-bold uppercase tracking-[0.14em] text-[#57534E] dark:text-[#FDE047]">
-                        {t("Flat")} {user.flatNumber}
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#F97316] dark:text-[#FB923C] sm:text-base">
-                    {t(greeting().charAt(0).toUpperCase() + greeting().slice(1))}
-                  </p>
-                  <h1 className="mt-1.5 max-w-[min(100%,980px)] overflow-hidden text-ellipsis whitespace-nowrap text-3xl font-bold leading-[1.02] tracking-tight text-[#1C1917] dark:text-[#FAF7F5] sm:text-4xl xl:text-[3.4rem] 2xl:text-[3.8rem]">
-                    {user?.name || t("Resident")}
-                  </h1>
-                  <p className="mt-3 max-w-2xl text-sm font-semibold leading-6 text-[#1C1917]/[0.62] dark:text-[#D6D3D1]">
-                    {user?.societyName || t("Your society")} {user?.societyAddress ? `· ${user.societyAddress}` : ""}
-                  </p>
-                  <div className="mt-5 flex flex-nowrap gap-2 overflow-x-auto pb-1">
-                    <Link href="/my-bills" className="inline-flex min-h-10 shrink-0 items-center justify-center rounded-xl bg-[#F97316] px-4 text-sm font-bold text-white shadow-lg shadow-[#F97316]/20 transition-transform hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F97316]">
-                      {t("Pay dues")} <ArrowRight className="ml-2 h-4 w-4" />
-                    </Link>
-                    <Link href="/my-visitors" className="inline-flex min-h-10 shrink-0 items-center justify-center rounded-xl border border-[#FED7AA] bg-white px-4 text-sm font-bold text-[#1C1917] shadow-sm transition-transform hover:-translate-y-0.5 dark:border-white/[0.12] dark:bg-[#303030]/50 dark:text-[#FAF7F5]">
-                      {t("Approve visitor")}
-                    </Link>
-                    <Link href="/complaints" className="inline-flex min-h-10 shrink-0 items-center justify-center rounded-xl border border-[#57534E]/20 bg-[#57534E]/10 px-4 text-sm font-bold text-[#57534E] transition-transform hover:-translate-y-0.5 dark:text-[#FDE047]">
-                      {t("Raise complaint")}
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <aside className="grid gap-3 md:grid-cols-2 xl:col-span-4 xl:grid-cols-1">
-              <div className="relative overflow-hidden rounded-[1.5rem] border border-[#FED7AA] bg-[#1C1917] p-4 text-white shadow-[0_20px_64px_-54px_rgba(28,25,23,0.78)] dark:border-[#303030]">
-                <div className="absolute -right-16 -top-16 h-36 w-36 rounded-full bg-[#FDE047]/25 blur-2xl" />
-                <div className="relative z-10 flex items-start justify-between gap-3">
-                  <div>
-                    <p className="text-xs font-bold uppercase tracking-[0.18em] text-white/55">{t("Society")}</p>
-                    <h2 className="mt-1.5 line-clamp-2 text-xl font-bold">{user?.societyName || t("Your society")}</h2>
-                    <p className="mt-1.5 text-xs font-semibold text-white/55">{user?.flatNumber ? `${t("Unit")} ${user.flatNumber}` : t("Resident profile")}</p>
-                  </div>
-                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/12">
-                    <Building2 className="h-6 w-6" />
-                  </div>
-                </div>
-                <div className="relative z-10 mt-5 grid grid-cols-3 gap-2">
-                  <div className="rounded-xl bg-white/10 p-2.5">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-white/45">{t("Role")}</p>
-                    <p className="mt-1 truncate text-sm font-bold">{roleLabel}</p>
-                  </div>
-                  <div className="rounded-xl bg-white/10 p-2.5">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-white/45">{t("Parking")}</p>
-                    <p className="mt-1 truncate text-sm font-bold">{parkingSlot?.slotNumber || "--"}</p>
-                  </div>
-                  <div className="rounded-xl bg-white/10 p-2.5">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-white/45">{t("Status")}</p>
-                    <p className="mt-1 truncate text-sm font-bold text-[#10B981]">{t("Active")}</p>
-                  </div>
-                </div>
-              </div>
-
-              <Link href="/emergency" className="group relative overflow-hidden rounded-[1.5rem] border border-[#EF4444]/[0.18] bg-white p-4 shadow-[0_14px_42px_-34px_rgba(239,68,68,0.32)] transition-transform hover:-translate-y-0.5 dark:border-[#EF4444]/35 dark:bg-[#1E1E1E]">
-                <div className="absolute -bottom-16 -right-10 h-32 w-32 rounded-full bg-[#EF4444]/[0.14] blur-2xl" />
-                <div className="relative z-10 flex items-center justify-between">
-                  <div>
-                    <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#EF4444]">{t("SOS & Safety")}</p>
-                    <h3 className="mt-1.5 text-lg font-bold text-[#1C1917] dark:text-[#FAF7F5]">{t("Alert security")}</h3>
-                    <p className="mt-1 text-sm font-semibold text-[#1C1917]/[0.55] dark:text-[#D6D3D1]/80">{t("Emergency contacts stay one tap away.")}</p>
-                  </div>
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#EF4444] text-white shadow-lg shadow-[#EF4444]/20">
-                    <Phone className="h-6 w-6" />
-                  </div>
-                </div>
-              </Link>
-            </aside>
-          </motion.section>
-
-          <section className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            <PremiumStatCard href="/my-bills" title={t("My Bills")} value={formatCurrency(pendingDues)} note={`${t("Paid")}: ${formatCurrency(paidTotal)}`} icon={CreditCard} illustration="bill" variant="finance" />
-            <PremiumStatCard href="/my-visitors" title={t("Visitors")} value={String(activeVisitors)} note={t("Expected or active today")} icon={UserCheck} illustration="visitor" variant="visitor" />
-            <PremiumStatCard href="/packages" title={t("Parcels")} value={String(pendingPackages)} note={t("Waiting for collection")} icon={Package} illustration="parcel" variant="parcel" />
-            <PremiumStatCard href="/complaints" title={t("Helpdesk")} value={String(openComplaints)} note={t("Open society requests")} icon={AlertTriangle} illustration="safety" variant="helpdesk" />
-          </section>
-
-          <section className="mt-3 grid grid-cols-1 gap-3 xl:grid-cols-12">
-            <div className="rounded-[1.5rem] border border-[#FED7AA] bg-white/90 p-4 shadow-[0_14px_48px_-40px_rgba(28,25,23,0.58)] backdrop-blur-xl dark:border-[#303030] dark:bg-[#1E1E1E]/92 lg:p-4 xl:col-span-8">
-              <div className="mb-3 flex items-end justify-between gap-3">
-                <div>
-                  <h2 className="text-xl font-bold tracking-tight text-[#1C1917] dark:text-[#FAF7F5]">{t("Resident shortcuts")}</h2>
-                  <p className="mt-0.5 text-xs font-semibold text-[#1C1917]/[0.55] dark:text-[#D6D3D1]/80">{t("High-frequency actions for daily society life.")}</p>
-                </div>
-                <Link href="/dashboard" className="hidden min-h-9 items-center rounded-xl bg-[#FFFBEB] px-3 text-xs font-bold text-[#1C1917]/60 dark:bg-[#303030]/50 dark:text-[#D6D3D1] sm:inline-flex">
-                  {t("Command center")}
-                </Link>
-              </div>
-              <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
-                <PremiumModuleTile href="/my-bills" label={t("My Bills")} note={t("Dues, receipts, rent, and staff payments.")} icon={Receipt} accent="bg-[#FFEDD5] text-[#F97316] dark:bg-[#7C2D12]/45 dark:text-[#FDBA74]" hover="hover:border-[#FDBA74] hover:bg-[#FFF7ED] dark:hover:border-[#9A5A22] dark:hover:bg-[#241A12]" wide />
-                <PremiumModuleTile href="/my-visitors" label={t("My Visitors")} note={t("Approve gate requests and pre-authorize guests.")} icon={UserCheck} accent="bg-[#DBEAFE] text-[#2563EB] dark:bg-[#1E3A8A]/38 dark:text-[#93C5FD]" hover="hover:border-[#93C5FD] hover:bg-[#EFF6FF] dark:hover:border-[#31558C] dark:hover:bg-[#141B25]" />
-                <PremiumModuleTile href="/complaints" label={t("Helpdesk")} note={t("Raise and track complaints.")} icon={AlertTriangle} accent="bg-[#FEE2E2] text-[#DC2626] dark:bg-[#7F1D1D]/38 dark:text-[#FCA5A5]" hover="hover:border-[#FCA5A5] hover:bg-[#FEF2F2] dark:hover:border-[#7A3434] dark:hover:bg-[#271616]" />
-                <PremiumModuleTile href="/packages" label={t("Parcel Desk")} note={t("Delivery status and pickups.")} icon={Package} accent="bg-[#FEF3C7] text-[#B45309] dark:bg-[#713F12]/38 dark:text-[#FDE68A]" hover="hover:border-[#FACC15] hover:bg-[#FEFCE8] dark:hover:border-[#8A6A19] dark:hover:bg-[#24200E]" />
-                <PremiumModuleTile href="/staff" label={t("Staff & Daily Help")} note={`${staff.length} ${t("linked profiles")}`} icon={Briefcase} accent="bg-[#F3E8FF] text-[#7E22CE] dark:bg-[#581C87]/38 dark:text-[#D8B4FE]" hover="hover:border-[#C084FC] hover:bg-[#FAF5FF] dark:hover:border-[#6B3A8F] dark:hover:bg-[#211329]" />
-                <PremiumModuleTile href="/amenities" label={t("Amenities")} note={t("Book shared society spaces.")} icon={Building2} accent="bg-[#D1FAE5] text-[#059669] dark:bg-[#064E3B]/38 dark:text-[#6EE7B7]" hover="hover:border-[#6EE7B7] hover:bg-[#ECFDF5] dark:hover:border-[#25785D] dark:hover:bg-[#10231D]" />
-                <PremiumModuleTile href="/parking" label={t("Parking")} note={parkingSlot ? `${parkingSlot.slotNumber} · ${parkingSlot.vehicleNo || t("Assigned")}` : t("Slot and vehicle details.")} icon={Car} accent="bg-[#E0E7FF] text-[#4F46E5] dark:bg-[#312E81]/38 dark:text-[#A5B4FC]" hover="hover:border-[#A5B4FC] hover:bg-[#EEF2FF] dark:hover:border-[#4E4A91] dark:hover:bg-[#17182A]" />
-                <PremiumModuleTile href="/notices" label={t("Notices")} note={notices[0]?.title || t("Latest society communication.")} icon={Megaphone} accent="bg-[#FCE7F3] text-[#DB2777] dark:bg-[#831843]/38 dark:text-[#F9A8D4]" hover="hover:border-[#F9A8D4] hover:bg-[#FDF2F8] dark:hover:border-[#8B3B63] dark:hover:bg-[#281520]" wide />
-                <PremiumModuleTile href="/events" label={t("Events")} note={events[0]?.title || t("Calendar and community moments.")} icon={CalendarCheck} accent="bg-[#FEF9C3] text-[#A16207] dark:bg-[#713F12]/38 dark:text-[#FEF08A]" hover="hover:border-[#FDE047] hover:bg-[#FEFCE8] dark:hover:border-[#8A6A19] dark:hover:bg-[#24200E]" />
-                <PremiumModuleTile href="/marketplace" label={t("Buy & Sell")} note={t("Resident marketplace.")} icon={ShoppingBag} accent="bg-[#E0F2FE] text-[#0284C7] dark:bg-[#075985]/38 dark:text-[#7DD3FC]" hover="hover:border-[#7DD3FC] hover:bg-[#F0F9FF] dark:hover:border-[#2E6E8D] dark:hover:bg-[#101F29]" />
-              </div>
-            </div>
-
-            <aside className="space-y-3 xl:col-span-4">
-              <div className="rounded-[1.5rem] border border-[#FED7AA] bg-white/90 p-4 shadow-[0_14px_48px_-40px_rgba(28,25,23,0.58)] backdrop-blur-xl dark:border-[#303030] dark:bg-[#1E1E1E]/92 lg:p-4">
-                <div className="mb-3 flex items-center justify-between">
-                  <div>
-                    <h2 className="text-xl font-bold text-[#1C1917] dark:text-[#FAF7F5]">{t("Today")}</h2>
-                    <p className="mt-1 text-xs font-semibold text-[#1C1917]/[0.55] dark:text-[#D6D3D1]/80">{t("Visitors, parcels, notices, and events.")}</p>
-                  </div>
-                  <CalendarCheck className="h-5 w-5 text-[#F97316]" />
-                </div>
-                {timelineItems.length === 0 ? (
-                  <EmptyMiniState text={t("No activity yet today.")} />
-                ) : (
-                  <div className="space-y-0.5 border-l border-[#FED7AA] pl-3 dark:border-[#303030]">
-                    {timelineItems.map((item) => (
-                      <Link key={item.id} href={item.href} className="group relative block rounded-xl px-2.5 py-2 transition-colors hover:bg-[#FFFBEB] dark:hover:bg-white/[0.08]">
-                        <span className={`absolute -left-[21px] top-5 h-2.5 w-2.5 rounded-full ${item.tone} ring-4 ring-white dark:ring-[#1E1E1E]`} />
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="min-w-0">
-                            <h3 className="truncate text-sm font-bold text-[#1C1917] dark:text-[#FAF7F5]">{item.title}</h3>
-                            <p className="mt-1 truncate text-xs font-semibold text-[#1C1917]/50 dark:text-[#D6D3D1]/80">{item.meta}</p>
-                          </div>
-                          <span className="shrink-0 text-[11px] font-bold text-[#1C1917]/[0.45] dark:text-[#D6D3D1]/75">{item.time}</span>
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              <div className="relative overflow-hidden rounded-[1.5rem] border border-[#FED7AA] bg-white/90 p-4 shadow-[0_14px_48px_-40px_rgba(28,25,23,0.58)] backdrop-blur-xl dark:border-[#303030] dark:bg-[#1E1E1E]/92 lg:p-4">
-                <div className="absolute -right-12 -top-12 h-28 w-28 rounded-full bg-[#57534E]/15 blur-2xl" />
-                <div className="relative z-10">
-                  <div className="flex items-center justify-between">
-                    <h2 className="text-xl font-bold text-[#1C1917] dark:text-[#FAF7F5]">{t("Community pulse")}</h2>
-                    <MessageSquare className="h-5 w-5 text-[#57534E]" />
-                  </div>
-                  <div className="mt-3 grid grid-cols-3 gap-2">
-                    <Link href="/forum" className="rounded-xl bg-[#FFFBEB] p-2.5 dark:bg-[#303030]/50">
-                      <p className="text-2xl font-bold text-[#57534E]">{forumThreads.length}</p>
-                      <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-[#1C1917]/[0.45] dark:text-[#D6D3D1]/75">{t("Threads")}</p>
-                    </Link>
-                    <Link href="/notices" className="rounded-xl bg-[#FFFBEB] p-2.5 dark:bg-[#303030]/50">
-                      <p className="text-2xl font-bold text-[#F97316]">{notices.length}</p>
-                      <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-[#1C1917]/[0.45] dark:text-[#D6D3D1]/75">{t("Notices")}</p>
-                    </Link>
-                    <Link href="/events" className="rounded-xl bg-[#FFFBEB] p-2.5 dark:bg-[#303030]/50">
-                      <p className="text-2xl font-bold text-[#10B981]">{events.length}</p>
-                      <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-[#1C1917]/[0.45] dark:text-[#D6D3D1]/75">{t("Events")}</p>
-                    </Link>
-                  </div>
-                  <Link href="/forum" className="mt-3 flex min-h-10 items-center justify-between rounded-xl border border-[#FED7AA] bg-white px-3 text-sm font-bold text-[#1C1917] transition-colors hover:border-[#57534E]/30 dark:border-[#303030] dark:bg-[#303030]/40 dark:text-[#FAF7F5]">
-                    {forumThreads[0]?.title || t("Start a society discussion")}
-                    <ArrowRight className="h-4 w-4 text-[#57534E]" />
-                  </Link>
-                </div>
-              </div>
-            </aside>
-          </section>
-        </div>
-      </div>
-    );
-  }
+  const visitorsToday = data?.visitorsToday || 0;
+  const unreadNotices = notices.length;
 
   return (
-    <div className="-m-3 min-h-full bg-[#FFFBEB] p-3 dark:bg-[#141414] sm:-m-4 sm:p-4 lg:-m-6 lg:p-8">
-      <div className="mx-auto max-w-[1600px] space-y-6 pb-24 lg:pb-8">
-        <div className="flex flex-col gap-6 lg:flex-row">
-          <div className="w-full flex-1 space-y-6 lg:w-2/3 xl:w-[70%]">
-            <section className="relative flex min-h-[210px] items-center justify-between overflow-hidden rounded-[2rem] bg-[#000328] p-6 shadow-sm lg:min-h-[230px] lg:p-8">
-              <div className="absolute inset-0">
-                <img
-                  src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1600&q=80"
-                  alt={t("Society building")}
-                  className="h-full w-full object-cover opacity-60"
-                />
-              </div>
-              <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,3,40,0.96)_0%,rgba(0,69,142,0.42)_100%)]" />
-              <div className="relative z-10 max-w-xl">
-                <h1 className="text-4xl font-black leading-[1.08] tracking-tight text-white drop-shadow-md lg:text-5xl">
-                  {t(greeting().charAt(0).toUpperCase() + greeting().slice(1))}, <br className="hidden lg:block" />
-                  <span className="text-emerald-400">{user?.name?.split(" ")[0] || t("Residents")}</span>
-                </h1>
-                <p className="mt-3 flex flex-wrap items-center gap-2 text-sm font-medium text-white/75 lg:text-base">
-                  <Building2 className="h-4 w-4 text-white/50" />
-                  <span>{user?.societyName || t("Your society")}</span>
-                  {user?.flatNumber && <span className="h-1.5 w-1.5 rounded-full bg-white/25" />}
-                  {user?.flatNumber && <span className="font-bold text-white">{t("Unit")} {user.flatNumber}</span>}
-                </p>
-              </div>
-              <div className="relative z-10 hidden shrink-0 pr-2 sm:block lg:pr-6">
-                <div className="relative h-32 w-32 rounded-full border border-white/40 bg-white/20 p-2 shadow-xl backdrop-blur-md lg:h-44 lg:w-44">
-                  <div className="flex h-full w-full items-center justify-center rounded-full bg-[#F97316] text-4xl font-black text-white lg:text-6xl">
-                    {user?.name?.slice(0, 1) || "R"}
-                  </div>
-                  <div className="absolute -bottom-2 left-1/2 flex -translate-x-1/2 items-center gap-1.5 whitespace-nowrap rounded-full border border-border bg-white/95 px-4 py-1.5 shadow-sm backdrop-blur-sm dark:bg-[#1E1E1E]/95">
-                    <UserCheck className="h-4 w-4 text-emerald-600" />
-                    <span className="text-[11px] font-black uppercase tracking-widest text-text-primary">{user?.role === "tenant" ? t("Tenant") : t("Residents")}</span>
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            <section className="grid grid-cols-2 gap-3 lg:gap-4 xl:grid-cols-4">
-              <PriorityCard href="/my-bills" label={t("My Bills")} value={`${t("Pending")}: ${formatCurrency(myBills?.stats?.totalPending || 0)}`} icon={CreditCard} gradient="from-emerald-500 to-emerald-700" />
-              <PriorityCard href="/staff" label={t("Staff & Daily Help")} value={`${t("Scheduled")}: ${staff.length}`} icon={Wrench} gradient="from-blue-500 to-blue-700" reverse />
-              <PriorityCard href="/packages" label={t("Parcel Desk")} value={`${t("Pending")}: ${pendingPackages}`} icon={Package} gradient="from-purple-500 to-purple-700" />
-              <PriorityCard href="/emergency" label={t("SOS & Safety")} value={t("Alert security")} icon={Phone} gradient="from-rose-500 to-rose-700" reverse />
-            </section>
-
-            <section className="grid grid-cols-1 gap-4 lg:gap-6 xl:grid-cols-2">
-              <div className="flex flex-col rounded-[2rem_2.5rem_2rem_2.5rem] border border-border bg-white p-5 shadow-sm dark:bg-[#1E1E1E] lg:p-6">
-                <div className="mb-5 flex items-center justify-between">
-                  <h3 className="text-lg font-black tracking-tight text-text-primary">{t("Visitors")}</h3>
-                  <Link href="/my-visitors" className="rounded-full bg-primary/5 px-3 py-1.5 text-xs font-black text-primary">{t("Approve visitors")}</Link>
-                </div>
-                <div className="flex-1 space-y-3">
-                  {visitors.length === 0 ? <EmptyMiniState text={t("No recent visitors.")} /> : visitors.slice(0, 3).map((visitor) => (
-                    <Link key={visitor.id} href="/my-visitors" className="flex items-center justify-between rounded-2xl border border-border bg-surface p-3.5 transition-all hover:bg-white hover:shadow-sm dark:hover:bg-slate-800">
-                      <div className="flex min-w-0 items-center gap-3">
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-indigo-100">
-                          <User className="h-5 w-5 text-indigo-600" />
-                        </div>
-                        <div className="min-w-0">
-                          <p className="truncate text-sm font-black text-text-primary">{visitor.visitorName}</p>
-                          <p className="truncate text-xs font-semibold text-text-secondary">{visitor.purpose} · {formatShortTime(visitor.entryTime || visitor.expectedAt, language)}</p>
-                        </div>
-                      </div>
-                      <span className="ml-2 shrink-0 rounded-full bg-amber-100 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-amber-800">{t(visitor.status.replace("_", " "))}</span>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-
-              <div className="flex flex-col rounded-[2.5rem_2rem_2.5rem_2rem] border border-border bg-white p-5 shadow-sm dark:bg-[#1E1E1E] lg:p-6">
-                <div className="mb-5 flex items-center justify-between">
-                  <h3 className="text-lg font-black tracking-tight text-text-primary">{t("Discussion Forum")}</h3>
-                  <Link href="/forum" className="text-xs font-black text-text-secondary hover:text-text-primary">{t("View All")}</Link>
-                </div>
-                <div className="flex-1 space-y-3">
-                  {forumThreads.length === 0 ? <EmptyMiniState text={t("No discussions yet.")} /> : forumThreads.slice(0, 3).map((thread) => (
-                    <Link key={thread.id} href="/forum" className="block rounded-2xl border border-border bg-surface p-3.5 transition-all hover:bg-white hover:shadow-sm dark:hover:bg-slate-800">
-                      <h4 className="line-clamp-1 text-sm font-black text-text-primary">{thread.title}</h4>
-                      <div className="mt-2 flex items-center justify-between">
-                        <span className="truncate text-xs font-semibold text-text-secondary">{thread.author?.name || t("Resident")}</span>
-                        <span className="flex items-center gap-1.5 text-xs font-black text-text-secondary"><MessageSquare className="h-3.5 w-3.5" />{thread._count?.replies || 0}</span>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            </section>
-
-            <section>
-              <div className="mb-4 flex items-center justify-between px-1">
-                <h3 className="text-xl font-black tracking-tight text-text-primary">{t("Community Quick Links")}</h3>
-              </div>
-              <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 lg:gap-6">
-                {[
-                  { href: "/amenities", label: "Amenities", icon: Building2, bg: "from-teal-400 to-emerald-500", shadow: "shadow-emerald-500/30" },
-                  { href: "/complaints", label: "Helpdesk", icon: AlertTriangle, bg: "from-rose-400 to-pink-500", shadow: "shadow-rose-500/30" },
-                  { href: "/events", label: "Events", icon: CalendarCheck, bg: "from-amber-400 to-orange-500", shadow: "shadow-orange-500/30" },
-                  { href: "/marketplace", label: "Buy & Sell", icon: ShoppingBag, bg: "from-sky-400 to-blue-500", shadow: "shadow-blue-500/30" },
-                  { href: "/parking", label: "Parking", icon: Car, bg: "from-lime-400 to-emerald-500", shadow: "shadow-lime-500/30" },
-                  { href: "/polls", label: "Polls", icon: Vote, bg: "from-fuchsia-400 to-purple-500", shadow: "shadow-fuchsia-500/30" },
-                  { href: "/documents", label: "Docs", icon: FolderOpen, bg: "from-slate-500 to-slate-700", shadow: "shadow-slate-500/30" },
-                ].map((service, index) => {
-                  const Icon = service.icon;
-                  return (
-                    <Link key={service.href} href={service.href} className={`group relative flex flex-col items-center justify-center gap-4 overflow-hidden border border-border bg-white p-5 text-center shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-transparent hover:shadow-lg dark:bg-[#1E1E1E] ${index % 2 === 0 ? "rounded-[2rem_2.5rem_2rem_2.5rem]" : "rounded-[2.5rem_2rem_2.5rem_2rem]"}`}>
-                      <div className={`absolute inset-0 bg-gradient-to-br ${service.bg} opacity-0 transition-opacity duration-300 group-hover:opacity-[0.04]`} />
-                      <div className={`relative flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${service.bg} shadow-lg ${service.shadow} transition-transform duration-300 group-hover:rotate-3 group-hover:scale-110`}>
-                        <Icon className="h-7 w-7 text-white" />
-                      </div>
-                      <span className="relative z-10 text-sm font-black text-text-primary">{t(service.label)}</span>
-                    </Link>
-                  );
-                })}
-              </div>
-            </section>
+    <>
+      {/* Mobile view: hidden on lg screens, visible on mobile/tablet */}
+      <div className="block lg:hidden bg-white min-h-screen pb-24 max-w-[420px] mx-auto overflow-hidden -m-3 sm:-m-4 lg:-m-6">
+        {/* SECTION 1 - Top Header */}
+        <div className="px-5 pt-10 pb-5 flex justify-between items-start bg-white">
+          <div>
+            <p className="text-gray-500 text-xs font-medium flex items-center gap-1">
+              {t(greeting().charAt(0).toUpperCase() + greeting().slice(1))} <span className="text-base">👋</span>
+            </p>
+            <h1 className="text-lg font-bold text-gray-900 leading-tight mt-0.5">
+              {user?.name || t("Resident")}
+            </h1>
+            <p className="text-gray-400 text-[11px] font-medium mt-0.5">
+              {user?.societyName || t("Your society")}
+            </p>
           </div>
-
-          <aside className="flex w-full flex-col gap-6 lg:w-1/3 xl:w-[30%]">
-            <div className="relative rounded-[2rem_2.5rem_2rem_2.5rem] border border-border bg-white p-5 shadow-sm dark:bg-[#1E1E1E] lg:p-6">
-              <div className="mb-4 flex items-center justify-between">
-                <h3 className="text-lg font-black tracking-tight text-text-primary">{t("Announcements")}</h3>
-                <Link href="/notices" className="flex h-8 w-8 items-center justify-center rounded-full bg-surface"><MoreHorizontal className="h-5 w-5 text-text-secondary" /></Link>
-              </div>
-              <div className="relative h-[170px] overflow-hidden">
-                {notices.length === 0 ? <EmptyMiniState text={t("No notices posted yet.")} /> : (
-                  <div className="space-y-4 border-l-2 border-border pl-4">
-                    {notices.slice(0, 4).map((notice, index) => (
-                      <div key={notice.id} className="relative">
-                        <span className={`absolute -left-[21px] top-1.5 h-2.5 w-2.5 rounded-full ring-4 ring-white dark:ring-slate-900 ${index === 0 ? "bg-primary" : "bg-slate-300"}`} />
-                        <p className="mb-1 text-[11px] font-black uppercase tracking-wider text-primary">{formatShortDate(notice.createdAt, language)}</p>
-                        <h4 className="line-clamp-1 text-sm font-black text-text-primary">{notice.title}</h4>
-                        <p className="mt-1 text-xs font-semibold text-text-secondary">{notice.category}</p>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-              <div className="pointer-events-none absolute inset-x-0 bottom-0 flex h-24 items-end justify-center rounded-b-[2rem] bg-gradient-to-t from-white via-white to-transparent pb-5 dark:from-slate-900 dark:via-slate-900">
-                <Link href="/notices" className="pointer-events-auto text-sm font-black text-primary hover:underline">{t("View All Notices")}</Link>
-              </div>
+          <div className="relative">
+            <div className="w-11 h-11 rounded-full bg-[#F97316] flex items-center justify-center text-white text-lg font-bold overflow-hidden">
+              {user?.name?.slice(0, 1) || "R"}
             </div>
-
-            <div className="relative rounded-[2.5rem_2rem_2.5rem_2rem] border border-border bg-white p-5 shadow-sm dark:bg-[#1E1E1E] lg:p-6">
-              <div className="mb-4 flex items-center justify-between">
-                <h3 className="text-lg font-black tracking-tight text-text-primary">{t("Events & Calendar")}</h3>
-                <Link href="/events" className="flex h-8 w-8 items-center justify-center rounded-full bg-surface"><CalendarCheck className="h-5 w-5 text-text-secondary" /></Link>
-              </div>
-              <div className="relative h-[170px] overflow-hidden">
-                {events.length === 0 ? <EmptyMiniState text={t("No upcoming events.")} /> : (
-                  <div className="space-y-1">
-                    {events.slice(0, 4).map((event) => (
-                      <Link key={event.id} href="/events" className="group flex items-center gap-3 rounded-xl border border-transparent p-2 transition-colors hover:border-border hover:bg-surface">
-                        <div className="flex h-11 w-11 shrink-0 flex-col items-center justify-center rounded-xl border border-primary/20 bg-primary/10">
-                          <span className="text-[10px] font-black uppercase leading-tight text-primary">{new Date(event.startDate).toLocaleDateString(language === "hi" ? "hi-IN" : language === "mr" ? "mr-IN" : "en-IN", { month: "short" })}</span>
-                          <span className="text-lg font-black leading-none text-primary">{new Date(event.startDate).getDate()}</span>
-                        </div>
-                        <div className="min-w-0">
-                          <h4 className="truncate text-sm font-black text-text-primary">{event.title}</h4>
-                          <p className="mt-0.5 truncate text-xs font-semibold text-text-secondary">{event.venue || t("Society")} · {formatShortTime(event.startDate, language)}</p>
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
-                )}
-              </div>
-              <div className="pointer-events-none absolute inset-x-0 bottom-0 flex h-24 items-end justify-center rounded-b-[2rem] bg-gradient-to-t from-white via-white to-transparent pb-5 dark:from-slate-900 dark:via-slate-900">
-                <Link href="/events" className="pointer-events-auto text-sm font-black text-primary hover:underline">{t("View All Events")}</Link>
-              </div>
+            <div className="absolute -top-0.5 -right-0.5 bg-[#EF4444] text-white text-[8px] font-bold w-4 h-4 rounded-full flex items-center justify-center border-[1.5px] border-white">
+              5
             </div>
+          </div>
+        </div>
 
-            <Link href="/parking" className="group relative block h-[220px] overflow-hidden rounded-[2rem_2.5rem_2rem_2.5rem] border border-border bg-white shadow-sm transition-all duration-500 hover:border-emerald-200 dark:bg-[#1E1E1E]">
-              <div className="absolute bottom-0 right-0 z-0 h-44 w-56">
-                <img src="https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&w=600&q=80" alt={t("Parking")} className="h-full w-full object-cover" />
-                <div className="absolute inset-0 bg-[linear-gradient(to_right,#fff_0%,#fff_30%,transparent_100%)] dark:bg-[linear-gradient(to_right,#1E1E1E_0%,#1E1E1E_30%,transparent_100%)]" />
-                <div className="absolute inset-0 bg-[linear-gradient(to_top,#fff_0%,transparent_60%)] dark:bg-[linear-gradient(to_top,#1E1E1E_0%,transparent_60%)]" />
-              </div>
-              <div className="absolute inset-0 z-10 flex flex-col justify-between p-6 lg:p-7">
-                <div className="flex items-start justify-between">
-                  <div className="flex flex-col items-start gap-2">
-                    <h3 className="text-xl font-black tracking-tight text-text-primary">{t("Parking")}</h3>
-                    <div className="flex items-center gap-1.5 rounded-full border border-emerald-200/80 bg-emerald-50 px-3 py-1.5 shadow-sm">
-                      <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
-                      <span className="text-[10px] font-black uppercase tracking-widest text-emerald-700">{parkingSlot ? t("Assigned") : t("Not assigned")}</span>
-                    </div>
-                  </div>
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border bg-white shadow-sm transition-colors group-hover:border-emerald-200 group-hover:bg-emerald-50 dark:bg-slate-800 dark:group-hover:bg-emerald-950">
-                    <Car className="h-5 w-5 text-text-secondary transition-colors group-hover:text-emerald-600" />
-                  </div>
-                </div>
-                <div>
-                  <p className="mb-1 text-[10px] font-black uppercase tracking-widest text-text-secondary">{t("Assigned Slot")}</p>
-                  <div className="flex items-end gap-3">
-                    <h3 className="font-mono text-4xl font-black tracking-tight text-text-primary lg:text-5xl">{parkingSlot?.slotNumber || "--"}</h3>
-                    <span className="pb-1 text-sm font-black text-text-secondary lg:pb-1.5">{parkingSlot?.level || parkingSlot?.wing || t("Parking")}</span>
-                  </div>
-                </div>
-              </div>
+        {/* SECTION 2 - Outstanding Balance Card */}
+        <div className="px-5 mb-5">
+          <div className="bg-[#F97316] rounded-2xl px-5 py-4 shadow-[0_4px_14px_rgba(249,115,22,0.3)] flex justify-between items-center">
+            <div>
+              <p className="text-white/80 text-[11px] font-medium mb-0.5">{t("Total Outstanding")}</p>
+              <h2 className="text-white text-2xl font-bold tracking-tight">₹ {formatCurrency(pendingDues).replace("₹", "").trim()}</h2>
+            </div>
+            <Link href="/my-bills" className="bg-white text-[#F97316] font-bold text-xs px-4 py-2 rounded-lg shadow-sm hover:bg-orange-50 transition-colors">
+              {t("Pay Now")}
             </Link>
-          </aside>
+          </div>
+        </div>
+
+        {/* SECTION 3 - Stats Row */}
+        <div className="px-5 mb-6">
+          <div className="bg-white rounded-2xl py-4 px-2 shadow-[0_1px_8px_rgba(0,0,0,0.06)] border border-gray-100 flex justify-between items-center">
+            <div className="flex-1 flex flex-col items-center">
+              <span className="text-[11px] font-semibold text-gray-500 mb-1">{t("Notices")}</span>
+              <span className="text-xl font-extrabold text-gray-900 leading-none">{String(unreadNotices).padStart(2, "0")}</span>
+              <span className="text-[10px] text-gray-400 mt-1 font-medium">{t("Unread")}</span>
+            </div>
+            <div className="w-px h-10 bg-gray-100"></div>
+            <div className="flex-1 flex flex-col items-center">
+              <span className="text-[11px] font-semibold text-gray-500 mb-1">{t("Complaints")}</span>
+              <span className="text-xl font-extrabold text-gray-900 leading-none">{String(openComplaints).padStart(2, "0")}</span>
+              <span className="text-[10px] text-gray-400 mt-1 font-medium">{t("Open")}</span>
+            </div>
+            <div className="w-px h-10 bg-gray-100"></div>
+            <div className="flex-1 flex flex-col items-center">
+              <span className="text-[11px] font-semibold text-gray-500 mb-1">{t("Visitors")}</span>
+              <span className="text-xl font-extrabold text-gray-900 leading-none">{String(visitorsToday).padStart(2, "0")}</span>
+              <span className="text-[10px] text-gray-400 mt-1 font-medium">{t("Today")}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* SECTION 4 - Quick Access Grid */}
+        <div className="px-5 mb-6">
+          <h3 className="text-[15px] font-bold text-gray-900 mb-4">{t("Quick Access")}</h3>
+          <div className="grid grid-cols-4 gap-y-5 gap-x-2">
+            {/* Row 1 */}
+            <Link href="/my-bills" className="flex flex-col items-center gap-1.5">
+              <div className="w-12 h-12 rounded-[14px] bg-[#FFF7ED] flex items-center justify-center">
+                <Receipt className="w-5 h-5 text-[#F97316]" strokeWidth={2} />
+              </div>
+              <span className="text-[11px] font-medium text-gray-700">{t("My Bills")}</span>
+            </Link>
+            <Link href="/complaints" className="flex flex-col items-center gap-1.5">
+              <div className="w-12 h-12 rounded-[14px] bg-[#FEF3C7] flex items-center justify-center">
+                <AlertTriangle className="w-5 h-5 text-[#D97706]" strokeWidth={2} />
+              </div>
+              <span className="text-[11px] font-medium text-gray-700">{t("Complaints")}</span>
+            </Link>
+            <Link href="/my-visitors" className="flex flex-col items-center gap-1.5">
+              <div className="w-12 h-12 rounded-[14px] bg-[#EFF6FF] flex items-center justify-center">
+                <UserCheck className="w-5 h-5 text-[#2563EB]" strokeWidth={2} />
+              </div>
+              <span className="text-[11px] font-medium text-gray-700">{t("Visitors")}</span>
+            </Link>
+            <Link href="/notices" className="flex flex-col items-center gap-1.5">
+              <div className="w-12 h-12 rounded-[14px] bg-[#FFF7ED] flex items-center justify-center">
+                <Megaphone className="w-5 h-5 text-[#F97316]" strokeWidth={2} />
+              </div>
+              <span className="text-[11px] font-medium text-gray-700">{t("Notices")}</span>
+            </Link>
+
+            {/* Row 2 */}
+            <Link href="/amenities" className="flex flex-col items-center gap-1.5">
+              <div className="w-12 h-12 rounded-[14px] bg-[#F5F3FF] flex items-center justify-center">
+                <Building2 className="w-5 h-5 text-[#8B5CF6]" strokeWidth={2} />
+              </div>
+              <span className="text-[11px] font-medium text-gray-700">{t("Amenities")}</span>
+            </Link>
+            <Link href="/packages" className="flex flex-col items-center gap-1.5">
+              <div className="w-12 h-12 rounded-[14px] bg-[#FEF2F2] flex items-center justify-center">
+                <Package className="w-5 h-5 text-[#EF4444]" strokeWidth={2} />
+              </div>
+              <span className="text-[11px] font-medium text-gray-700">{t("Packages")}</span>
+            </Link>
+            <Link href="/events" className="flex flex-col items-center gap-1.5">
+              <div className="w-12 h-12 rounded-[14px] bg-[#F5F3FF] flex items-center justify-center">
+                <CalendarCheck className="w-5 h-5 text-[#8B5CF6]" strokeWidth={2} />
+              </div>
+              <span className="text-[11px] font-medium text-gray-700">{t("Events")}</span>
+            </Link>
+            <button className="flex flex-col items-center gap-1.5">
+              <div className="w-12 h-12 rounded-[14px] bg-[#F3F4F6] flex items-center justify-center">
+                <MoreHorizontal className="w-5 h-5 text-[#6B7280]" strokeWidth={2} />
+              </div>
+              <span className="text-[11px] font-medium text-gray-700">{t("More")}</span>
+            </button>
+          </div>
+        </div>
+
+        {/* SECTION 5 - Go Digital Go Green Banner */}
+        <div className="px-5 mb-6">
+          <div className="bg-[#FFF7ED] rounded-2xl p-5 flex items-center justify-between relative overflow-hidden border border-orange-100">
+            <div className="relative z-10 flex-1 pr-3">
+              <h3 className="text-[#92400E] font-bold text-[15px] leading-tight mb-1">{t("Go Digital. Go Green.")}</h3>
+              <p className="text-[#92400E]/70 text-[11px] font-medium leading-relaxed">
+                {t("Get e-receipts &")}<br/>{t("secure payments.")}
+              </p>
+            </div>
+            {/* Phone illustration */}
+            <div className="relative z-10 flex-shrink-0">
+              <div className="relative w-14 h-20 bg-white rounded-xl border-2 border-[#FED7AA] shadow-sm flex flex-col items-center overflow-hidden">
+                <div className="w-5 h-1 bg-[#FED7AA] rounded-b-full"></div>
+                <div className="flex-1 flex flex-col items-center justify-center gap-1">
+                  <div className="w-7 h-7 rounded-full bg-[#D1FAE5] flex items-center justify-center">
+                    <span className="text-[#059669] text-xs font-bold">₹</span>
+                  </div>
+                  <div className="w-7 h-1 bg-[#D1FAE5] rounded-full"></div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
+
+      {/* Desktop view: visible on lg screens, hidden on mobile/tablet */}
+      <div className="hidden lg:block -m-3 min-h-full overflow-x-hidden bg-[#FFFBEB] p-3 text-[#1C1917] sm:-m-4 sm:p-4 lg:-m-6 lg:p-6">
+        <div className="relative mx-auto max-w-[1560px] pb-20 lg:pb-4">
+          
+          {/* SECTION 1: Welcome Header Card */}
+          <div className="relative overflow-hidden rounded-[1.5rem] border border-[#FED7AA] bg-white/90 p-6 shadow-[0_18px_58px_-50px_rgba(28,25,23,0.68)]">
+            <div className="absolute -right-24 -top-24 h-64 w-64 rounded-full bg-[#F97316]/10 blur-3xl" />
+            <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+              <div>
+                <span className="inline-flex min-h-7 items-center rounded-full border border-[#F97316]/20 bg-[#F97316]/10 px-3 text-[11px] font-bold uppercase tracking-[0.14em] text-[#F97316]">
+                  {t("Resident Hub")}
+                </span>
+                <h1 className="text-3xl font-extrabold tracking-tight text-gray-900 mt-2">
+                  {t(greeting().charAt(0).toUpperCase() + greeting().slice(1))}, {user?.name || t("Resident")} 👋
+                </h1>
+                <p className="text-sm font-semibold text-gray-500 mt-1">
+                  {user?.societyName || t("Your society")} · {user?.flatNumber || ""}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* MAIN GRID */}
+          <div className="mt-4 grid grid-cols-1 gap-4 xl:grid-cols-12">
+            
+            {/* LEFT COLUMN: Main Resident Actions (col-span-8) */}
+            <div className="xl:col-span-8 space-y-4">
+              
+              {/* Outstanding Dues and Quick Stats Side-by-Side */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                
+                {/* Outstanding Dues Card */}
+                <div className="bg-[#F97316] rounded-[1.5rem] p-6 shadow-[0_12px_30px_rgba(249,115,22,0.25)] text-white flex flex-col justify-between min-h-[160px]">
+                  <div>
+                    <p className="text-white/80 text-[11px] font-bold uppercase tracking-wider mb-1">{t("Outstanding Dues")}</p>
+                    <h2 className="text-3xl font-black tracking-tight">₹ {formatCurrency(pendingDues).replace("₹", "").trim()}</h2>
+                  </div>
+                  <div className="mt-4 flex justify-end">
+                    <Link href="/my-bills" className="bg-white text-[#F97316] font-bold text-xs px-5 py-2.5 rounded-xl shadow-md hover:bg-orange-50 transition-all hover:-translate-y-0.5">
+                      {t("Pay Now")}
+                    </Link>
+                  </div>
+                </div>
+
+                {/* Quick Stats Summary */}
+                <div className="bg-white border border-[#FED7AA] rounded-[1.5rem] p-5 shadow-[0_14px_48px_-40px_rgba(28,25,23,0.58)] flex flex-col justify-between">
+                  <h3 className="text-sm font-bold text-gray-800 mb-3 uppercase tracking-wider">{t("Activity Overview")}</h3>
+                  <div className="grid grid-cols-3 gap-3">
+                    <Link href="/notices" className="flex flex-col items-center bg-[#FFF7ED] rounded-2xl p-3 border border-orange-100 hover:border-orange-200 transition-colors">
+                      <span className="text-[11px] font-semibold text-[#C2410C]">{t("Notices")}</span>
+                      <span className="text-2xl font-extrabold text-[#9A3412] mt-1">{String(unreadNotices).padStart(2, "0")}</span>
+                      <span className="text-[10px] text-gray-500 mt-1 font-medium">{t("Unread")}</span>
+                    </Link>
+                    <Link href="/complaints" className="flex flex-col items-center bg-[#FEF3C7] rounded-2xl p-3 border border-yellow-100 hover:border-yellow-200 transition-colors">
+                      <span className="text-[11px] font-semibold text-[#B45309]">{t("Complaints")}</span>
+                      <span className="text-2xl font-extrabold text-[#92400E] mt-1">{String(openComplaints).padStart(2, "0")}</span>
+                      <span className="text-[10px] text-gray-500 mt-1 font-medium">{t("Open")}</span>
+                    </Link>
+                    <Link href="/my-visitors" className="flex flex-col items-center bg-[#EFF6FF] rounded-2xl p-3 border border-blue-100 hover:border-blue-200 transition-colors">
+                      <span className="text-[11px] font-semibold text-[#1D4ED8]">{t("Visitors")}</span>
+                      <span className="text-2xl font-extrabold text-[#1E40AF] mt-1">{String(visitorsToday).padStart(2, "0")}</span>
+                      <span className="text-[10px] text-gray-500 mt-1 font-medium">{t("Today")}</span>
+                    </Link>
+                  </div>
+                </div>
+
+              </div>
+
+              {/* Quick Access Services Card */}
+              <div className="rounded-[1.5rem] border border-[#FED7AA] bg-white p-5 shadow-[0_14px_48px_-40px_rgba(28,25,23,0.58)]">
+                <h2 className="text-lg font-bold text-gray-900 mb-4">{t("Quick Access Services")}</h2>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {[
+                    { href: "/my-bills", label: t("My Bills"), desc: t("Pay maintenance & utility dues"), icon: Receipt, bg: "bg-[#FFF7ED]", text: "text-[#F97316]", border: "border-orange-100" },
+                    { href: "/complaints", label: t("Complaints"), desc: t("Raise & track issues"), icon: AlertTriangle, bg: "bg-[#FEF3C7]", text: "text-[#D97706]", border: "border-yellow-100" },
+                    { href: "/my-visitors", label: t("Visitors"), desc: t("Approve & invite guests"), icon: UserCheck, bg: "bg-[#EFF6FF]", text: "text-[#2563EB]", border: "border-blue-100" },
+                    { href: "/notices", label: t("Notices"), desc: t("Read society circulars"), icon: Megaphone, bg: "bg-[#FFF7ED]", text: "text-[#F97316]", border: "border-orange-100" },
+                    { href: "/amenities", label: t("Amenities"), desc: t("Book clubhouse, gym, pool"), icon: Building2, bg: "bg-[#F5F3FF]", text: "text-[#8B5CF6]", border: "border-purple-100" },
+                    { href: "/packages", label: t("Packages"), desc: t("Track courier deliveries"), icon: Package, bg: "bg-[#FEF2F2]", text: "text-[#EF4444]", border: "border-red-100" },
+                    { href: "/events", label: t("Events"), desc: t("Upcoming society programs"), icon: CalendarCheck, bg: "bg-[#F5F3FF]", text: "text-[#8B5CF6]", border: "border-purple-100" },
+                    { href: "/directory", label: t("Resident Directory"), desc: t("Find your neighbors"), icon: User, bg: "bg-[#F3F4F6]", text: "text-[#6B7280]", border: "border-gray-100" },
+                  ].map((item) => {
+                    const Icon = item.icon;
+                    return (
+                      <Link key={item.href} href={item.href} className={`group flex flex-col p-4 rounded-[1.2rem] border ${item.border} bg-white hover:bg-orange-50/20 hover:border-[#FDBA74] transition-all hover:-translate-y-0.5`}>
+                        <div className={`w-10 h-10 rounded-xl ${item.bg} ${item.text} flex items-center justify-center mb-3 group-hover:scale-105 transition-transform`}>
+                          <Icon className="w-5 h-5" strokeWidth={2} />
+                        </div>
+                        <h3 className="text-sm font-bold text-gray-900">{item.label}</h3>
+                        <p className="text-[10px] font-semibold text-gray-500 mt-1 leading-snug">{item.desc}</p>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Go Green Banner */}
+              <div className="rounded-[1.5rem] border border-orange-100 bg-[#FFF7ED] p-6 shadow-sm flex items-center justify-between relative overflow-hidden">
+                <div className="absolute -right-12 -bottom-12 h-40 w-40 rounded-full bg-[#FED7AA]/20 blur-2xl" />
+                <div className="relative z-10 max-w-xl">
+                  <h3 className="text-[#92400E] font-bold text-lg mb-1">{t("Go Digital. Go Green.")}</h3>
+                  <p className="text-[#92400E]/80 text-sm font-semibold leading-relaxed">
+                    {t("Track maintenance bills, request visitor entries, and make secure instant payments online. Together let's save paper and build a modern digital society.")}
+                  </p>
+                </div>
+                <div className="relative z-10 hidden md:block shrink-0 ml-4">
+                  <div className="w-16 h-24 bg-white rounded-2xl border-2 border-[#FED7AA] shadow-md flex flex-col items-center overflow-hidden">
+                    <div className="w-6 h-1 bg-[#FED7AA] rounded-b-full"></div>
+                    <div className="flex-1 flex flex-col items-center justify-center gap-1.5">
+                      <div className="w-8 h-8 rounded-full bg-[#D1FAE5] flex items-center justify-center shadow-inner">
+                        <span className="text-[#059669] text-sm font-bold">₹</span>
+                      </div>
+                      <div className="w-8 h-1 bg-[#D1FAE5] rounded-full"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            {/* RIGHT COLUMN: Real-Time Sidebar Info (col-span-4) */}
+            <div className="xl:col-span-4 space-y-4">
+              
+              {/* Recent Notices */}
+              <div className="rounded-[1.5rem] border border-[#FED7AA] bg-white p-5 shadow-[0_14px_48px_-40px_rgba(28,25,23,0.58)]">
+                <div className="flex justify-between items-center mb-3">
+                  <h2 className="text-base font-bold text-gray-900">{t("Recent Notices")}</h2>
+                  <Link href="/notices" className="text-xs font-bold text-[#F97316] hover:underline">{t("View All")}</Link>
+                </div>
+                <div className="space-y-2.5">
+                  {notices.length === 0 ? (
+                    <p className="text-xs text-gray-500 font-medium py-3 text-center">{t("No notices published yet.")}</p>
+                  ) : (
+                    notices.slice(0, 3).map((notice) => (
+                      <Link key={notice.id} href="/notices" className="block p-3 rounded-xl border border-gray-100 hover:border-[#FDBA74] hover:bg-[#FFF7ED] transition-colors">
+                        <span className="inline-block px-2 py-0.5 bg-[#FFF7ED] text-[#F97316] text-[10px] font-bold rounded-md mb-1.5">
+                          {notice.category}
+                        </span>
+                        <h4 className="text-xs font-bold text-gray-800 line-clamp-1">{notice.title}</h4>
+                        <p className="text-[10px] text-gray-400 mt-1">{new Date(notice.createdAt).toLocaleDateString()}</p>
+                      </Link>
+                    ))
+                  )}
+                </div>
+              </div>
+
+              {/* Pending Packages */}
+              <div className="rounded-[1.5rem] border border-[#FED7AA] bg-white p-5 shadow-[0_14px_48px_-40px_rgba(28,25,23,0.58)]">
+                <div className="flex justify-between items-center mb-3">
+                  <h2 className="text-base font-bold text-gray-900">{t("Gate Deliveries")}</h2>
+                  <Link href="/packages" className="text-xs font-bold text-[#F97316] hover:underline">{t("View All")}</Link>
+                </div>
+                <div className="space-y-2.5">
+                  {packages.length === 0 ? (
+                    <p className="text-xs text-gray-500 font-medium py-3 text-center">{t("No packages at gate.")}</p>
+                  ) : (
+                    packages.filter(p => p.status === "received").slice(0, 3).map((pkg) => (
+                      <div key={pkg.id} className="flex justify-between items-center p-3 rounded-xl border border-gray-100 bg-gray-50">
+                        <div className="min-w-0">
+                          <h4 className="text-xs font-bold text-gray-800 truncate">{pkg.courierName || t("Courier")}</h4>
+                          <p className="text-[10px] text-gray-500 mt-0.5">{t("Received at gate")}</p>
+                        </div>
+                        <span className="px-2.5 py-1 bg-[#D1FAE5] text-[#065F46] text-[10px] font-bold rounded-lg shrink-0">
+                          {t("Waiting")}
+                        </span>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+
+              {/* Upcoming Events */}
+              <div className="rounded-[1.5rem] border border-[#FED7AA] bg-white p-5 shadow-[0_14px_48px_-40px_rgba(28,25,23,0.58)]">
+                <div className="flex justify-between items-center mb-3">
+                  <h2 className="text-base font-bold text-gray-900">{t("Upcoming Events")}</h2>
+                  <Link href="/events" className="text-xs font-bold text-[#F97316] hover:underline">{t("View All")}</Link>
+                </div>
+                <div className="space-y-2.5">
+                  {bootstrap?.events && bootstrap.events.length > 0 ? (
+                    bootstrap.events.slice(0, 2).map((ev) => (
+                      <div key={ev.id} className="p-3 rounded-xl border border-gray-100">
+                        <span className="inline-block px-2 py-0.5 bg-[#F5F3FF] text-[#8B5CF6] text-[10px] font-bold rounded-md mb-1.5">
+                          {ev.category}
+                        </span>
+                        <h4 className="text-xs font-bold text-gray-800 line-clamp-1">{ev.title}</h4>
+                        <p className="text-[10px] text-gray-500 mt-1">📍 {ev.venue || t("Society Premises")}</p>
+                        <p className="text-[9px] text-gray-400 mt-0.5">{new Date(ev.startDate).toLocaleDateString()}</p>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-xs text-gray-500 font-medium py-3 text-center">{t("No upcoming events scheduled.")}</p>
+                  )}
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+    </>
   );
 }
 
