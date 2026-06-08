@@ -137,7 +137,7 @@ export default function LoginPage() {
                 Join Society
               </Link>
             </p>
-            {/*
+            
             <p className="text-sm text-text-secondary mt-2">
               Chairman?{" "}
               <Link
@@ -147,7 +147,7 @@ export default function LoginPage() {
                 Create Society
               </Link>
             </p>
-            */}
+           
           </div>
         </div>
 

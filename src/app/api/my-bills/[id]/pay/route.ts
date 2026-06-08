@@ -65,9 +65,6 @@ export async function POST(
 
   const receiptNumber = generateSocietyReceiptNumber(bill.society.joinCode, year, sequence);
 
-  // Mock processing time
-  await new Promise((resolve) => setTimeout(resolve, 1500));
-
   const updated = await prisma.maintenanceBill.update({
     where: { id },
     data: {

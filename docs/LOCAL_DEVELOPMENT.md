@@ -52,9 +52,17 @@ Copy `.env.example` to `.env` and replace placeholder secrets before running ser
 
 Minimum current app variables:
 
-- `DATABASE_URL`
-- `DIRECT_URL`
+- `DATABASE_URL`: pooled Neon connection string used by the web app, API, and worker
+- `DIRECT_URL`: direct Neon connection string used by Prisma schema commands
 - `SESSION_SECRET`
+
+Verify the configured database before starting the app:
+
+```powershell
+npm run db:check
+```
+
+The check refuses non-Neon hosts and runs a real query against the configured database. Prisma runtime access also fails immediately when `DATABASE_URL` is missing instead of falling back to a local or dummy database.
 
 Future Phase 1/2 variables are already documented in `.env.example` for:
 

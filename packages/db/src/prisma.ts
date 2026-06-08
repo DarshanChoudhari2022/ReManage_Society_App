@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { Pool } from "pg";
@@ -18,13 +19,35 @@ export interface DatabaseRuntimeConfig {
 
 const globalForPrisma = globalThis as typeof globalThis & PrismaGlobals;
 
-export function getDatabaseTarget(connectionString = process.env.DATABASE_URL): string {
+export function requireDatabaseUrl(
+  connectionString = process.env.DATABASE_URL || process.env.DIRECT_URL,
+): string {
+  const value = connectionString?.trim();
+  if (!value) {
+    throw new Error(
+      "DATABASE_URL is missing. Add the pooled Neon connection string to the project .env file and restart the server.",
+    );
+  }
+
+  const parsed = new URL(value);
+  if (parsed.protocol !== "postgresql:" && parsed.protocol !== "postgres:") {
+    throw new Error("DATABASE_URL must use the postgresql:// or postgres:// protocol.");
+  }
+
+  return value;
+}
+
+export function getDatabaseTarget(
+  connectionString = process.env.DATABASE_URL || process.env.DIRECT_URL,
+): string {
   return redactDatabaseUrl(connectionString);
 }
 
 export function createPrismaPool(config: DatabaseRuntimeConfig = {}): Pool {
   return new Pool({
-    connectionString: config.connectionString ?? process.env.DATABASE_URL,
+    connectionString: requireDatabaseUrl(
+      config.connectionString ?? process.env.DATABASE_URL ?? process.env.DIRECT_URL,
+    ),
     max: config.poolMax ?? 5,
     idleTimeoutMillis: config.idleTimeoutMillis ?? 30_000,
     connectionTimeoutMillis: config.connectionTimeoutMillis ?? 5_000,

@@ -11,5 +11,6 @@ export {
   getPrismaClient,
   getPrismaPool,
   prisma,
+  requireDatabaseUrl,
 } from "./prisma.ts";
 export type { DatabaseRuntimeConfig } from "./prisma.ts";

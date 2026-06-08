@@ -23,7 +23,6 @@ export async function GET() {
       const startDate = new Date(parseInt(yearStr), parseInt(monthStr) - 1, 1);
       const endDate = new Date(parseInt(yearStr), parseInt(monthStr), 0, 23, 59, 59);
 
-      // ALL queries run in parallel — each individually protected with .catch()
       const [
         society,
         billStats,
@@ -39,7 +38,7 @@ export async function GET() {
         prisma.society.findUnique({
           where: { id: societyId },
           select: { openingBalance: true, totalFlats: true },
-        }).catch(() => null),
+        }),
         prisma.maintenanceBill.groupBy({
           by: ["status"],
           where: {
@@ -49,36 +48,36 @@ export async function GET() {
           },
           _sum: { amount: true, paidAmount: true },
           _count: { id: true },
-        }).catch(() => []),
+        }),
         prisma.flat.count({
           where: {
             societyId,
             isActive: true,
             users: { some: { role: { in: ["member", "tenant"] } } },
           },
-        }).catch(() => 0),
+        }),
         prisma.complaint.count({
           where: { societyId, status: { in: ["open", "in_progress"] } },
-        }).catch(() => 0),
+        }),
         prisma.visitor.count({
           where: {
             societyId,
             entryTime: { gte: new Date(new Date().setHours(0, 0, 0, 0)) },
           },
-        }).catch(() => 0),
-        prisma.poll.count({ where: { societyId, status: "active" } }).catch(() => 0),
+        }),
+        prisma.poll.count({ where: { societyId, status: "active" } }),
         prisma.expense.aggregate({
           where: { societyId, paidOn: { gte: startDate, lte: endDate } },
           _sum: { amount: true },
-        }).catch(() => ({ _sum: { amount: null } })),
+        }),
         prisma.maintenanceBill.aggregate({
           where: { societyId, status: { in: ["paid", "partial"] } },
           _sum: { paidAmount: true },
-        }).catch(() => ({ _sum: { paidAmount: null } })),
+        }),
         prisma.expense.aggregate({
           where: { societyId },
           _sum: { amount: true },
-        }).catch(() => ({ _sum: { amount: null } })),
+        }),
         prisma.maintenanceBill.findMany({
           where: {
             societyId,
@@ -99,7 +98,7 @@ export async function GET() {
           },
           orderBy: { updatedAt: "desc" },
           take: 8,
-        }).catch(() => []),
+        }),
       ]);
 
       const totalExpenses = expenseAggregate._sum.amount || 0;
@@ -108,7 +107,7 @@ export async function GET() {
       const fundBalance =
         (society?.openingBalance || 0) + totalIncome - totalAllExpenses;
 
-      const recentActivity = recentBills.map((b: any) => ({
+      const recentActivity = recentBills.map((b) => ({
         id: b.id,
         flatNumber: b.flat?.flatNumber || "—",
         ownerName: b.flat?.ownerName || b.flat?.users?.[0]?.name || "—",
@@ -125,7 +124,7 @@ export async function GET() {
       let partialCount = 0;
       let pendingCount = 0;
 
-      (billStats as any[]).forEach((stat: any) => {
+      billStats.forEach((stat) => {
         const collected = stat._sum?.paidAmount || 0;
         const total = stat._sum?.amount || 0;
         totalCollected += collected;
@@ -156,22 +155,6 @@ export async function GET() {
     return Response.json(data);
   } catch (error: unknown) {
     console.error("Dashboard API error:", error);
-    // Return fallback data so the UI doesn't break
-    return Response.json({
-      totalCollected: 0,
-      pendingAmount: 0,
-      totalExpenses: 0,
-      totalMembers: 0,
-      paidCount: 0,
-      partialCount: 0,
-      pendingCount: 0,
-      totalFlats: 0,
-      recentActivity: [],
-      period: getCurrentPeriod(),
-      fundBalance: 0,
-      openComplaints: 0,
-      visitorsToday: 0,
-      activePolls: 0,
-    });
+    return Response.json({ error: "Unable to load dashboard data" }, { status: 503 });
   }
 }

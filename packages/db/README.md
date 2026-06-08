@@ -26,6 +26,7 @@ The current Next.js app still imports from `src/lib/prisma.ts`; that file now re
 Run database commands from the repository root:
 
 ```powershell
+npm run db:check
 npm run db:validate
 npm run db:generate
 npm run typecheck:db
@@ -33,6 +34,8 @@ npm run db:migrate:deploy
 npm run db:seed
 npm run db:reset
 ```
+
+`DATABASE_URL` must be the pooled Neon PostgreSQL URL used by application traffic. Set `DIRECT_URL` to the matching direct Neon URL for migrations and schema operations. No runtime dummy database fallback is provided.
 
 The package-level scripts delegate to the root scripts so future workspace commands can target `@society/db` without duplicating Prisma configuration.
 
