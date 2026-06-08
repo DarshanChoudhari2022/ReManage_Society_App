@@ -8,6 +8,6 @@ export default defineConfig({
   schema: schemaPath,
   migrations: { path: migrationsPath },
   datasource: {
-    url: env('DIRECT_URL'),
+    url: process.env.DIRECT_URL ? env('DIRECT_URL') : 'postgresql://dummy:dummy@localhost:5432/dummy',
   },
 })
