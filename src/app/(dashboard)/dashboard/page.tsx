@@ -639,16 +639,16 @@ function ResidentDashboard({
   return (
     <>
       {/* Mobile view: hidden on lg screens, visible on mobile/tablet */}
-      <div className="block lg:hidden w-full pb-24 text-gray-900 space-y-4">
-        {/* SECTION 1 - Top Header (directly on cream, clean typography) */}
+      <div className="block lg:hidden w-full pb-24 text-gray-900 dark:text-[#FAF7F5] space-y-4">
+        {/* SECTION 1 - Top Header (directly on cream/dark, clean typography) */}
         <div className="px-1 pt-4 pb-2">
-          <p className="text-gray-500 text-[10px] font-bold uppercase tracking-[0.14em]">
+          <p className="text-gray-500 dark:text-gray-400 text-[10px] font-bold uppercase tracking-[0.14em]">
             {t(greeting().charAt(0).toUpperCase() + greeting().slice(1))} <span className="text-base">👋</span>
           </p>
-          <h1 className="text-2xl font-black text-gray-900 mt-1 leading-tight">
+          <h1 className="text-2xl font-black text-gray-900 dark:text-[#FAF7F5] mt-1 leading-tight">
             {user?.name || t("Resident")}
           </h1>
-          <p className="text-gray-500 text-xs font-semibold mt-1">
+          <p className="text-gray-500 dark:text-gray-400 text-xs font-semibold mt-1">
             {user?.societyName || t("Your society")} · {user?.flatNumber || ""}
           </p>
         </div>
@@ -665,99 +665,99 @@ function ResidentDashboard({
         </div>
 
         {/* SECTION 3 - Stats Row */}
-        <div className="bg-white rounded-2xl py-4 px-2 shadow-[0_2px_12px_rgba(0,0,0,0.04)] border border-[#FED7AA]/40 flex justify-between items-center">
+        <div className="bg-white dark:bg-[#1E1E1E] rounded-2xl py-4 px-2 shadow-[0_2px_12px_rgba(0,0,0,0.04)] dark:shadow-[0_2px_12px_rgba(0,0,0,0.3)] border border-[#FED7AA]/40 dark:border-[#303030] flex justify-between items-center">
           <div className="flex-1 flex flex-col items-center">
-            <span className="text-[11px] font-bold text-gray-500 mb-1">{t("Notices")}</span>
-            <span className="text-xl font-extrabold text-[#F97316] leading-none">{String(unreadNotices).padStart(2, "0")}</span>
-            <span className="text-[10px] text-gray-400 mt-1 font-medium">{t("Unread")}</span>
+            <span className="text-[11px] font-bold text-gray-500 dark:text-gray-400 mb-1">{t("Notices")}</span>
+            <span className="text-xl font-extrabold text-[#F97316] dark:text-[#FB923C] leading-none">{String(unreadNotices).padStart(2, "0")}</span>
+            <span className="text-[10px] text-gray-400 dark:text-gray-500 mt-1 font-medium">{t("Unread")}</span>
           </div>
-          <div className="w-px h-10 bg-gray-100"></div>
+          <div className="w-px h-10 bg-gray-100 dark:bg-[#303030]"></div>
           <div className="flex-1 flex flex-col items-center">
-            <span className="text-[11px] font-bold text-gray-500 mb-1">{t("Complaints")}</span>
-            <span className="text-xl font-extrabold text-gray-900 leading-none">{String(openComplaints).padStart(2, "0")}</span>
-            <span className="text-[10px] text-gray-400 mt-1 font-medium">{t("Open")}</span>
+            <span className="text-[11px] font-bold text-gray-500 dark:text-gray-400 mb-1">{t("Complaints")}</span>
+            <span className="text-xl font-extrabold text-gray-900 dark:text-[#FAF7F5] leading-none">{String(openComplaints).padStart(2, "0")}</span>
+            <span className="text-[10px] text-gray-400 dark:text-gray-500 mt-1 font-medium">{t("Open")}</span>
           </div>
-          <div className="w-px h-10 bg-gray-100"></div>
+          <div className="w-px h-10 bg-gray-100 dark:bg-[#303030]"></div>
           <div className="flex-1 flex flex-col items-center">
-            <span className="text-[11px] font-bold text-gray-500 mb-1">{t("Visitors")}</span>
-            <span className="text-xl font-extrabold text-[#2563EB] leading-none">{String(visitorsToday).padStart(2, "0")}</span>
-            <span className="text-[10px] text-gray-400 mt-1 font-medium">{t("Today")}</span>
+            <span className="text-[11px] font-bold text-gray-500 dark:text-gray-400 mb-1">{t("Visitors")}</span>
+            <span className="text-xl font-extrabold text-[#2563EB] dark:text-[#60A5FA] leading-none">{String(visitorsToday).padStart(2, "0")}</span>
+            <span className="text-[10px] text-gray-400 dark:text-gray-500 mt-1 font-medium">{t("Today")}</span>
           </div>
         </div>
 
-        {/* SECTION 4 - Quick Access Grid (wrapped in white rounded card) */}
-        <div className="bg-white rounded-2xl p-4 shadow-[0_2px_12px_rgba(0,0,0,0.04)] border border-[#FED7AA]/40">
-          <h3 className="text-xs font-bold text-gray-800 uppercase tracking-wider mb-4 px-1">{t("Quick Access")}</h3>
+        {/* SECTION 4 - Quick Access Grid (wrapped in card) */}
+        <div className="bg-white dark:bg-[#1E1E1E] rounded-2xl p-4 shadow-[0_2px_12px_rgba(0,0,0,0.04)] dark:shadow-[0_2px_12px_rgba(0,0,0,0.3)] border border-[#FED7AA]/40 dark:border-[#303030]">
+          <h3 className="text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wider mb-4 px-1">{t("Quick Access")}</h3>
           <div className="grid grid-cols-4 gap-y-5 gap-x-2">
             {/* Row 1 */}
             <Link href="/my-bills" className="flex flex-col items-center gap-1.5">
-              <div className="w-11 h-11 rounded-[12px] bg-[#FFF7ED] flex items-center justify-center border border-orange-50">
-                <Receipt className="w-5 h-5 text-[#F97316]" strokeWidth={2} />
+              <div className="w-11 h-11 rounded-[12px] bg-[#FFF7ED] dark:bg-[#7C2D12]/30 flex items-center justify-center border border-orange-50 dark:border-[#7C2D12]/40">
+                <Receipt className="w-5 h-5 text-[#F97316] dark:text-[#FB923C]" strokeWidth={2} />
               </div>
-              <span className="text-[11px] font-semibold text-gray-700">{t("My Bills")}</span>
+              <span className="text-[11px] font-semibold text-gray-700 dark:text-gray-300">{t("My Bills")}</span>
             </Link>
             <Link href="/complaints" className="flex flex-col items-center gap-1.5">
-              <div className="w-11 h-11 rounded-[12px] bg-[#FEF3C7] flex items-center justify-center border border-yellow-50">
-                <AlertTriangle className="w-5 h-5 text-[#D97706]" strokeWidth={2} />
+              <div className="w-11 h-11 rounded-[12px] bg-[#FEF3C7] dark:bg-[#78350F]/30 flex items-center justify-center border border-yellow-50 dark:border-[#78350F]/40">
+                <AlertTriangle className="w-5 h-5 text-[#D97706] dark:text-[#FBBF24]" strokeWidth={2} />
               </div>
-              <span className="text-[11px] font-semibold text-gray-700">{t("Complaints")}</span>
+              <span className="text-[11px] font-semibold text-gray-700 dark:text-gray-300">{t("Complaints")}</span>
             </Link>
             <Link href="/my-visitors" className="flex flex-col items-center gap-1.5">
-              <div className="w-11 h-11 rounded-[12px] bg-[#EFF6FF] flex items-center justify-center border border-blue-50">
-                <UserCheck className="w-5 h-5 text-[#2563EB]" strokeWidth={2} />
+              <div className="w-11 h-11 rounded-[12px] bg-[#EFF6FF] dark:bg-[#1E3A8A]/30 flex items-center justify-center border border-blue-50 dark:border-[#1E3A8A]/40">
+                <UserCheck className="w-5 h-5 text-[#2563EB] dark:text-[#60A5FA]" strokeWidth={2} />
               </div>
-              <span className="text-[11px] font-semibold text-gray-700">{t("Visitors")}</span>
+              <span className="text-[11px] font-semibold text-gray-700 dark:text-gray-300">{t("Visitors")}</span>
             </Link>
             <Link href="/notices" className="flex flex-col items-center gap-1.5">
-              <div className="w-11 h-11 rounded-[12px] bg-[#FFF7ED] flex items-center justify-center border border-orange-50">
-                <Megaphone className="w-5 h-5 text-[#F97316]" strokeWidth={2} />
+              <div className="w-11 h-11 rounded-[12px] bg-[#FFF7ED] dark:bg-[#7C2D12]/30 flex items-center justify-center border border-orange-50 dark:border-[#7C2D12]/40">
+                <Megaphone className="w-5 h-5 text-[#F97316] dark:text-[#FB923C]" strokeWidth={2} />
               </div>
-              <span className="text-[11px] font-semibold text-gray-700">{t("Notices")}</span>
+              <span className="text-[11px] font-semibold text-gray-700 dark:text-gray-300">{t("Notices")}</span>
             </Link>
 
             {/* Row 2 */}
             <Link href="/amenities" className="flex flex-col items-center gap-1.5">
-              <div className="w-11 h-11 rounded-[12px] bg-[#F5F3FF] flex items-center justify-center border border-purple-50">
-                <Building2 className="w-5 h-5 text-[#8B5CF6]" strokeWidth={2} />
+              <div className="w-11 h-11 rounded-[12px] bg-[#F5F3FF] dark:bg-[#4C1D95]/30 flex items-center justify-center border border-purple-50 dark:border-[#4C1D95]/40">
+                <Building2 className="w-5 h-5 text-[#8B5CF6] dark:text-[#A78BFA]" strokeWidth={2} />
               </div>
-              <span className="text-[11px] font-semibold text-gray-700">{t("Amenities")}</span>
+              <span className="text-[11px] font-semibold text-gray-700 dark:text-gray-300">{t("Amenities")}</span>
             </Link>
             <Link href="/packages" className="flex flex-col items-center gap-1.5">
-              <div className="w-11 h-11 rounded-[12px] bg-[#FEF2F2] flex items-center justify-center border border-red-50">
-                <Package className="w-5 h-5 text-[#EF4444]" strokeWidth={2} />
+              <div className="w-11 h-11 rounded-[12px] bg-[#FEF2F2] dark:bg-[#7F1D1D]/30 flex items-center justify-center border border-red-50 dark:border-[#7F1D1D]/40">
+                <Package className="w-5 h-5 text-[#EF4444] dark:text-[#F87171]" strokeWidth={2} />
               </div>
-              <span className="text-[11px] font-semibold text-gray-700">{t("Packages")}</span>
+              <span className="text-[11px] font-semibold text-gray-700 dark:text-gray-300">{t("Packages")}</span>
             </Link>
             <Link href="/events" className="flex flex-col items-center gap-1.5">
-              <div className="w-11 h-11 rounded-[12px] bg-[#F5F3FF] flex items-center justify-center border border-purple-50">
-                <CalendarCheck className="w-5 h-5 text-[#8B5CF6]" strokeWidth={2} />
+              <div className="w-11 h-11 rounded-[12px] bg-[#F5F3FF] dark:bg-[#4C1D95]/30 flex items-center justify-center border border-purple-50 dark:border-[#4C1D95]/40">
+                <CalendarCheck className="w-5 h-5 text-[#8B5CF6] dark:text-[#A78BFA]" strokeWidth={2} />
               </div>
-              <span className="text-[11px] font-semibold text-gray-700">{t("Events")}</span>
+              <span className="text-[11px] font-semibold text-gray-700 dark:text-gray-300">{t("Events")}</span>
             </Link>
             <button className="flex flex-col items-center gap-1.5">
-              <div className="w-11 h-11 rounded-[12px] bg-[#F3F4F6] flex items-center justify-center border border-gray-100">
-                <MoreHorizontal className="w-5 h-5 text-[#6B7280]" strokeWidth={2} />
+              <div className="w-11 h-11 rounded-[12px] bg-[#F3F4F6] dark:bg-[#374151]/40 flex items-center justify-center border border-gray-100 dark:border-[#374151]/60">
+                <MoreHorizontal className="w-5 h-5 text-[#6B7280] dark:text-[#9CA3AF]" strokeWidth={2} />
               </div>
-              <span className="text-[11px] font-semibold text-gray-700">{t("More")}</span>
+              <span className="text-[11px] font-semibold text-gray-700 dark:text-gray-300">{t("More")}</span>
             </button>
           </div>
         </div>
 
         {/* SECTION 5 - Go Digital Go Green Banner */}
-        <div className="bg-[#FFF7ED] rounded-2xl p-4 flex items-center justify-between relative overflow-hidden border border-orange-100 shadow-sm">
+        <div className="bg-[#FFF7ED] dark:bg-[#7C2D12]/20 rounded-2xl p-4 flex items-center justify-between relative overflow-hidden border border-orange-100 dark:border-[#7C2D12]/40 shadow-sm">
           <div className="relative z-10 flex-1 pr-3">
-            <h3 className="text-[#92400E] font-bold text-sm leading-tight mb-1">{t("Go Digital. Go Green.")}</h3>
-            <p className="text-[#92400E]/70 text-[10px] font-semibold leading-relaxed">
+            <h3 className="text-[#92400E] dark:text-[#FDBA74] font-bold text-sm leading-tight mb-1">{t("Go Digital. Go Green.")}</h3>
+            <p className="text-[#92400E]/70 dark:text-[#FDBA74]/60 text-[10px] font-semibold leading-relaxed">
               {t("Get e-receipts &")}<br/>{t("secure payments.")}
             </p>
           </div>
           {/* Phone illustration */}
           <div className="relative z-10 flex-shrink-0">
-            <div className="relative w-12 h-16 bg-white rounded-xl border border-[#FED7AA] shadow-sm flex flex-col items-center overflow-hidden">
-              <div className="w-4 h-0.5 bg-[#FED7AA] rounded-b-full"></div>
+            <div className="relative w-12 h-16 bg-white dark:bg-[#1E1E1E] rounded-xl border border-[#FED7AA] dark:border-[#303030] shadow-sm flex flex-col items-center overflow-hidden">
+              <div className="w-4 h-0.5 bg-[#FED7AA] dark:bg-[#303030] rounded-b-full"></div>
               <div className="flex-1 flex flex-col items-center justify-center gap-1">
-                <div className="w-6 h-6 rounded-full bg-[#D1FAE5] flex items-center justify-center">
-                  <span className="text-[#059669] text-[10px] font-bold">₹</span>
+                <div className="w-6 h-6 rounded-full bg-[#D1FAE5] dark:bg-[#064E3B]/50 flex items-center justify-center">
+                  <span className="text-[#059669] dark:text-[#6EE7B7] text-[10px] font-bold">₹</span>
                 </div>
               </div>
             </div>
@@ -766,21 +766,21 @@ function ResidentDashboard({
       </div>
 
       {/* Desktop view: visible on lg screens, hidden on mobile/tablet */}
-      <div className="hidden lg:block -m-3 min-h-full overflow-x-hidden bg-[#FFFBEB] p-3 text-[#1C1917] sm:-m-4 sm:p-4 lg:-m-6 lg:p-6">
+      <div className="hidden lg:block -m-3 min-h-full overflow-x-hidden bg-[#FFFBEB] dark:bg-[#141414] p-3 text-[#1C1917] dark:text-[#FAF7F5] sm:-m-4 sm:p-4 lg:-m-6 lg:p-6">
         <div className="relative mx-auto max-w-[1560px] pb-20 lg:pb-4">
           
           {/* SECTION 1: Welcome Header Card */}
-          <div className="relative overflow-hidden rounded-[1.5rem] border border-[#FED7AA] bg-white/90 p-6 shadow-[0_18px_58px_-50px_rgba(28,25,23,0.68)]">
+          <div className="relative overflow-hidden rounded-[1.5rem] border border-[#FED7AA] dark:border-[#303030] bg-white/90 dark:bg-[#1E1E1E]/90 p-6 shadow-[0_18px_58px_-50px_rgba(28,25,23,0.68)]">
             <div className="absolute -right-24 -top-24 h-64 w-64 rounded-full bg-[#F97316]/10 blur-3xl" />
             <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
               <div>
-                <span className="inline-flex min-h-7 items-center rounded-full border border-[#F97316]/20 bg-[#F97316]/10 px-3 text-[11px] font-bold uppercase tracking-[0.14em] text-[#F97316]">
+                <span className="inline-flex min-h-7 items-center rounded-full border border-[#F97316]/20 bg-[#F97316]/10 px-3 text-[11px] font-bold uppercase tracking-[0.14em] text-[#F97316] dark:text-[#FB923C]">
                   {t("Resident Hub")}
                 </span>
-                <h1 className="text-3xl font-extrabold tracking-tight text-gray-900 mt-2">
+                <h1 className="text-3xl font-extrabold tracking-tight text-gray-900 dark:text-[#FAF7F5] mt-2">
                   {t(greeting().charAt(0).toUpperCase() + greeting().slice(1))}, {user?.name || t("Resident")} 👋
                 </h1>
-                <p className="text-sm font-semibold text-gray-500 mt-1">
+                <p className="text-sm font-semibold text-gray-500 dark:text-gray-400 mt-1">
                   {user?.societyName || t("Your society")} · {user?.flatNumber || ""}
                 </p>
               </div>
@@ -810,23 +810,23 @@ function ResidentDashboard({
                 </div>
 
                 {/* Quick Stats Summary */}
-                <div className="bg-white border border-[#FED7AA] rounded-[1.5rem] p-5 shadow-[0_14px_48px_-40px_rgba(28,25,23,0.58)] flex flex-col justify-between">
-                  <h3 className="text-sm font-bold text-gray-800 mb-3 uppercase tracking-wider">{t("Activity Overview")}</h3>
+                <div className="bg-white dark:bg-[#1E1E1E] border border-[#FED7AA] dark:border-[#303030] rounded-[1.5rem] p-5 shadow-[0_14px_48px_-40px_rgba(28,25,23,0.58)] flex flex-col justify-between">
+                  <h3 className="text-sm font-bold text-gray-800 dark:text-gray-200 mb-3 uppercase tracking-wider">{t("Activity Overview")}</h3>
                   <div className="grid grid-cols-3 gap-3">
-                    <Link href="/notices" className="flex flex-col items-center bg-[#FFF7ED] rounded-2xl p-3 border border-orange-100 hover:border-orange-200 transition-colors">
-                      <span className="text-[11px] font-semibold text-[#C2410C]">{t("Notices")}</span>
-                      <span className="text-2xl font-extrabold text-[#9A3412] mt-1">{String(unreadNotices).padStart(2, "0")}</span>
-                      <span className="text-[10px] text-gray-500 mt-1 font-medium">{t("Unread")}</span>
+                    <Link href="/notices" className="flex flex-col items-center bg-[#FFF7ED] dark:bg-[#7C2D12]/25 rounded-2xl p-3 border border-orange-100 dark:border-[#7C2D12]/40 hover:border-orange-200 dark:hover:border-[#9A3412] transition-colors">
+                      <span className="text-[11px] font-semibold text-[#C2410C] dark:text-[#FDBA74]">{t("Notices")}</span>
+                      <span className="text-2xl font-extrabold text-[#9A3412] dark:text-[#FB923C] mt-1">{String(unreadNotices).padStart(2, "0")}</span>
+                      <span className="text-[10px] text-gray-500 dark:text-gray-400 mt-1 font-medium">{t("Unread")}</span>
                     </Link>
-                    <Link href="/complaints" className="flex flex-col items-center bg-[#FEF3C7] rounded-2xl p-3 border border-yellow-100 hover:border-yellow-200 transition-colors">
-                      <span className="text-[11px] font-semibold text-[#B45309]">{t("Complaints")}</span>
-                      <span className="text-2xl font-extrabold text-[#92400E] mt-1">{String(openComplaints).padStart(2, "0")}</span>
-                      <span className="text-[10px] text-gray-500 mt-1 font-medium">{t("Open")}</span>
+                    <Link href="/complaints" className="flex flex-col items-center bg-[#FEF3C7] dark:bg-[#78350F]/25 rounded-2xl p-3 border border-yellow-100 dark:border-[#78350F]/40 hover:border-yellow-200 dark:hover:border-[#92400E] transition-colors">
+                      <span className="text-[11px] font-semibold text-[#B45309] dark:text-[#FDE68A]">{t("Complaints")}</span>
+                      <span className="text-2xl font-extrabold text-[#92400E] dark:text-[#FBBF24] mt-1">{String(openComplaints).padStart(2, "0")}</span>
+                      <span className="text-[10px] text-gray-500 dark:text-gray-400 mt-1 font-medium">{t("Open")}</span>
                     </Link>
-                    <Link href="/my-visitors" className="flex flex-col items-center bg-[#EFF6FF] rounded-2xl p-3 border border-blue-100 hover:border-blue-200 transition-colors">
-                      <span className="text-[11px] font-semibold text-[#1D4ED8]">{t("Visitors")}</span>
-                      <span className="text-2xl font-extrabold text-[#1E40AF] mt-1">{String(visitorsToday).padStart(2, "0")}</span>
-                      <span className="text-[10px] text-gray-500 mt-1 font-medium">{t("Today")}</span>
+                    <Link href="/my-visitors" className="flex flex-col items-center bg-[#EFF6FF] dark:bg-[#1E3A8A]/25 rounded-2xl p-3 border border-blue-100 dark:border-[#1E3A8A]/40 hover:border-blue-200 dark:hover:border-[#2563EB] transition-colors">
+                      <span className="text-[11px] font-semibold text-[#1D4ED8] dark:text-[#93C5FD]">{t("Visitors")}</span>
+                      <span className="text-2xl font-extrabold text-[#1E40AF] dark:text-[#60A5FA] mt-1">{String(visitorsToday).padStart(2, "0")}</span>
+                      <span className="text-[10px] text-gray-500 dark:text-gray-400 mt-1 font-medium">{t("Today")}</span>
                     </Link>
                   </div>
                 </div>
@@ -834,27 +834,27 @@ function ResidentDashboard({
               </div>
 
               {/* Quick Access Services Card */}
-              <div className="rounded-[1.5rem] border border-[#FED7AA] bg-white p-5 shadow-[0_14px_48px_-40px_rgba(28,25,23,0.58)]">
-                <h2 className="text-lg font-bold text-gray-900 mb-4">{t("Quick Access Services")}</h2>
+              <div className="rounded-[1.5rem] border border-[#FED7AA] dark:border-[#303030] bg-white dark:bg-[#1E1E1E] p-5 shadow-[0_14px_48px_-40px_rgba(28,25,23,0.58)]">
+                <h2 className="text-lg font-bold text-gray-900 dark:text-[#FAF7F5] mb-4">{t("Quick Access Services")}</h2>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   {[
-                    { href: "/my-bills", label: t("My Bills"), desc: t("Pay maintenance & utility dues"), icon: Receipt, bg: "bg-[#FFF7ED]", text: "text-[#F97316]", border: "border-orange-100" },
-                    { href: "/complaints", label: t("Complaints"), desc: t("Raise & track issues"), icon: AlertTriangle, bg: "bg-[#FEF3C7]", text: "text-[#D97706]", border: "border-yellow-100" },
-                    { href: "/my-visitors", label: t("Visitors"), desc: t("Approve & invite guests"), icon: UserCheck, bg: "bg-[#EFF6FF]", text: "text-[#2563EB]", border: "border-blue-100" },
-                    { href: "/notices", label: t("Notices"), desc: t("Read society circulars"), icon: Megaphone, bg: "bg-[#FFF7ED]", text: "text-[#F97316]", border: "border-orange-100" },
-                    { href: "/amenities", label: t("Amenities"), desc: t("Book clubhouse, gym, pool"), icon: Building2, bg: "bg-[#F5F3FF]", text: "text-[#8B5CF6]", border: "border-purple-100" },
-                    { href: "/packages", label: t("Packages"), desc: t("Track courier deliveries"), icon: Package, bg: "bg-[#FEF2F2]", text: "text-[#EF4444]", border: "border-red-100" },
-                    { href: "/events", label: t("Events"), desc: t("Upcoming society programs"), icon: CalendarCheck, bg: "bg-[#F5F3FF]", text: "text-[#8B5CF6]", border: "border-purple-100" },
-                    { href: "/directory", label: t("Resident Directory"), desc: t("Find your neighbors"), icon: User, bg: "bg-[#F3F4F6]", text: "text-[#6B7280]", border: "border-gray-100" },
+                    { href: "/my-bills", label: t("My Bills"), desc: t("Pay maintenance & utility dues"), icon: Receipt, bg: "bg-[#FFF7ED] dark:bg-[#7C2D12]/30", text: "text-[#F97316] dark:text-[#FB923C]", border: "border-orange-100 dark:border-[#7C2D12]/40" },
+                    { href: "/complaints", label: t("Complaints"), desc: t("Raise & track issues"), icon: AlertTriangle, bg: "bg-[#FEF3C7] dark:bg-[#78350F]/30", text: "text-[#D97706] dark:text-[#FBBF24]", border: "border-yellow-100 dark:border-[#78350F]/40" },
+                    { href: "/my-visitors", label: t("Visitors"), desc: t("Approve & invite guests"), icon: UserCheck, bg: "bg-[#EFF6FF] dark:bg-[#1E3A8A]/30", text: "text-[#2563EB] dark:text-[#60A5FA]", border: "border-blue-100 dark:border-[#1E3A8A]/40" },
+                    { href: "/notices", label: t("Notices"), desc: t("Read society circulars"), icon: Megaphone, bg: "bg-[#FFF7ED] dark:bg-[#7C2D12]/30", text: "text-[#F97316] dark:text-[#FB923C]", border: "border-orange-100 dark:border-[#7C2D12]/40" },
+                    { href: "/amenities", label: t("Amenities"), desc: t("Book clubhouse, gym, pool"), icon: Building2, bg: "bg-[#F5F3FF] dark:bg-[#4C1D95]/30", text: "text-[#8B5CF6] dark:text-[#A78BFA]", border: "border-purple-100 dark:border-[#4C1D95]/40" },
+                    { href: "/packages", label: t("Packages"), desc: t("Track courier deliveries"), icon: Package, bg: "bg-[#FEF2F2] dark:bg-[#7F1D1D]/30", text: "text-[#EF4444] dark:text-[#F87171]", border: "border-red-100 dark:border-[#7F1D1D]/40" },
+                    { href: "/events", label: t("Events"), desc: t("Upcoming society programs"), icon: CalendarCheck, bg: "bg-[#F5F3FF] dark:bg-[#4C1D95]/30", text: "text-[#8B5CF6] dark:text-[#A78BFA]", border: "border-purple-100 dark:border-[#4C1D95]/40" },
+                    { href: "/directory", label: t("Resident Directory"), desc: t("Find your neighbors"), icon: User, bg: "bg-[#F3F4F6] dark:bg-[#374151]/30", text: "text-[#6B7280] dark:text-[#9CA3AF]", border: "border-gray-100 dark:border-[#374151]/40" },
                   ].map((item) => {
                     const Icon = item.icon;
                     return (
-                      <Link key={item.href} href={item.href} className={`group flex flex-col p-4 rounded-[1.2rem] border ${item.border} bg-white hover:bg-orange-50/20 hover:border-[#FDBA74] transition-all hover:-translate-y-0.5`}>
+                      <Link key={item.href} href={item.href} className={`group flex flex-col p-4 rounded-[1.2rem] border ${item.border} bg-white dark:bg-[#1E1E1E] hover:bg-orange-50/20 dark:hover:bg-[#F97316]/5 hover:border-[#FDBA74] dark:hover:border-[#9A3412] transition-all hover:-translate-y-0.5`}>
                         <div className={`w-10 h-10 rounded-xl ${item.bg} ${item.text} flex items-center justify-center mb-3 group-hover:scale-105 transition-transform`}>
                           <Icon className="w-5 h-5" strokeWidth={2} />
                         </div>
-                        <h3 className="text-sm font-bold text-gray-900">{item.label}</h3>
-                        <p className="text-[10px] font-semibold text-gray-500 mt-1 leading-snug">{item.desc}</p>
+                        <h3 className="text-sm font-bold text-gray-900 dark:text-[#FAF7F5]">{item.label}</h3>
+                        <p className="text-[10px] font-semibold text-gray-500 dark:text-gray-400 mt-1 leading-snug">{item.desc}</p>
                       </Link>
                     );
                   })}
@@ -862,22 +862,22 @@ function ResidentDashboard({
               </div>
 
               {/* Go Green Banner */}
-              <div className="rounded-[1.5rem] border border-orange-100 bg-[#FFF7ED] p-6 shadow-sm flex items-center justify-between relative overflow-hidden">
+              <div className="rounded-[1.5rem] border border-orange-100 dark:border-[#7C2D12]/40 bg-[#FFF7ED] dark:bg-[#7C2D12]/20 p-6 shadow-sm flex items-center justify-between relative overflow-hidden">
                 <div className="absolute -right-12 -bottom-12 h-40 w-40 rounded-full bg-[#FED7AA]/20 blur-2xl" />
                 <div className="relative z-10 max-w-xl">
-                  <h3 className="text-[#92400E] font-bold text-lg mb-1">{t("Go Digital. Go Green.")}</h3>
-                  <p className="text-[#92400E]/80 text-sm font-semibold leading-relaxed">
+                  <h3 className="text-[#92400E] dark:text-[#FDBA74] font-bold text-lg mb-1">{t("Go Digital. Go Green.")}</h3>
+                  <p className="text-[#92400E]/80 dark:text-[#FDBA74]/60 text-sm font-semibold leading-relaxed">
                     {t("Track maintenance bills, request visitor entries, and make secure instant payments online. Together let's save paper and build a modern digital society.")}
                   </p>
                 </div>
                 <div className="relative z-10 hidden md:block shrink-0 ml-4">
-                  <div className="w-16 h-24 bg-white rounded-2xl border-2 border-[#FED7AA] shadow-md flex flex-col items-center overflow-hidden">
-                    <div className="w-6 h-1 bg-[#FED7AA] rounded-b-full"></div>
+                  <div className="w-16 h-24 bg-white dark:bg-[#1E1E1E] rounded-2xl border-2 border-[#FED7AA] dark:border-[#303030] shadow-md flex flex-col items-center overflow-hidden">
+                    <div className="w-6 h-1 bg-[#FED7AA] dark:bg-[#303030] rounded-b-full"></div>
                     <div className="flex-1 flex flex-col items-center justify-center gap-1.5">
-                      <div className="w-8 h-8 rounded-full bg-[#D1FAE5] flex items-center justify-center shadow-inner">
-                        <span className="text-[#059669] text-sm font-bold">₹</span>
+                      <div className="w-8 h-8 rounded-full bg-[#D1FAE5] dark:bg-[#064E3B]/50 flex items-center justify-center shadow-inner">
+                        <span className="text-[#059669] dark:text-[#6EE7B7] text-sm font-bold">₹</span>
                       </div>
-                      <div className="w-8 h-1 bg-[#D1FAE5] rounded-full"></div>
+                      <div className="w-8 h-1 bg-[#D1FAE5] dark:bg-[#064E3B]/50 rounded-full"></div>
                     </div>
                   </div>
                 </div>
@@ -889,22 +889,22 @@ function ResidentDashboard({
             <div className="xl:col-span-4 space-y-4">
               
               {/* Recent Notices */}
-              <div className="rounded-[1.5rem] border border-[#FED7AA] bg-white p-5 shadow-[0_14px_48px_-40px_rgba(28,25,23,0.58)]">
+              <div className="rounded-[1.5rem] border border-[#FED7AA] dark:border-[#303030] bg-white dark:bg-[#1E1E1E] p-5 shadow-[0_14px_48px_-40px_rgba(28,25,23,0.58)]">
                 <div className="flex justify-between items-center mb-3">
-                  <h2 className="text-base font-bold text-gray-900">{t("Recent Notices")}</h2>
-                  <Link href="/notices" className="text-xs font-bold text-[#F97316] hover:underline">{t("View All")}</Link>
+                  <h2 className="text-base font-bold text-gray-900 dark:text-[#FAF7F5]">{t("Recent Notices")}</h2>
+                  <Link href="/notices" className="text-xs font-bold text-[#F97316] dark:text-[#FB923C] hover:underline">{t("View All")}</Link>
                 </div>
                 <div className="space-y-2.5">
                   {notices.length === 0 ? (
-                    <p className="text-xs text-gray-500 font-medium py-3 text-center">{t("No notices published yet.")}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 font-medium py-3 text-center">{t("No notices published yet.")}</p>
                   ) : (
                     notices.slice(0, 3).map((notice) => (
-                      <Link key={notice.id} href="/notices" className="block p-3 rounded-xl border border-gray-100 hover:border-[#FDBA74] hover:bg-[#FFF7ED] transition-colors">
-                        <span className="inline-block px-2 py-0.5 bg-[#FFF7ED] text-[#F97316] text-[10px] font-bold rounded-md mb-1.5">
+                      <Link key={notice.id} href="/notices" className="block p-3 rounded-xl border border-gray-100 dark:border-[#303030] hover:border-[#FDBA74] dark:hover:border-[#9A3412] hover:bg-[#FFF7ED] dark:hover:bg-[#7C2D12]/15 transition-colors">
+                        <span className="inline-block px-2 py-0.5 bg-[#FFF7ED] dark:bg-[#7C2D12]/30 text-[#F97316] dark:text-[#FB923C] text-[10px] font-bold rounded-md mb-1.5">
                           {notice.category}
                         </span>
-                        <h4 className="text-xs font-bold text-gray-800 line-clamp-1">{notice.title}</h4>
-                        <p className="text-[10px] text-gray-400 mt-1">{new Date(notice.createdAt).toLocaleDateString()}</p>
+                        <h4 className="text-xs font-bold text-gray-800 dark:text-gray-200 line-clamp-1">{notice.title}</h4>
+                        <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-1">{new Date(notice.createdAt).toLocaleDateString()}</p>
                       </Link>
                     ))
                   )}
@@ -912,22 +912,22 @@ function ResidentDashboard({
               </div>
 
               {/* Pending Packages */}
-              <div className="rounded-[1.5rem] border border-[#FED7AA] bg-white p-5 shadow-[0_14px_48px_-40px_rgba(28,25,23,0.58)]">
+              <div className="rounded-[1.5rem] border border-[#FED7AA] dark:border-[#303030] bg-white dark:bg-[#1E1E1E] p-5 shadow-[0_14px_48px_-40px_rgba(28,25,23,0.58)]">
                 <div className="flex justify-between items-center mb-3">
-                  <h2 className="text-base font-bold text-gray-900">{t("Gate Deliveries")}</h2>
-                  <Link href="/packages" className="text-xs font-bold text-[#F97316] hover:underline">{t("View All")}</Link>
+                  <h2 className="text-base font-bold text-gray-900 dark:text-[#FAF7F5]">{t("Gate Deliveries")}</h2>
+                  <Link href="/packages" className="text-xs font-bold text-[#F97316] dark:text-[#FB923C] hover:underline">{t("View All")}</Link>
                 </div>
                 <div className="space-y-2.5">
                   {packages.length === 0 ? (
-                    <p className="text-xs text-gray-500 font-medium py-3 text-center">{t("No packages at gate.")}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 font-medium py-3 text-center">{t("No packages at gate.")}</p>
                   ) : (
                     packages.filter(p => p.status === "received").slice(0, 3).map((pkg) => (
-                      <div key={pkg.id} className="flex justify-between items-center p-3 rounded-xl border border-gray-100 bg-gray-50">
+                      <div key={pkg.id} className="flex justify-between items-center p-3 rounded-xl border border-gray-100 dark:border-[#303030] bg-gray-50 dark:bg-[#141414]">
                         <div className="min-w-0">
-                          <h4 className="text-xs font-bold text-gray-800 truncate">{pkg.courierName || t("Courier")}</h4>
-                          <p className="text-[10px] text-gray-500 mt-0.5">{t("Received at gate")}</p>
+                          <h4 className="text-xs font-bold text-gray-800 dark:text-gray-200 truncate">{pkg.courierName || t("Courier")}</h4>
+                          <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">{t("Received at gate")}</p>
                         </div>
-                        <span className="px-2.5 py-1 bg-[#D1FAE5] text-[#065F46] text-[10px] font-bold rounded-lg shrink-0">
+                        <span className="px-2.5 py-1 bg-[#D1FAE5] dark:bg-[#064E3B]/50 text-[#065F46] dark:text-[#6EE7B7] text-[10px] font-bold rounded-lg shrink-0">
                           {t("Waiting")}
                         </span>
                       </div>
@@ -937,25 +937,25 @@ function ResidentDashboard({
               </div>
 
               {/* Upcoming Events */}
-              <div className="rounded-[1.5rem] border border-[#FED7AA] bg-white p-5 shadow-[0_14px_48px_-40px_rgba(28,25,23,0.58)]">
+              <div className="rounded-[1.5rem] border border-[#FED7AA] dark:border-[#303030] bg-white dark:bg-[#1E1E1E] p-5 shadow-[0_14px_48px_-40px_rgba(28,25,23,0.58)]">
                 <div className="flex justify-between items-center mb-3">
-                  <h2 className="text-base font-bold text-gray-900">{t("Upcoming Events")}</h2>
-                  <Link href="/events" className="text-xs font-bold text-[#F97316] hover:underline">{t("View All")}</Link>
+                  <h2 className="text-base font-bold text-gray-900 dark:text-[#FAF7F5]">{t("Upcoming Events")}</h2>
+                  <Link href="/events" className="text-xs font-bold text-[#F97316] dark:text-[#FB923C] hover:underline">{t("View All")}</Link>
                 </div>
                 <div className="space-y-2.5">
                   {bootstrap?.events && bootstrap.events.length > 0 ? (
                     bootstrap.events.slice(0, 2).map((ev) => (
-                      <div key={ev.id} className="p-3 rounded-xl border border-gray-100">
-                        <span className="inline-block px-2 py-0.5 bg-[#F5F3FF] text-[#8B5CF6] text-[10px] font-bold rounded-md mb-1.5">
+                      <div key={ev.id} className="p-3 rounded-xl border border-gray-100 dark:border-[#303030]">
+                        <span className="inline-block px-2 py-0.5 bg-[#F5F3FF] dark:bg-[#4C1D95]/30 text-[#8B5CF6] dark:text-[#A78BFA] text-[10px] font-bold rounded-md mb-1.5">
                           {ev.category}
                         </span>
-                        <h4 className="text-xs font-bold text-gray-800 line-clamp-1">{ev.title}</h4>
-                        <p className="text-[10px] text-gray-500 mt-1">📍 {ev.venue || t("Society Premises")}</p>
-                        <p className="text-[9px] text-gray-400 mt-0.5">{new Date(ev.startDate).toLocaleDateString()}</p>
+                        <h4 className="text-xs font-bold text-gray-800 dark:text-gray-200 line-clamp-1">{ev.title}</h4>
+                        <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-1">📍 {ev.venue || t("Society Premises")}</p>
+                        <p className="text-[9px] text-gray-400 dark:text-gray-500 mt-0.5">{new Date(ev.startDate).toLocaleDateString()}</p>
                       </div>
                     ))
                   ) : (
-                    <p className="text-xs text-gray-500 font-medium py-3 text-center">{t("No upcoming events scheduled.")}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 font-medium py-3 text-center">{t("No upcoming events scheduled.")}</p>
                   )}
                 </div>
               </div>
