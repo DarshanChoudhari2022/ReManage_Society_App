@@ -1,5 +1,6 @@
 import "server-only";
 import { prisma } from "./prisma";
+import { requiresNotificationRecipient } from "@/domain/notification-recipients";
 
 interface CreateNotificationParams {
   societyId: string;
@@ -19,6 +20,11 @@ export async function createNotification({
   link,
 }: CreateNotificationParams) {
   try {
+    if (!userId && requiresNotificationRecipient(type)) {
+      console.warn(`Skipped ${type} notification without a target userId.`);
+      return;
+    }
+
     await prisma.notification.create({
       data: {
         societyId,

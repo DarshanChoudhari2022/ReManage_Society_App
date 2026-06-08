@@ -1,5 +1,6 @@
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { USER_SCOPED_NOTIFICATION_TYPES } from "@/domain/notification-recipients";
 
 export async function GET() {
   const session = await getSession();
@@ -24,7 +25,13 @@ export async function GET() {
       },
     }),
     prisma.notification.findMany({
-      where: { societyId: session.societyId, OR: [{ userId: session.userId }, { userId: null }] },
+      where: {
+        societyId: session.societyId,
+        OR: [
+          { userId: session.userId },
+          { userId: null, type: { notIn: USER_SCOPED_NOTIFICATION_TYPES } },
+        ],
+      },
       orderBy: { createdAt: "desc" },
       take: 10,
     }),

@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { formatCurrency } from "@/lib/utils";
 import StatusBadge from "@/components/ui/StatusBadge";
 import { Receipt, Download, AlertTriangle, IndianRupee, Wallet, Smartphone, Copy, CheckCircle, X, ArrowRight, Home, UserRound, HandCoins } from "lucide-react";
 import toast from "react-hot-toast";
 import Link from "next/link";
 import PageState from "@/components/ux/PageState";
+import { LIVE_FAST_INTERVAL_MS } from "@/lib/live-refresh";
 
 interface MyBill {
   id: string;
@@ -99,6 +100,11 @@ interface ResidentStaffPayment {
   };
 }
 
+function currentPeriod() {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+}
+
 export default function MyBillsPage() {
   const [bills, setBills] = useState<MyBill[]>([]);
   const [stats, setStats] = useState({ totalPending: 0, totalPaid: 0 });
@@ -121,8 +127,8 @@ export default function MyBillsPage() {
   const [staffForm, setStaffForm] = useState({ staffId: "", month: "", amount: "", note: "" });
   const [savingStaffPayment, setSavingStaffPayment] = useState(false);
 
-  const fetchBills = async () => {
-    setLoading(true);
+  const fetchBills = useCallback(async (isBackground = false) => {
+    if (!isBackground) setLoading(true);
     try {
       const res = await fetch("/api/my-bills");
       const data = await res.json();
@@ -146,26 +152,33 @@ export default function MyBillsPage() {
         setStaffForm((current) => ({ ...current, month: current.month || staffData.defaultMonth || currentPeriod() }));
       }
     } catch {
-      toast.error("Failed to load your bills");
+      if (!isBackground) toast.error("Failed to load your bills");
     } finally {
-      setLoading(false);
+      if (!isBackground) setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchBills();
-  }, []);
+    const refresh = () => fetchBills(true);
+    const interval = window.setInterval(refresh, LIVE_FAST_INTERVAL_MS);
+    const refreshOnVisible = () => {
+      if (document.visibilityState === "visible") refresh();
+    };
+    window.addEventListener("focus", refresh);
+    document.addEventListener("visibilitychange", refreshOnVisible);
+    return () => {
+      window.clearInterval(interval);
+      window.removeEventListener("focus", refresh);
+      document.removeEventListener("visibilitychange", refreshOnVisible);
+    };
+  }, [fetchBills]);
 
   const handlePayClick = (bill: MyBill) => {
     setSelectedBill(bill);
     setPaymentStep("choose");
     setUtrNumber("");
     setShowPaymentModal(true);
-  };
-
-  const currentPeriod = () => {
-    const now = new Date();
-    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
   };
 
   const defaultDueDate = () => {

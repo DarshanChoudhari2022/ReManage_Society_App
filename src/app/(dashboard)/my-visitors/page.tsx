@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { UserCheck, Clock, Plus, Calendar, ShieldCheck, X, Phone, User, CheckCircle2, XCircle, Bell, ArrowDownLeft, ArrowUpRight, History } from "lucide-react";
 import toast from "react-hot-toast";
+import { LIVE_FAST_INTERVAL_MS } from "@/lib/live-refresh";
 
 interface Visitor {
   id: string;
@@ -43,8 +44,8 @@ export default function MyVisitorsPage() {
     expectedAt: new Date().toISOString().slice(0, 16),
   });
 
-  const fetchVisitors = useCallback(async () => {
-    setLoading(true);
+  const fetchVisitors = useCallback(async (isBackground = false) => {
+    if (!isBackground) setLoading(true);
     try {
       const res = await fetch(`/api/my-visitors${showHistory ? "?history=all" : ""}`);
       const data = await res.json();
@@ -52,14 +53,26 @@ export default function MyVisitorsPage() {
         setVisitors(data.visitors);
       }
     } catch {
-      toast.error("Failed to load visitors");
+      if (!isBackground) toast.error("Failed to load visitors");
     } finally {
-      setLoading(false);
+      if (!isBackground) setLoading(false);
     }
   }, [showHistory]);
 
   useEffect(() => {
     fetchVisitors();
+    const refresh = () => fetchVisitors(true);
+    const interval = window.setInterval(refresh, LIVE_FAST_INTERVAL_MS);
+    const refreshOnVisible = () => {
+      if (document.visibilityState === "visible") refresh();
+    };
+    window.addEventListener("focus", refresh);
+    document.addEventListener("visibilitychange", refreshOnVisible);
+    return () => {
+      window.clearInterval(interval);
+      window.removeEventListener("focus", refresh);
+      document.removeEventListener("visibilitychange", refreshOnVisible);
+    };
   }, [fetchVisitors]);
 
   useEffect(() => {

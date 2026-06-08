@@ -13,6 +13,7 @@ import {
   Clock,
   X,
 } from "lucide-react";
+import { LIVE_FAST_INTERVAL_MS } from "@/lib/live-refresh";
 
 interface Notification {
   id: string;
@@ -73,11 +74,18 @@ export default function NotificationCenter() {
   useEffect(() => {
     // Delay initial fetch by 2s so it doesn't compete with critical dashboard data
     const initialTimer = setTimeout(() => fetchNotifications(false), 2000);
-    // Poll every 60s (background — no loading flash)
-    const interval = setInterval(() => fetchNotifications(true), 60_000);
+    const interval = setInterval(() => fetchNotifications(true), LIVE_FAST_INTERVAL_MS);
+    const refreshOnFocus = () => fetchNotifications(true);
+    const refreshOnVisible = () => {
+      if (document.visibilityState === "visible") fetchNotifications(true);
+    };
+    window.addEventListener("focus", refreshOnFocus);
+    document.addEventListener("visibilitychange", refreshOnVisible);
     return () => {
       clearTimeout(initialTimer);
       clearInterval(interval);
+      window.removeEventListener("focus", refreshOnFocus);
+      document.removeEventListener("visibilitychange", refreshOnVisible);
     };
   }, [fetchNotifications]);
 

@@ -4,6 +4,7 @@ import { useState } from "react";
 import Sidebar from "@/components/layout/Sidebar";
 import Header from "@/components/layout/Header";
 import BottomNav from "@/components/layout/BottomNav";
+import MobileBackButton from "@/components/layout/MobileBackButton";
 import MobileRuntime from "@/components/mobile/MobileRuntime";
 import GuardRedirect from "@/components/layout/GuardRedirect";
 import { usePushNotifications } from "@/lib/use-push";
@@ -39,7 +40,10 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
           joinCode={user.joinCode}
           onMenuToggle={handleMenuToggle}
         />
-        <main className="flex-1 overflow-y-auto p-3 pb-28 lg:p-6 lg:pb-6">{children}</main>
+        <main className="flex-1 overflow-y-auto p-3 pb-28 lg:p-6 lg:pb-6">
+          <MobileBackButton />
+          {children}
+        </main>
       </div>
       <BottomNav userRole={user.role} userId={user.id} societyId={user.societyId} />
       <MobileRuntime />

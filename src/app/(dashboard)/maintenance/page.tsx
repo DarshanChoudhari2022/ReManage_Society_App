@@ -8,6 +8,7 @@ import { formatCurrency } from "@/lib/utils";
 import type { BillWithFlat, BillingSummary } from "@/types";
 import Link from "next/link";
 import { useLiveQuery } from "@/lib/use-live-data";
+import { LIVE_FAST_INTERVAL_MS } from "@/lib/live-refresh";
 import { useAppDialog } from "@/components/ui/AppDialogProvider";
 
 export default function MaintenancePage() {
@@ -60,7 +61,7 @@ export default function MaintenancePage() {
   } = useLiveQuery<{ bills: BillWithFlat[], summary: BillingSummary }>(
     "/api/maintenance/bills",
     { period, status: statusFilter, search },
-    { interval: 30_000 } // Refresh list every 30s
+    { interval: LIVE_FAST_INTERVAL_MS }
   );
 
   const { data: invoiceData } = useLiveQuery<{
@@ -87,7 +88,7 @@ export default function MaintenancePage() {
   }>(
     "/api/maintenance/bills",
     { period, status: "all", search: "", billType: invoiceForm.billType, billingCycle: invoiceForm.billingCycle },
-    { interval: 30_000 }
+    { interval: LIVE_FAST_INTERVAL_MS }
   );
 
   const bills = data?.bills || [];
