@@ -1,10 +1,10 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
-const serverUrl = process.env.CAPACITOR_SERVER_URL;
+const serverUrl = process.env.CAPACITOR_SERVER_URL || 'https://re-manage-society-app.vercel.app';
 
 const config: CapacitorConfig = {
   appId: 'com.society.management',
-  appName: 'SmartSocietyHub',
+  appName: 'ReManage Society',
   // Use CAPACITOR_SERVER_URL for a live Next.js server during packaged QA.
   // Static export to `out/` remains a Phase 8 hardening option.
   webDir: 'public',
