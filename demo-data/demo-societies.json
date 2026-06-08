@@ -1,0 +1,304 @@
+{
+  "metadata": {
+    "name": "Society Manager Demo Data Pack",
+    "purpose": "Client presentation only. Shows chairman/member/tenant flows with realistic society structure.",
+    "createdFor": "Demo and walkthrough usage",
+    "createdAt": "2026-05-25",
+    "important": [
+      "Do not import into production.",
+      "Do not connect directly to live APIs.",
+      "Do not use these credentials for real users.",
+      "No database changes are made by this file."
+    ]
+  },
+  "defaults": {
+    "currency": "INR",
+    "maintenanceDueDay": 10,
+    "passwordNotice": "Plain demo passwords are included only for client walkthroughs."
+  },
+  "societies": [
+    {
+      "id": "demo-soc-sunrise-residency",
+      "name": "Sunrise Residency",
+      "joinCode": "SUNRIS2026",
+      "address": "Near WTC Road, Kharadi",
+      "city": "Pune",
+      "pincode": "411014",
+      "maintenanceAmt": 3200,
+      "lateFee": 250,
+      "upiId": "sunrisechs@upi",
+      "legalAdviserName": "Adv. Ramesh Kulkarni",
+      "legalAdviserPhone": "9876501001",
+      "flatPattern": "Two wings, 3 floors, mixed 1BHK/2BHK/3BHK",
+      "users": [
+        { "id": "demo-user-sunrise-chairman", "name": "Aarav Deshmukh", "email": "chairman.sunrise@example.com", "password": "Demo@SunriseChair1", "phone": "9000010001", "role": "chairman" },
+        { "id": "demo-user-sunrise-secretary", "name": "Meera Kulkarni", "email": "secretary.sunrise@example.com", "password": "Demo@SunriseSec1", "phone": "9000010002", "role": "secretary" },
+        { "id": "demo-user-sunrise-treasurer", "name": "Rohan Patil", "email": "treasurer.sunrise@example.com", "password": "Demo@SunriseTreas1", "phone": "9000010003", "role": "treasurer" },
+        { "id": "demo-user-sunrise-owner-1", "name": "Nikhil Joshi", "email": "nikhil.joshi.sunrise@example.com", "password": "Demo@SunriseOwner1", "phone": "9000010101", "role": "member", "personId": "demo-person-sunrise-nikhil", "unitId": "demo-unit-sunrise-a101" },
+        { "id": "demo-user-sunrise-owner-2", "name": "Priya Sharma", "email": "priya.sharma.sunrise@example.com", "password": "Demo@SunriseOwner2", "phone": "9000010102", "role": "member", "personId": "demo-person-sunrise-priya", "unitId": "demo-unit-sunrise-a102" },
+        { "id": "demo-user-sunrise-tenant-1", "name": "Karan Mehta", "email": "karan.mehta.sunrise@example.com", "password": "Demo@SunriseTenant1", "phone": "9000010201", "role": "tenant", "personId": "demo-person-sunrise-karan", "unitId": "demo-unit-sunrise-a201" },
+        { "id": "demo-user-sunrise-tenant-2", "name": "Sneha Iyer", "email": "sneha.iyer.sunrise@example.com", "password": "Demo@SunriseTenant2", "phone": "9000010202", "role": "tenant", "personId": "demo-person-sunrise-sneha", "unitId": "demo-unit-sunrise-b103" }
+      ],
+      "persons": [
+        { "id": "demo-person-sunrise-nikhil", "name": "Nikhil Joshi", "phone": "9000010101", "emergencyContact": "9000090101" },
+        { "id": "demo-person-sunrise-priya", "name": "Priya Sharma", "phone": "9000010102", "emergencyContact": "9000090102" },
+        { "id": "demo-person-sunrise-ashok", "name": "Ashok Bendre", "phone": "9000010103", "emergencyContact": "9000090103" },
+        { "id": "demo-person-sunrise-karan", "name": "Karan Mehta", "phone": "9000010201", "emergencyContact": "9000090201" },
+        { "id": "demo-person-sunrise-sneha", "name": "Sneha Iyer", "phone": "9000010202", "emergencyContact": "9000090202" },
+        { "id": "demo-person-sunrise-vivek", "name": "Vivek Rao", "phone": "9000010104", "emergencyContact": "9000090104" },
+        { "id": "demo-person-sunrise-rashmi", "name": "Rashmi Apte", "phone": "9000010105", "emergencyContact": "9000090105" }
+      ],
+      "units": [
+        { "id": "demo-unit-sunrise-a101", "wing": "A", "flatNumber": "A-101", "floor": 1, "unitType": "2BHK", "carpetArea": 830, "occupancyStatus": "OWNER_OCCUPIED", "parkingSlots": 1, "intercomNumber": "101" },
+        { "id": "demo-unit-sunrise-a102", "wing": "A", "flatNumber": "A-102", "floor": 1, "unitType": "3BHK", "carpetArea": 1120, "occupancyStatus": "OWNER_OCCUPIED", "parkingSlots": 2, "intercomNumber": "102" },
+        { "id": "demo-unit-sunrise-a103", "wing": "A", "flatNumber": "A-103", "floor": 1, "unitType": "2BHK", "carpetArea": 810, "occupancyStatus": "VACANT", "parkingSlots": 1, "intercomNumber": "103" },
+        { "id": "demo-unit-sunrise-a201", "wing": "A", "flatNumber": "A-201", "floor": 2, "unitType": "2BHK", "carpetArea": 840, "occupancyStatus": "TENANT_OCCUPIED", "parkingSlots": 1, "intercomNumber": "201" },
+        { "id": "demo-unit-sunrise-a202", "wing": "A", "flatNumber": "A-202", "floor": 2, "unitType": "1BHK", "carpetArea": 610, "occupancyStatus": "LOCKED", "parkingSlots": 0, "intercomNumber": "202" },
+        { "id": "demo-unit-sunrise-a203", "wing": "A", "flatNumber": "A-203", "floor": 2, "unitType": "2BHK", "carpetArea": 825, "occupancyStatus": "OWNER_OCCUPIED", "parkingSlots": 1, "intercomNumber": "203" },
+        { "id": "demo-unit-sunrise-a301", "wing": "A", "flatNumber": "A-301", "floor": 3, "unitType": "3BHK", "carpetArea": 1180, "occupancyStatus": "UNDER_RENOVATION", "parkingSlots": 2, "intercomNumber": "301" },
+        { "id": "demo-unit-sunrise-a302", "wing": "A", "flatNumber": "A-302", "floor": 3, "unitType": "2BHK", "carpetArea": 845, "occupancyStatus": "VACANT", "parkingSlots": 1, "intercomNumber": "302" },
+        { "id": "demo-unit-sunrise-b101", "wing": "B", "flatNumber": "B-101", "floor": 1, "unitType": "2BHK", "carpetArea": 835, "occupancyStatus": "OWNER_OCCUPIED", "parkingSlots": 1, "intercomNumber": "401" },
+        { "id": "demo-unit-sunrise-b102", "wing": "B", "flatNumber": "B-102", "floor": 1, "unitType": "1BHK", "carpetArea": 590, "occupancyStatus": "VACANT", "parkingSlots": 0, "intercomNumber": "402" },
+        { "id": "demo-unit-sunrise-b103", "wing": "B", "flatNumber": "B-103", "floor": 1, "unitType": "2BHK", "carpetArea": 820, "occupancyStatus": "TENANT_OCCUPIED", "parkingSlots": 1, "intercomNumber": "403" },
+        { "id": "demo-unit-sunrise-b201", "wing": "B", "flatNumber": "B-201", "floor": 2, "unitType": "2BHK", "carpetArea": 860, "occupancyStatus": "OWNER_OCCUPIED", "parkingSlots": 1, "intercomNumber": "501" },
+        { "id": "demo-unit-sunrise-b202", "wing": "B", "flatNumber": "B-202", "floor": 2, "unitType": "3BHK", "carpetArea": 1160, "occupancyStatus": "VACANT", "parkingSlots": 2, "intercomNumber": "502" },
+        { "id": "demo-unit-sunrise-b301", "wing": "B", "flatNumber": "B-301", "floor": 3, "unitType": "2BHK", "carpetArea": 850, "occupancyStatus": "OWNER_OCCUPIED", "parkingSlots": 1, "intercomNumber": "601" },
+        { "id": "demo-unit-sunrise-b302", "wing": "B", "flatNumber": "B-302", "floor": 3, "unitType": "2BHK", "carpetArea": 855, "occupancyStatus": "VACANT", "parkingSlots": 1, "intercomNumber": "602" }
+      ],
+      "occupancies": [
+        { "id": "demo-occ-sunrise-a101-owner", "unitId": "demo-unit-sunrise-a101", "personId": "demo-person-sunrise-nikhil", "relationshipType": "OWNER", "billingResponsibility": "OWNER", "moveInDate": "2021-04-01", "isPrimaryOccupant": true },
+        { "id": "demo-occ-sunrise-a102-owner", "unitId": "demo-unit-sunrise-a102", "personId": "demo-person-sunrise-priya", "relationshipType": "OWNER", "billingResponsibility": "OWNER", "moveInDate": "2020-09-12", "isPrimaryOccupant": true },
+        { "id": "demo-occ-sunrise-a201-owner", "unitId": "demo-unit-sunrise-a201", "personId": "demo-person-sunrise-ashok", "relationshipType": "OWNER", "billingResponsibility": "TENANT", "moveInDate": "2019-02-01", "isPrimaryOccupant": false },
+        { "id": "demo-occ-sunrise-a201-tenant", "unitId": "demo-unit-sunrise-a201", "personId": "demo-person-sunrise-karan", "relationshipType": "TENANT", "billingResponsibility": "TENANT", "moveInDate": "2025-06-01", "agreementEndDate": "2026-05-31", "vehicleCount": 1, "isPrimaryOccupant": true },
+        { "id": "demo-occ-sunrise-b103-owner", "unitId": "demo-unit-sunrise-b103", "personId": "demo-person-sunrise-vivek", "relationshipType": "OWNER", "billingResponsibility": "TENANT", "moveInDate": "2018-11-18", "isPrimaryOccupant": false },
+        { "id": "demo-occ-sunrise-b103-tenant", "unitId": "demo-unit-sunrise-b103", "personId": "demo-person-sunrise-sneha", "relationshipType": "TENANT", "billingResponsibility": "TENANT", "moveInDate": "2025-12-01", "agreementEndDate": "2026-11-30", "vehicleCount": 0, "isPrimaryOccupant": true },
+        { "id": "demo-occ-sunrise-b201-owner", "unitId": "demo-unit-sunrise-b201", "personId": "demo-person-sunrise-rashmi", "relationshipType": "OWNER", "billingResponsibility": "OWNER", "moveInDate": "2022-01-10", "isPrimaryOccupant": true }
+      ]
+    },
+    {
+      "id": "demo-soc-green-valley",
+      "name": "Green Valley Apartments",
+      "joinCode": "GREENV2026",
+      "address": "Plot 17, Powai Lake Road",
+      "city": "Mumbai",
+      "pincode": "400076",
+      "maintenanceAmt": 5200,
+      "lateFee": 500,
+      "upiId": "greenvalley@upi",
+      "legalAdviserName": "Adv. Neelam Shah",
+      "legalAdviserPhone": "9876502001",
+      "flatPattern": "Three towers, compact high-rise sample",
+      "users": [
+        { "id": "demo-user-green-chairman", "name": "Vikram Shah", "email": "chairman.greenvalley@example.com", "password": "Demo@GreenChair1", "phone": "9000020001", "role": "chairman" },
+        { "id": "demo-user-green-secretary", "name": "Ananya Rao", "email": "secretary.greenvalley@example.com", "password": "Demo@GreenSec1", "phone": "9000020002", "role": "secretary" },
+        { "id": "demo-user-green-treasurer", "name": "Devendra More", "email": "treasurer.greenvalley@example.com", "password": "Demo@GreenTreas1", "phone": "9000020003", "role": "treasurer" },
+        { "id": "demo-user-green-owner-1", "name": "Sameer Khan", "email": "sameer.khan.greenvalley@example.com", "password": "Demo@GreenOwner1", "phone": "9000020101", "role": "member", "personId": "demo-person-green-sameer", "unitId": "demo-unit-green-a101" },
+        { "id": "demo-user-green-owner-2", "name": "Kavita Nair", "email": "kavita.nair.greenvalley@example.com", "password": "Demo@GreenOwner2", "phone": "9000020102", "role": "member", "personId": "demo-person-green-kavita", "unitId": "demo-unit-green-a202" },
+        { "id": "demo-user-green-tenant-1", "name": "Imran Shaikh", "email": "imran.shaikh.greenvalley@example.com", "password": "Demo@GreenTenant1", "phone": "9000020201", "role": "tenant", "personId": "demo-person-green-imran", "unitId": "demo-unit-green-b101" },
+        { "id": "demo-user-green-tenant-2", "name": "Pooja Menon", "email": "pooja.menon.greenvalley@example.com", "password": "Demo@GreenTenant2", "phone": "9000020202", "role": "tenant", "personId": "demo-person-green-pooja", "unitId": "demo-unit-green-c203" }
+      ],
+      "persons": [
+        { "id": "demo-person-green-sameer", "name": "Sameer Khan", "phone": "9000020101", "emergencyContact": "9000091101" },
+        { "id": "demo-person-green-kavita", "name": "Kavita Nair", "phone": "9000020102", "emergencyContact": "9000091102" },
+        { "id": "demo-person-green-imran", "name": "Imran Shaikh", "phone": "9000020201", "emergencyContact": "9000091201" },
+        { "id": "demo-person-green-pooja", "name": "Pooja Menon", "phone": "9000020202", "emergencyContact": "9000091202" },
+        { "id": "demo-person-green-dilip", "name": "Dilip Jain", "phone": "9000020103", "emergencyContact": "9000091103" },
+        { "id": "demo-person-green-monica", "name": "Monica Dsouza", "phone": "9000020104", "emergencyContact": "9000091104" },
+        { "id": "demo-person-green-harish", "name": "Harish Bhat", "phone": "9000020105", "emergencyContact": "9000091105" }
+      ],
+      "units": [
+        { "id": "demo-unit-green-a101", "wing": "A", "flatNumber": "A-101", "floor": 1, "unitType": "2BHK", "carpetArea": 760, "occupancyStatus": "OWNER_OCCUPIED", "parkingSlots": 1, "intercomNumber": "A101" },
+        { "id": "demo-unit-green-a102", "wing": "A", "flatNumber": "A-102", "floor": 1, "unitType": "2BHK", "carpetArea": 775, "occupancyStatus": "VACANT", "parkingSlots": 1, "intercomNumber": "A102" },
+        { "id": "demo-unit-green-a201", "wing": "A", "flatNumber": "A-201", "floor": 2, "unitType": "3BHK", "carpetArea": 1080, "occupancyStatus": "LOCKED", "parkingSlots": 2, "intercomNumber": "A201" },
+        { "id": "demo-unit-green-a202", "wing": "A", "flatNumber": "A-202", "floor": 2, "unitType": "2BHK", "carpetArea": 790, "occupancyStatus": "OWNER_OCCUPIED", "parkingSlots": 1, "intercomNumber": "A202" },
+        { "id": "demo-unit-green-a301", "wing": "A", "flatNumber": "A-301", "floor": 3, "unitType": "3BHK", "carpetArea": 1110, "occupancyStatus": "VACANT", "parkingSlots": 2, "intercomNumber": "A301" },
+        { "id": "demo-unit-green-b101", "wing": "B", "flatNumber": "B-101", "floor": 1, "unitType": "1BHK", "carpetArea": 540, "occupancyStatus": "TENANT_OCCUPIED", "parkingSlots": 0, "intercomNumber": "B101" },
+        { "id": "demo-unit-green-b102", "wing": "B", "flatNumber": "B-102", "floor": 1, "unitType": "2BHK", "carpetArea": 770, "occupancyStatus": "OWNER_OCCUPIED", "parkingSlots": 1, "intercomNumber": "B102" },
+        { "id": "demo-unit-green-b201", "wing": "B", "flatNumber": "B-201", "floor": 2, "unitType": "2BHK", "carpetArea": 780, "occupancyStatus": "VACANT", "parkingSlots": 1, "intercomNumber": "B201" },
+        { "id": "demo-unit-green-b202", "wing": "B", "flatNumber": "B-202", "floor": 2, "unitType": "SHOP", "usageType": "COMMERCIAL", "carpetArea": 420, "occupancyStatus": "OWNER_OCCUPIED", "parkingSlots": 0, "intercomNumber": "B202" },
+        { "id": "demo-unit-green-c101", "wing": "C", "flatNumber": "C-101", "floor": 1, "unitType": "2BHK", "carpetArea": 800, "occupancyStatus": "UNDER_RENOVATION", "parkingSlots": 1, "intercomNumber": "C101" },
+        { "id": "demo-unit-green-c102", "wing": "C", "flatNumber": "C-102", "floor": 1, "unitType": "2BHK", "carpetArea": 795, "occupancyStatus": "VACANT", "parkingSlots": 1, "intercomNumber": "C102" },
+        { "id": "demo-unit-green-c201", "wing": "C", "flatNumber": "C-201", "floor": 2, "unitType": "3BHK", "carpetArea": 1130, "occupancyStatus": "OWNER_OCCUPIED", "parkingSlots": 2, "intercomNumber": "C201" },
+        { "id": "demo-unit-green-c202", "wing": "C", "flatNumber": "C-202", "floor": 2, "unitType": "2BHK", "carpetArea": 785, "occupancyStatus": "VACANT", "parkingSlots": 1, "intercomNumber": "C202" },
+        { "id": "demo-unit-green-c203", "wing": "C", "flatNumber": "C-203", "floor": 2, "unitType": "2BHK", "carpetArea": 805, "occupancyStatus": "TENANT_OCCUPIED", "parkingSlots": 1, "intercomNumber": "C203" },
+        { "id": "demo-unit-green-c301", "wing": "C", "flatNumber": "C-301", "floor": 3, "unitType": "PENTHOUSE", "carpetArea": 1550, "occupancyStatus": "LOCKED", "parkingSlots": 2, "intercomNumber": "C301" },
+        { "id": "demo-unit-green-c302", "wing": "C", "flatNumber": "C-302", "floor": 3, "unitType": "2BHK", "carpetArea": 815, "occupancyStatus": "VACANT", "parkingSlots": 1, "intercomNumber": "C302" }
+      ],
+      "occupancies": [
+        { "id": "demo-occ-green-a101-owner", "unitId": "demo-unit-green-a101", "personId": "demo-person-green-sameer", "relationshipType": "OWNER", "billingResponsibility": "OWNER", "moveInDate": "2020-03-15", "isPrimaryOccupant": true },
+        { "id": "demo-occ-green-a202-owner", "unitId": "demo-unit-green-a202", "personId": "demo-person-green-kavita", "relationshipType": "OWNER", "billingResponsibility": "OWNER", "moveInDate": "2022-08-01", "isPrimaryOccupant": true },
+        { "id": "demo-occ-green-b101-owner", "unitId": "demo-unit-green-b101", "personId": "demo-person-green-dilip", "relationshipType": "OWNER", "billingResponsibility": "TENANT", "moveInDate": "2017-01-01", "isPrimaryOccupant": false },
+        { "id": "demo-occ-green-b101-tenant", "unitId": "demo-unit-green-b101", "personId": "demo-person-green-imran", "relationshipType": "TENANT", "billingResponsibility": "TENANT", "moveInDate": "2025-09-01", "agreementEndDate": "2026-08-31", "vehicleCount": 0, "isPrimaryOccupant": true },
+        { "id": "demo-occ-green-b102-owner", "unitId": "demo-unit-green-b102", "personId": "demo-person-green-monica", "relationshipType": "OWNER", "billingResponsibility": "OWNER", "moveInDate": "2021-12-20", "isPrimaryOccupant": true },
+        { "id": "demo-occ-green-c203-owner", "unitId": "demo-unit-green-c203", "personId": "demo-person-green-harish", "relationshipType": "OWNER", "billingResponsibility": "TENANT", "moveInDate": "2018-05-05", "isPrimaryOccupant": false },
+        { "id": "demo-occ-green-c203-tenant", "unitId": "demo-unit-green-c203", "personId": "demo-person-green-pooja", "relationshipType": "TENANT", "billingResponsibility": "TENANT", "moveInDate": "2026-01-01", "agreementEndDate": "2026-12-31", "vehicleCount": 1, "isPrimaryOccupant": true }
+      ]
+    },
+    {
+      "id": "demo-soc-royal-palms",
+      "name": "Royal Palms CHS",
+      "joinCode": "ROYALP2026",
+      "address": "College Road, Near Jehan Circle",
+      "city": "Nashik",
+      "pincode": "422005",
+      "maintenanceAmt": 2400,
+      "lateFee": 150,
+      "upiId": "royalpalms@upi",
+      "legalAdviserName": "Adv. Sujata Pawar",
+      "legalAdviserPhone": "9876503001",
+      "flatPattern": "Small cooperative housing society",
+      "users": [
+        { "id": "demo-user-royal-chairman", "name": "Ganesh Pawar", "email": "chairman.royalpalms@example.com", "password": "Demo@RoyalChair1", "phone": "9000030001", "role": "chairman" },
+        { "id": "demo-user-royal-secretary", "name": "Aditi Jadhav", "email": "secretary.royalpalms@example.com", "password": "Demo@RoyalSec1", "phone": "9000030002", "role": "secretary" },
+        { "id": "demo-user-royal-treasurer", "name": "Suresh Borse", "email": "treasurer.royalpalms@example.com", "password": "Demo@RoyalTreas1", "phone": "9000030003", "role": "treasurer" },
+        { "id": "demo-user-royal-owner-1", "name": "Manish Agrawal", "email": "manish.agrawal.royal@example.com", "password": "Demo@RoyalOwner1", "phone": "9000030101", "role": "member", "personId": "demo-person-royal-manish", "unitId": "demo-unit-royal-a101" },
+        { "id": "demo-user-royal-owner-2", "name": "Rutuja Kale", "email": "rutuja.kale.royal@example.com", "password": "Demo@RoyalOwner2", "phone": "9000030102", "role": "member", "personId": "demo-person-royal-rutuja", "unitId": "demo-unit-royal-a201" },
+        { "id": "demo-user-royal-tenant-1", "name": "Faizan Ansari", "email": "faizan.ansari.royal@example.com", "password": "Demo@RoyalTenant1", "phone": "9000030201", "role": "tenant", "personId": "demo-person-royal-faizan", "unitId": "demo-unit-royal-b102" }
+      ],
+      "persons": [
+        { "id": "demo-person-royal-manish", "name": "Manish Agrawal", "phone": "9000030101", "emergencyContact": "9000092101" },
+        { "id": "demo-person-royal-rutuja", "name": "Rutuja Kale", "phone": "9000030102", "emergencyContact": "9000092102" },
+        { "id": "demo-person-royal-faizan", "name": "Faizan Ansari", "phone": "9000030201", "emergencyContact": "9000092201" },
+        { "id": "demo-person-royal-mukesh", "name": "Mukesh Soni", "phone": "9000030103", "emergencyContact": "9000092103" },
+        { "id": "demo-person-royal-dhanashree", "name": "Dhanashree Nikam", "phone": "9000030104", "emergencyContact": "9000092104" }
+      ],
+      "units": [
+        { "id": "demo-unit-royal-a101", "wing": "A", "flatNumber": "A-101", "floor": 1, "unitType": "1BHK", "carpetArea": 565, "occupancyStatus": "OWNER_OCCUPIED", "parkingSlots": 0, "intercomNumber": "101" },
+        { "id": "demo-unit-royal-a102", "wing": "A", "flatNumber": "A-102", "floor": 1, "unitType": "2BHK", "carpetArea": 770, "occupancyStatus": "VACANT", "parkingSlots": 1, "intercomNumber": "102" },
+        { "id": "demo-unit-royal-a201", "wing": "A", "flatNumber": "A-201", "floor": 2, "unitType": "2BHK", "carpetArea": 790, "occupancyStatus": "OWNER_OCCUPIED", "parkingSlots": 1, "intercomNumber": "201" },
+        { "id": "demo-unit-royal-a202", "wing": "A", "flatNumber": "A-202", "floor": 2, "unitType": "2BHK", "carpetArea": 780, "occupancyStatus": "LOCKED", "parkingSlots": 1, "intercomNumber": "202" },
+        { "id": "demo-unit-royal-a301", "wing": "A", "flatNumber": "A-301", "floor": 3, "unitType": "3BHK", "carpetArea": 1030, "occupancyStatus": "VACANT", "parkingSlots": 1, "intercomNumber": "301" },
+        { "id": "demo-unit-royal-a302", "wing": "A", "flatNumber": "A-302", "floor": 3, "unitType": "2BHK", "carpetArea": 785, "occupancyStatus": "UNDER_RENOVATION", "parkingSlots": 1, "intercomNumber": "302" },
+        { "id": "demo-unit-royal-b101", "wing": "B", "flatNumber": "B-101", "floor": 1, "unitType": "2BHK", "carpetArea": 800, "occupancyStatus": "OWNER_OCCUPIED", "parkingSlots": 1, "intercomNumber": "401" },
+        { "id": "demo-unit-royal-b102", "wing": "B", "flatNumber": "B-102", "floor": 1, "unitType": "1BHK", "carpetArea": 545, "occupancyStatus": "TENANT_OCCUPIED", "parkingSlots": 0, "intercomNumber": "402" },
+        { "id": "demo-unit-royal-b201", "wing": "B", "flatNumber": "B-201", "floor": 2, "unitType": "2BHK", "carpetArea": 790, "occupancyStatus": "VACANT", "parkingSlots": 1, "intercomNumber": "501" },
+        { "id": "demo-unit-royal-b202", "wing": "B", "flatNumber": "B-202", "floor": 2, "unitType": "2BHK", "carpetArea": 810, "occupancyStatus": "OWNER_OCCUPIED", "parkingSlots": 1, "intercomNumber": "502" },
+        { "id": "demo-unit-royal-b301", "wing": "B", "flatNumber": "B-301", "floor": 3, "unitType": "2BHK", "carpetArea": 795, "occupancyStatus": "VACANT", "parkingSlots": 1, "intercomNumber": "601" },
+        { "id": "demo-unit-royal-b302", "wing": "B", "flatNumber": "B-302", "floor": 3, "unitType": "3BHK", "carpetArea": 1060, "occupancyStatus": "VACANT", "parkingSlots": 1, "intercomNumber": "602" }
+      ],
+      "occupancies": [
+        { "id": "demo-occ-royal-a101-owner", "unitId": "demo-unit-royal-a101", "personId": "demo-person-royal-manish", "relationshipType": "OWNER", "billingResponsibility": "OWNER", "moveInDate": "2023-01-01", "isPrimaryOccupant": true },
+        { "id": "demo-occ-royal-a201-owner", "unitId": "demo-unit-royal-a201", "personId": "demo-person-royal-rutuja", "relationshipType": "OWNER", "billingResponsibility": "OWNER", "moveInDate": "2021-07-18", "isPrimaryOccupant": true },
+        { "id": "demo-occ-royal-b102-owner", "unitId": "demo-unit-royal-b102", "personId": "demo-person-royal-mukesh", "relationshipType": "OWNER", "billingResponsibility": "TENANT", "moveInDate": "2018-10-01", "isPrimaryOccupant": false },
+        { "id": "demo-occ-royal-b102-tenant", "unitId": "demo-unit-royal-b102", "personId": "demo-person-royal-faizan", "relationshipType": "TENANT", "billingResponsibility": "TENANT", "moveInDate": "2025-10-01", "agreementEndDate": "2026-09-30", "vehicleCount": 0, "isPrimaryOccupant": true },
+        { "id": "demo-occ-royal-b202-owner", "unitId": "demo-unit-royal-b202", "personId": "demo-person-royal-dhanashree", "relationshipType": "OWNER", "billingResponsibility": "OWNER", "moveInDate": "2022-11-11", "isPrimaryOccupant": true }
+      ]
+    },
+    {
+      "id": "demo-soc-silver-oak",
+      "name": "Silver Oak Enclave",
+      "joinCode": "SILVER2026",
+      "address": "Manish Nagar, Wardha Road",
+      "city": "Nagpur",
+      "pincode": "440015",
+      "maintenanceAmt": 2800,
+      "lateFee": 200,
+      "upiId": "silveroak@upi",
+      "legalAdviserName": "Adv. Prerna Tiwari",
+      "legalAdviserPhone": "9876504001",
+      "flatPattern": "Two blocks with mixed occupied and vacant units",
+      "users": [
+        { "id": "demo-user-silver-chairman", "name": "Prakash Wankhede", "email": "chairman.silveroak@example.com", "password": "Demo@SilverChair1", "phone": "9000040001", "role": "chairman" },
+        { "id": "demo-user-silver-secretary", "name": "Neha Tiwari", "email": "secretary.silveroak@example.com", "password": "Demo@SilverSec1", "phone": "9000040002", "role": "secretary" },
+        { "id": "demo-user-silver-treasurer", "name": "Mohan Yadav", "email": "treasurer.silveroak@example.com", "password": "Demo@SilverTreas1", "phone": "9000040003", "role": "treasurer" },
+        { "id": "demo-user-silver-owner-1", "name": "Rajesh Verma", "email": "rajesh.verma.silver@example.com", "password": "Demo@SilverOwner1", "phone": "9000040101", "role": "member", "personId": "demo-person-silver-rajesh", "unitId": "demo-unit-silver-a101" },
+        { "id": "demo-user-silver-owner-2", "name": "Shalini Mishra", "email": "shalini.mishra.silver@example.com", "password": "Demo@SilverOwner2", "phone": "9000040102", "role": "member", "personId": "demo-person-silver-shalini", "unitId": "demo-unit-silver-a203" },
+        { "id": "demo-user-silver-tenant-1", "name": "Harsh Gupta", "email": "harsh.gupta.silver@example.com", "password": "Demo@SilverTenant1", "phone": "9000040201", "role": "tenant", "personId": "demo-person-silver-harsh", "unitId": "demo-unit-silver-b201" },
+        { "id": "demo-user-silver-tenant-2", "name": "Rina Chawla", "email": "rina.chawla.silver@example.com", "password": "Demo@SilverTenant2", "phone": "9000040202", "role": "tenant", "personId": "demo-person-silver-rina", "unitId": "demo-unit-silver-b302" }
+      ],
+      "persons": [
+        { "id": "demo-person-silver-rajesh", "name": "Rajesh Verma", "phone": "9000040101", "emergencyContact": "9000093101" },
+        { "id": "demo-person-silver-shalini", "name": "Shalini Mishra", "phone": "9000040102", "emergencyContact": "9000093102" },
+        { "id": "demo-person-silver-harsh", "name": "Harsh Gupta", "phone": "9000040201", "emergencyContact": "9000093201" },
+        { "id": "demo-person-silver-rina", "name": "Rina Chawla", "phone": "9000040202", "emergencyContact": "9000093202" },
+        { "id": "demo-person-silver-pratap", "name": "Pratap Singh", "phone": "9000040103", "emergencyContact": "9000093103" },
+        { "id": "demo-person-silver-asha", "name": "Asha Nambiar", "phone": "9000040104", "emergencyContact": "9000093104" }
+      ],
+      "units": [
+        { "id": "demo-unit-silver-a101", "wing": "A", "flatNumber": "A-101", "floor": 1, "unitType": "2BHK", "carpetArea": 820, "occupancyStatus": "OWNER_OCCUPIED", "parkingSlots": 1, "intercomNumber": "101" },
+        { "id": "demo-unit-silver-a102", "wing": "A", "flatNumber": "A-102", "floor": 1, "unitType": "1BHK", "carpetArea": 590, "occupancyStatus": "VACANT", "parkingSlots": 0, "intercomNumber": "102" },
+        { "id": "demo-unit-silver-a201", "wing": "A", "flatNumber": "A-201", "floor": 2, "unitType": "2BHK", "carpetArea": 830, "occupancyStatus": "LOCKED", "parkingSlots": 1, "intercomNumber": "201" },
+        { "id": "demo-unit-silver-a202", "wing": "A", "flatNumber": "A-202", "floor": 2, "unitType": "2BHK", "carpetArea": 825, "occupancyStatus": "VACANT", "parkingSlots": 1, "intercomNumber": "202" },
+        { "id": "demo-unit-silver-a203", "wing": "A", "flatNumber": "A-203", "floor": 2, "unitType": "3BHK", "carpetArea": 1115, "occupancyStatus": "OWNER_OCCUPIED", "parkingSlots": 2, "intercomNumber": "203" },
+        { "id": "demo-unit-silver-a301", "wing": "A", "flatNumber": "A-301", "floor": 3, "unitType": "2BHK", "carpetArea": 840, "occupancyStatus": "UNDER_RENOVATION", "parkingSlots": 1, "intercomNumber": "301" },
+        { "id": "demo-unit-silver-a302", "wing": "A", "flatNumber": "A-302", "floor": 3, "unitType": "2BHK", "carpetArea": 835, "occupancyStatus": "VACANT", "parkingSlots": 1, "intercomNumber": "302" },
+        { "id": "demo-unit-silver-b101", "wing": "B", "flatNumber": "B-101", "floor": 1, "unitType": "2BHK", "carpetArea": 815, "occupancyStatus": "OWNER_OCCUPIED", "parkingSlots": 1, "intercomNumber": "401" },
+        { "id": "demo-unit-silver-b102", "wing": "B", "flatNumber": "B-102", "floor": 1, "unitType": "1BHK", "carpetArea": 600, "occupancyStatus": "VACANT", "parkingSlots": 0, "intercomNumber": "402" },
+        { "id": "demo-unit-silver-b201", "wing": "B", "flatNumber": "B-201", "floor": 2, "unitType": "2BHK", "carpetArea": 830, "occupancyStatus": "TENANT_OCCUPIED", "parkingSlots": 1, "intercomNumber": "501" },
+        { "id": "demo-unit-silver-b202", "wing": "B", "flatNumber": "B-202", "floor": 2, "unitType": "3BHK", "carpetArea": 1145, "occupancyStatus": "VACANT", "parkingSlots": 2, "intercomNumber": "502" },
+        { "id": "demo-unit-silver-b301", "wing": "B", "flatNumber": "B-301", "floor": 3, "unitType": "2BHK", "carpetArea": 850, "occupancyStatus": "VACANT", "parkingSlots": 1, "intercomNumber": "601" },
+        { "id": "demo-unit-silver-b302", "wing": "B", "flatNumber": "B-302", "floor": 3, "unitType": "2BHK", "carpetArea": 845, "occupancyStatus": "TENANT_OCCUPIED", "parkingSlots": 1, "intercomNumber": "602" },
+        { "id": "demo-unit-silver-b303", "wing": "B", "flatNumber": "B-303", "floor": 3, "unitType": "OFFICE", "usageType": "COMMERCIAL", "carpetArea": 480, "occupancyStatus": "VACANT", "parkingSlots": 0, "intercomNumber": "603" }
+      ],
+      "occupancies": [
+        { "id": "demo-occ-silver-a101-owner", "unitId": "demo-unit-silver-a101", "personId": "demo-person-silver-rajesh", "relationshipType": "OWNER", "billingResponsibility": "OWNER", "moveInDate": "2022-03-01", "isPrimaryOccupant": true },
+        { "id": "demo-occ-silver-a203-owner", "unitId": "demo-unit-silver-a203", "personId": "demo-person-silver-shalini", "relationshipType": "OWNER", "billingResponsibility": "OWNER", "moveInDate": "2020-04-15", "isPrimaryOccupant": true },
+        { "id": "demo-occ-silver-b201-owner", "unitId": "demo-unit-silver-b201", "personId": "demo-person-silver-pratap", "relationshipType": "OWNER", "billingResponsibility": "TENANT", "moveInDate": "2019-07-01", "isPrimaryOccupant": false },
+        { "id": "demo-occ-silver-b201-tenant", "unitId": "demo-unit-silver-b201", "personId": "demo-person-silver-harsh", "relationshipType": "TENANT", "billingResponsibility": "TENANT", "moveInDate": "2025-08-15", "agreementEndDate": "2026-08-14", "vehicleCount": 1, "isPrimaryOccupant": true },
+        { "id": "demo-occ-silver-b302-owner", "unitId": "demo-unit-silver-b302", "personId": "demo-person-silver-asha", "relationshipType": "OWNER", "billingResponsibility": "TENANT", "moveInDate": "2021-01-01", "isPrimaryOccupant": false },
+        { "id": "demo-occ-silver-b302-tenant", "unitId": "demo-unit-silver-b302", "personId": "demo-person-silver-rina", "relationshipType": "TENANT", "billingResponsibility": "TENANT", "moveInDate": "2026-02-01", "agreementEndDate": "2027-01-31", "vehicleCount": 0, "isPrimaryOccupant": true }
+      ]
+    },
+    {
+      "id": "demo-soc-lotus-heights",
+      "name": "Lotus Heights",
+      "joinCode": "LOTUSH2026",
+      "address": "Baner-Pashan Link Road",
+      "city": "Pune",
+      "pincode": "411045",
+      "maintenanceAmt": 4500,
+      "lateFee": 300,
+      "upiId": "lotusheights@upi",
+      "legalAdviserName": "Adv. Kavya Desai",
+      "legalAdviserPhone": "9876505001",
+      "flatPattern": "Premium society with residential and penthouse units",
+      "users": [
+        { "id": "demo-user-lotus-chairman", "name": "Sandeep Bhosale", "email": "chairman.lotus@example.com", "password": "Demo@LotusChair1", "phone": "9000050001", "role": "chairman" },
+        { "id": "demo-user-lotus-secretary", "name": "Ishita Sen", "email": "secretary.lotus@example.com", "password": "Demo@LotusSec1", "phone": "9000050002", "role": "secretary" },
+        { "id": "demo-user-lotus-treasurer", "name": "Mahendra Chavan", "email": "treasurer.lotus@example.com", "password": "Demo@LotusTreas1", "phone": "9000050003", "role": "treasurer" },
+        { "id": "demo-user-lotus-owner-1", "name": "Omkar Bhide", "email": "omkar.bhide.lotus@example.com", "password": "Demo@LotusOwner1", "phone": "9000050101", "role": "member", "personId": "demo-person-lotus-omkar", "unitId": "demo-unit-lotus-a101" },
+        { "id": "demo-user-lotus-owner-2", "name": "Tanvi Apte", "email": "tanvi.apte.lotus@example.com", "password": "Demo@LotusOwner2", "phone": "9000050102", "role": "member", "personId": "demo-person-lotus-tanvi", "unitId": "demo-unit-lotus-b204" },
+        { "id": "demo-user-lotus-tenant-1", "name": "Arjun Pillai", "email": "arjun.pillai.lotus@example.com", "password": "Demo@LotusTenant1", "phone": "9000050201", "role": "tenant", "personId": "demo-person-lotus-arjun", "unitId": "demo-unit-lotus-a302" },
+        { "id": "demo-user-lotus-tenant-2", "name": "Fatima Khan", "email": "fatima.khan.lotus@example.com", "password": "Demo@LotusTenant2", "phone": "9000050202", "role": "tenant", "personId": "demo-person-lotus-fatima", "unitId": "demo-unit-lotus-c104" }
+      ],
+      "persons": [
+        { "id": "demo-person-lotus-omkar", "name": "Omkar Bhide", "phone": "9000050101", "emergencyContact": "9000094101" },
+        { "id": "demo-person-lotus-tanvi", "name": "Tanvi Apte", "phone": "9000050102", "emergencyContact": "9000094102" },
+        { "id": "demo-person-lotus-arjun", "name": "Arjun Pillai", "phone": "9000050201", "emergencyContact": "9000094201" },
+        { "id": "demo-person-lotus-fatima", "name": "Fatima Khan", "phone": "9000050202", "emergencyContact": "9000094202" },
+        { "id": "demo-person-lotus-parag", "name": "Parag Shah", "phone": "9000050103", "emergencyContact": "9000094103" },
+        { "id": "demo-person-lotus-swati", "name": "Swati Deshpande", "phone": "9000050104", "emergencyContact": "9000094104" },
+        { "id": "demo-person-lotus-rehan", "name": "Rehan Qureshi", "phone": "9000050105", "emergencyContact": "9000094105" }
+      ],
+      "units": [
+        { "id": "demo-unit-lotus-a101", "wing": "A", "flatNumber": "A-101", "floor": 1, "unitType": "3BHK", "carpetArea": 1180, "occupancyStatus": "OWNER_OCCUPIED", "parkingSlots": 2, "intercomNumber": "101" },
+        { "id": "demo-unit-lotus-a102", "wing": "A", "flatNumber": "A-102", "floor": 1, "unitType": "2BHK", "carpetArea": 880, "occupancyStatus": "VACANT", "parkingSlots": 1, "intercomNumber": "102" },
+        { "id": "demo-unit-lotus-a201", "wing": "A", "flatNumber": "A-201", "floor": 2, "unitType": "3BHK", "carpetArea": 1200, "occupancyStatus": "OWNER_OCCUPIED", "parkingSlots": 2, "intercomNumber": "201" },
+        { "id": "demo-unit-lotus-a202", "wing": "A", "flatNumber": "A-202", "floor": 2, "unitType": "2BHK", "carpetArea": 875, "occupancyStatus": "VACANT", "parkingSlots": 1, "intercomNumber": "202" },
+        { "id": "demo-unit-lotus-a301", "wing": "A", "flatNumber": "A-301", "floor": 3, "unitType": "3BHK", "carpetArea": 1210, "occupancyStatus": "LOCKED", "parkingSlots": 2, "intercomNumber": "301" },
+        { "id": "demo-unit-lotus-a302", "wing": "A", "flatNumber": "A-302", "floor": 3, "unitType": "2BHK", "carpetArea": 890, "occupancyStatus": "TENANT_OCCUPIED", "parkingSlots": 1, "intercomNumber": "302" },
+        { "id": "demo-unit-lotus-b101", "wing": "B", "flatNumber": "B-101", "floor": 1, "unitType": "2BHK", "carpetArea": 870, "occupancyStatus": "UNDER_RENOVATION", "parkingSlots": 1, "intercomNumber": "401" },
+        { "id": "demo-unit-lotus-b102", "wing": "B", "flatNumber": "B-102", "floor": 1, "unitType": "3BHK", "carpetArea": 1165, "occupancyStatus": "VACANT", "parkingSlots": 2, "intercomNumber": "402" },
+        { "id": "demo-unit-lotus-b203", "wing": "B", "flatNumber": "B-203", "floor": 2, "unitType": "2BHK", "carpetArea": 895, "occupancyStatus": "OWNER_OCCUPIED", "parkingSlots": 1, "intercomNumber": "503" },
+        { "id": "demo-unit-lotus-b204", "wing": "B", "flatNumber": "B-204", "floor": 2, "unitType": "3BHK", "carpetArea": 1195, "occupancyStatus": "OWNER_OCCUPIED", "parkingSlots": 2, "intercomNumber": "504" },
+        { "id": "demo-unit-lotus-b301", "wing": "B", "flatNumber": "B-301", "floor": 3, "unitType": "PENTHOUSE", "carpetArea": 1720, "occupancyStatus": "VACANT", "parkingSlots": 2, "intercomNumber": "601" },
+        { "id": "demo-unit-lotus-b302", "wing": "B", "flatNumber": "B-302", "floor": 3, "unitType": "2BHK", "carpetArea": 900, "occupancyStatus": "VACANT", "parkingSlots": 1, "intercomNumber": "602" },
+        { "id": "demo-unit-lotus-c101", "wing": "C", "flatNumber": "C-101", "floor": 1, "unitType": "2BHK", "carpetArea": 860, "occupancyStatus": "OWNER_OCCUPIED", "parkingSlots": 1, "intercomNumber": "701" },
+        { "id": "demo-unit-lotus-c102", "wing": "C", "flatNumber": "C-102", "floor": 1, "unitType": "2BHK", "carpetArea": 865, "occupancyStatus": "VACANT", "parkingSlots": 1, "intercomNumber": "702" },
+        { "id": "demo-unit-lotus-c103", "wing": "C", "flatNumber": "C-103", "floor": 1, "unitType": "SHOP", "usageType": "COMMERCIAL", "carpetArea": 500, "occupancyStatus": "OWNER_OCCUPIED", "parkingSlots": 0, "intercomNumber": "703" },
+        { "id": "demo-unit-lotus-c104", "wing": "C", "flatNumber": "C-104", "floor": 1, "unitType": "1BHK", "carpetArea": 610, "occupancyStatus": "TENANT_OCCUPIED", "parkingSlots": 0, "intercomNumber": "704" },
+        { "id": "demo-unit-lotus-c201", "wing": "C", "flatNumber": "C-201", "floor": 2, "unitType": "3BHK", "carpetArea": 1225, "occupancyStatus": "VACANT", "parkingSlots": 2, "intercomNumber": "801" },
+        { "id": "demo-unit-lotus-c202", "wing": "C", "flatNumber": "C-202", "floor": 2, "unitType": "2BHK", "carpetArea": 890, "occupancyStatus": "LOCKED", "parkingSlots": 1, "intercomNumber": "802" }
+      ],
+      "occupancies": [
+        { "id": "demo-occ-lotus-a101-owner", "unitId": "demo-unit-lotus-a101", "personId": "demo-person-lotus-omkar", "relationshipType": "OWNER", "billingResponsibility": "OWNER", "moveInDate": "2021-05-01", "isPrimaryOccupant": true },
+        { "id": "demo-occ-lotus-b204-owner", "unitId": "demo-unit-lotus-b204", "personId": "demo-person-lotus-tanvi", "relationshipType": "OWNER", "billingResponsibility": "OWNER", "moveInDate": "2020-02-20", "isPrimaryOccupant": true },
+        { "id": "demo-occ-lotus-a302-owner", "unitId": "demo-unit-lotus-a302", "personId": "demo-person-lotus-parag", "relationshipType": "OWNER", "billingResponsibility": "TENANT", "moveInDate": "2019-05-01", "isPrimaryOccupant": false },
+        { "id": "demo-occ-lotus-a302-tenant", "unitId": "demo-unit-lotus-a302", "personId": "demo-person-lotus-arjun", "relationshipType": "TENANT", "billingResponsibility": "TENANT", "moveInDate": "2025-11-01", "agreementEndDate": "2026-10-31", "vehicleCount": 1, "isPrimaryOccupant": true },
+        { "id": "demo-occ-lotus-c104-owner", "unitId": "demo-unit-lotus-c104", "personId": "demo-person-lotus-swati", "relationshipType": "OWNER", "billingResponsibility": "TENANT", "moveInDate": "2018-04-10", "isPrimaryOccupant": false },
+        { "id": "demo-occ-lotus-c104-tenant", "unitId": "demo-unit-lotus-c104", "personId": "demo-person-lotus-fatima", "relationshipType": "TENANT", "billingResponsibility": "TENANT", "moveInDate": "2026-03-01", "agreementEndDate": "2027-02-28", "vehicleCount": 0, "isPrimaryOccupant": true },
+        { "id": "demo-occ-lotus-c101-owner", "unitId": "demo-unit-lotus-c101", "personId": "demo-person-lotus-rehan", "relationshipType": "OWNER", "billingResponsibility": "OWNER", "moveInDate": "2022-09-09", "isPrimaryOccupant": true }
+      ]
+    }
+  ]
+}
