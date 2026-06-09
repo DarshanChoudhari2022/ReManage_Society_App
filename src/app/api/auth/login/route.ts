@@ -5,6 +5,7 @@ import bcrypt from "bcryptjs";
 import { NextRequest } from "next/server";
 import { headers } from "next/headers";
 import { getOidcLoginUrl } from "@/lib/auth";
+import { isKeycloakEnabled } from "@/lib/keycloak-config";
 import { redirect } from "next/navigation";
 
 // Retry helper for transient PgBouncer / connection errors
@@ -97,6 +98,10 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
+  if (!isKeycloakEnabled()) {
+    redirect("/login?error=keycloak_unavailable");
+  }
+
   const redirectUri = new URL("/api/auth/callback", request.url).toString();
   const loginUrl = getOidcLoginUrl(redirectUri);
   redirect(loginUrl);
