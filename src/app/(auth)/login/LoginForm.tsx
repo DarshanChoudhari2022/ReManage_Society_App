@@ -1,22 +1,25 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import { Building2, Eye, EyeOff, Shield } from "lucide-react";
-import { getDefaultRoute } from "@/lib/role-access";
 
 interface LoginFormProps {
   keycloakEnabled: boolean;
 }
 
 export default function LoginForm({ keycloakEnabled }: LoginFormProps) {
-  const router = useRouter();
   const searchParams = useSearchParams();
-  const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [form, setForm] = useState({ email: "", password: "" });
+
+  useEffect(() => {
+    const path = window.location.pathname;
+    if (path !== "/login") {
+      window.location.replace(`/login${window.location.search}`);
+    }
+  }, []);
 
   useEffect(() => {
     const error = searchParams.get("error");
@@ -26,47 +29,17 @@ export default function LoginForm({ keycloakEnabled }: LoginFormProps) {
       OIDC_EXCHANGE_FAILED: "Keycloak sign-in failed. Check client secret and redirect URI.",
       keycloak_unavailable: "Keycloak is not available on this environment. Use email and password.",
       access_denied: "Keycloak sign-in was cancelled.",
+      invalid_credentials: "Invalid email or password.",
+      missing_fields: "Email and password are required.",
+      rate_limited: "Too many login attempts. Please wait 1 minute.",
+      server_error: "Login failed. Please try again.",
     };
 
     toast.error(messages[error] || `Sign-in error: ${error}`);
   }, [searchParams]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-
-    try {
-      const res = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      });
-
-      const data = await res.json();
-
-      if (res.ok) {
-        if (data.expired) {
-          toast.error("Subscription expired! Contact your chairman.");
-          router.push("/expired");
-        } else {
-          const userRole = data.user?.role || "member";
-          const landingRoute = getDefaultRoute(userRole);
-          toast.success("Welcome back!");
-          router.push(landingRoute);
-        }
-        router.refresh();
-      } else {
-        toast.error(data.error || "Invalid credentials");
-      }
-    } catch {
-      toast.error("Something went wrong — please try again");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
-    <div className="min-h-screen flex items-center justify-center bg-surface px-4">
+    <div className="min-h-screen flex items-center justify-center bg-surface px-4" data-no-translate>
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-primary mb-4">
@@ -80,18 +53,24 @@ export default function LoginForm({ keycloakEnabled }: LoginFormProps) {
 
         <div className="card">
           <h2 className="text-lg font-semibold text-text-primary mb-6">Sign in to your account</h2>
-          <form onSubmit={handleSubmit}>
+          <form
+            method="POST"
+            action="/api/auth/login"
+            encType="application/x-www-form-urlencoded"
+          >
+            <input type="hidden" name="redirect" value="1" />
             <div className="form-group">
               <label htmlFor="email" className="label">
                 Email Address
               </label>
               <input
                 id="email"
+                name="email"
                 type="email"
+                autoComplete="email"
+                autoFocus
                 className="input"
                 placeholder="you@example.com"
-                value={form.email}
-                onChange={(e) => setForm({ ...form, email: e.target.value })}
                 required
               />
             </div>
@@ -103,11 +82,11 @@ export default function LoginForm({ keycloakEnabled }: LoginFormProps) {
               <div className="relative">
                 <input
                   id="password"
+                  name="password"
                   type={showPassword ? "text" : "password"}
+                  autoComplete="current-password"
                   className="input pr-10"
                   placeholder="••••••••"
-                  value={form.password}
-                  onChange={(e) => setForm({ ...form, password: e.target.value })}
                   required
                 />
                 <button
@@ -120,12 +99,8 @@ export default function LoginForm({ keycloakEnabled }: LoginFormProps) {
               </div>
             </div>
 
-            <button type="submit" disabled={loading} className="btn btn-primary w-full btn-lg mt-2">
-              {loading ? (
-                <div className="spinner !w-5 !h-5 !border-white/30 !border-t-white" />
-              ) : (
-                "Sign In"
-              )}
+            <button type="submit" className="btn btn-primary w-full btn-lg mt-2">
+              Sign In
             </button>
           </form>
 

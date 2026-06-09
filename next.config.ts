@@ -55,6 +55,11 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       {
+        source: "/SmartSocietyHub",
+        destination: "/login",
+        permanent: false,
+      },
+      {
         source: "/system/session",
         destination: "/system/sessions",
         permanent: true,

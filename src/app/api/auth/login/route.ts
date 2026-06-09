@@ -2,11 +2,12 @@ import { prisma } from "@/lib/prisma";
 import { createSession } from "@/lib/auth";
 import { authRateLimit } from "@/lib/rate-limit";
 import bcrypt from "bcryptjs";
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { headers } from "next/headers";
 import { getOidcLoginUrl } from "@/lib/auth";
 import { isKeycloakEnabled } from "@/lib/keycloak-config";
 import { redirect } from "next/navigation";
+import { getDefaultRoute } from "@/lib/role-access";
 
 // Retry helper for transient PgBouncer / connection errors
 async function findUserWithRetry(email: string, retries = 1) {
@@ -24,37 +25,83 @@ async function findUserWithRetry(email: string, retries = 1) {
   return null;
 }
 
+async function parseLoginBody(request: NextRequest): Promise<{
+  email: string;
+  password: string;
+  wantsRedirect: boolean;
+}> {
+  const contentType = request.headers.get("content-type") || "";
+
+  if (contentType.includes("application/json")) {
+    const body = await request.json();
+    return {
+      email: String(body.email ?? ""),
+      password: String(body.password ?? ""),
+      wantsRedirect: false,
+    };
+  }
+
+  const form = await request.formData();
+  return {
+    email: String(form.get("email") ?? ""),
+    password: String(form.get("password") ?? ""),
+    wantsRedirect: form.get("redirect") === "1",
+  };
+}
+
+function loginErrorResponse(
+  request: NextRequest,
+  wantsRedirect: boolean,
+  code: string,
+  status: number,
+) {
+  if (wantsRedirect) {
+    return NextResponse.redirect(
+      new URL(`/login?error=${encodeURIComponent(code)}`, request.url),
+      303,
+    );
+  }
+
+  const messages: Record<string, string> = {
+    missing_fields: "Email and password are required",
+    invalid_credentials: "Invalid credentials",
+    rate_limited: "Too many login attempts. Please wait 1 minute.",
+    server_error: "Login failed. Please try again.",
+  };
+
+  return Response.json({ error: messages[code] || code }, { status });
+}
+
 export async function POST(request: NextRequest) {
+  const contentType = request.headers.get("content-type") || "";
+  let wantsRedirect = !contentType.includes("application/json");
+
   try {
     // Rate limit by IP
     const h = await headers();
     const ip = h.get("x-forwarded-for")?.split(",")[0] || "unknown";
     if (!(await authRateLimit(ip))) {
-      return Response.json(
-        { error: "Too many login attempts. Please wait 1 minute." },
-        { status: 429 }
-      );
+      return loginErrorResponse(request, wantsRedirect, "rate_limited", 429);
     }
 
-    const { email, password } = await request.json();
+    const credentials = await parseLoginBody(request);
+    wantsRedirect = credentials.wantsRedirect;
+    const { email, password } = credentials;
 
     if (!email || !password) {
-      return Response.json(
-        { error: "Email and password are required" },
-        { status: 400 }
-      );
+      return loginErrorResponse(request, wantsRedirect, "missing_fields", 400);
     }
 
     const cleanEmail = email.trim().toLowerCase();
     const user = await findUserWithRetry(cleanEmail);
 
     if (!user) {
-      return Response.json({ error: "Invalid credentials" }, { status: 401 });
+      return loginErrorResponse(request, wantsRedirect, "invalid_credentials", 401);
     }
 
     const validPassword = await bcrypt.compare(password, user.password);
     if (!validPassword) {
-      return Response.json({ error: "Invalid credentials" }, { status: 401 });
+      return loginErrorResponse(request, wantsRedirect, "invalid_credentials", 401);
     }
 
     // Check society subscription
@@ -66,6 +113,9 @@ export async function POST(request: NextRequest) {
         });
         if (society?.subscriptionEnd && new Date(society.subscriptionEnd) < new Date()) {
           await createSession(user);
+          if (wantsRedirect) {
+            return NextResponse.redirect(new URL("/expired", request.url), 303);
+          }
           return Response.json({
             user: { id: user.id, name: user.name, email: user.email, role: user.role, societyId: user.societyId },
             expired: true,
@@ -79,6 +129,11 @@ export async function POST(request: NextRequest) {
 
     await createSession(user);
 
+    if (wantsRedirect) {
+      const landingRoute = getDefaultRoute(user.role);
+      return NextResponse.redirect(new URL(landingRoute, request.url), 303);
+    }
+
     return Response.json({
       user: {
         id: user.id,
@@ -90,10 +145,7 @@ export async function POST(request: NextRequest) {
     });
   } catch (error: unknown) {
     console.error("Login Error:", error instanceof Error ? error.message : error);
-    return Response.json(
-      { error: "Login failed. Please try again." },
-      { status: 500 }
-    );
+    return loginErrorResponse(request, wantsRedirect, "server_error", 500);
   }
 }
 

@@ -16,7 +16,7 @@ const publicPaths = [
   "/login",
   "/register",
   "/join",
-  "/api/auth/login",
+  "/api/auth/login",      // JSON + HTML form login
   "/api/auth/register",
   "/api/auth/join",
   "/api/societies/join-code",
@@ -41,8 +41,12 @@ const assetPatterns = [
   "/sitemap.xml",
 ];
 
-export default async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  if (pathname === "/SmartSocietyHub" || pathname === "/SmartSocietyHub/") {
+    return withSecurityHeaders(NextResponse.redirect(new URL("/login", request.url)));
+  }
 
   // Allow static assets
   if (assetPatterns.some((p) => pathname.startsWith(p)) || pathname.includes(".")) {
