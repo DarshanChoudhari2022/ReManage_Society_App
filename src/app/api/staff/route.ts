@@ -1,6 +1,11 @@
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import { getSession } from "@/lib/auth";
+import {
+  getResidentFlatForSession,
+  isResidentRole,
+  isStaffManagerRole,
+} from "@/lib/resident-flat";
 
 
 import {
@@ -23,8 +28,21 @@ async function legacyGET() {
       return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const where: {
+      societyId: string;
+      flatLinks?: { some: { flatId: string; isActive: true } };
+    } = { societyId: session.societyId };
+
+    if (isResidentRole(session.role)) {
+      const flat = await getResidentFlatForSession(session);
+      if (!flat) {
+        return Response.json([]);
+      }
+      where.flatLinks = { some: { flatId: flat.id, isActive: true } };
+    }
+
     const staff = await prisma.domesticStaff.findMany({
-      where: { societyId: session!.societyId },
+      where,
       include: {
         flatLinks: {
           where: { isActive: true },
@@ -54,13 +72,25 @@ async function legacyPOST(request: NextRequest) {
       return Response.json({ error: "Name, phone and category required" }, { status: 400 });
     }
 
+    let linkedFlatIds = Array.isArray(flatIds) ? flatIds.map(String) : [];
+
+    if (isResidentRole(session.role)) {
+      const flat = await getResidentFlatForSession(session);
+      if (!flat) {
+        return Response.json({ error: "No flat linked to this account" }, { status: 400 });
+      }
+      linkedFlatIds = [flat.id];
+    } else if (!isStaffManagerRole(session.role)) {
+      return Response.json({ error: "Forbidden" }, { status: 403 });
+    }
+
     // Generate unique 4-digit entry code
     const entryCode = String(Math.floor(1000 + Math.random() * 9000));
     const monthlyPay = Number(agreedMonthlyPay || 0);
 
     const staff = await prisma.domesticStaff.create({
       data: {
-        societyId: session!.societyId,
+        societyId: session.societyId,
         name,
         phone,
         category,
@@ -68,9 +98,9 @@ async function legacyPOST(request: NextRequest) {
         idProofType: idProofType || null,
         idProofUrl: idProofUrl || null,
         entryCode,
-        flatLinks: flatIds?.length
+        flatLinks: linkedFlatIds.length
           ? {
-              create: flatIds.map((flatId: string) => ({
+              create: linkedFlatIds.map((flatId: string) => ({
                 flatId,
                 schedule: schedule || null,
                 agreedMonthlyPay: Number.isFinite(monthlyPay) && monthlyPay > 0 ? monthlyPay : null,
@@ -91,5 +121,5 @@ async function legacyPOST(request: NextRequest) {
   }
 }
 
-export const GET = shimOrFallback({ legacyRoute: "/api/staff", nestPath: "/api/v1/operations/staff", method: "GET" }, legacyGET);
-export const POST = shimOrFallback({ legacyRoute: "/api/staff", nestPath: "/api/v1/operations/staff", method: "POST" }, legacyPOST);
+export const GET = shimOrFallback({ legacyRoute: LEGACY_ROUTE, nestPath: NEST_GET, method: "GET" }, legacyGET);
+export const POST = shimOrFallback({ legacyRoute: LEGACY_ROUTE, nestPath: NEST_POST, method: "POST" }, legacyPOST);

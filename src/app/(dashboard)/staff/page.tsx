@@ -5,6 +5,7 @@ import toast from "react-hot-toast";
 import { Plus, Users, Clock, Phone, Search, X, CheckCircle, LogOut as LogOutIcon, Briefcase } from "lucide-react";
 
 import { formatCurrency } from "@/lib/utils";
+import { useUser } from "@/lib/user-context";
 
 interface StaffMember {
   id: string;
@@ -33,6 +34,7 @@ const categoryStyles: Record<string, { bg: string; text: string; label: string }
 };
 
 export default function StaffPage() {
+  const { user, loaded } = useUser();
   const [staff, setStaff] = useState<StaffMember[]>([]);
   const [flats, setFlats] = useState<Flat[]>([]);
   const [loading, setLoading] = useState(true);
@@ -40,6 +42,10 @@ export default function StaffPage() {
   const [saving, setSaving] = useState(false);
   const [search, setSearch] = useState("");
   const [marking, setMarking] = useState<string | null>(null);
+  const [noFlatLinked, setNoFlatLinked] = useState(false);
+
+  const isResident = user.role === "member" || user.role === "tenant";
+  const canManageAllFlats = ["chairman", "secretary", "treasurer", "facility_manager"].includes(user.role);
 
   const [form, setForm] = useState({
     name: "",
@@ -51,20 +57,39 @@ export default function StaffPage() {
 
   const fetchStaff = useCallback(() => {
     setLoading(true);
-    fetch("/api/staff")
-      .then((r) => r.json())
+    fetch("/api/staff", { credentials: "include", cache: "no-store" })
+      .then(async (r) => {
+        if (!r.ok) {
+          const body = await r.json().catch(() => ({}));
+          throw new Error(body.error || `Failed to load staff (${r.status})`);
+        }
+        return r.json();
+      })
       .then((d) => setStaff(Array.isArray(d) ? d : []))
-      .catch(() => toast.error("Failed to load staff"))
+      .catch((err: Error) => toast.error(err.message || "Failed to load staff"))
       .finally(() => setLoading(false));
   }, []);
 
   useEffect(() => {
+    if (!loaded) return;
+
     fetchStaff();
-    fetch("/api/members?flatsOnly=true")
-      .then((r) => r.json())
-      .then((d) => setFlats(d.flats || d || []))
-      .catch(() => {});
-  }, [fetchStaff]);
+
+    if (canManageAllFlats) {
+      fetch("/api/members?flatsOnly=true", { credentials: "include" })
+        .then((r) => (r.ok ? r.json() : { flats: [] }))
+        .then((d) => setFlats(d.flats || d || []))
+        .catch(() => {});
+      return;
+    }
+
+    if (isResident && !user.flatNumber) {
+      setNoFlatLinked(true);
+      return;
+    }
+
+    setNoFlatLinked(false);
+  }, [loaded, fetchStaff, canManageAllFlats, isResident, user.flatNumber]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -151,7 +176,8 @@ export default function StaffPage() {
         </div>
         <button
           onClick={() => setShowForm(true)}
-          className="btn btn-primary !rounded-xl px-5 sm:px-8 py-2.5 sm:py-3 font-bold text-xs sm:text-sm shadow-md shadow-primary/10 transition-all hover:scale-[1.01] active:scale-[0.98] flex items-center justify-center"
+          disabled={noFlatLinked && isResident}
+          className="btn btn-primary !rounded-xl px-5 sm:px-8 py-2.5 sm:py-3 font-bold text-xs sm:text-sm shadow-md shadow-primary/10 transition-all hover:scale-[1.01] active:scale-[0.98] flex items-center justify-center disabled:opacity-50"
         >
           <Plus className="w-4 h-4 sm:w-5 sm:h-5 mr-2" /> Register Staff
         </button>
@@ -201,8 +227,14 @@ export default function StaffPage() {
       ) : filtered.length === 0 ? (
         <div className="card text-center py-24 bg-surface/30 border-dashed border-2">
           <Briefcase className="w-10 h-10 text-text-tertiary mx-auto mb-4 opacity-20" />
-          <p className="text-text-primary font-bold">No staff registered yet</p>
-          <p className="text-xs text-text-secondary mt-1">Register maids, cooks, drivers to start tracking attendance</p>
+          <p className="text-text-primary font-bold">
+            {noFlatLinked ? "No flat linked to your account" : "No staff registered yet"}
+          </p>
+          <p className="text-xs text-text-secondary mt-1">
+            {noFlatLinked
+              ? "Ask your society admin to link your flat, then register maids, cooks, or drivers here."
+              : "Register maids, cooks, drivers to start tracking attendance"}
+          </p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

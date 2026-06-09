@@ -1,16 +1,12 @@
 import { NextRequest } from "next/server";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-
-
-import {
-  buildDeprecationHeaders,
-  isNestShimEnabled,
-  jsonWithHeaders,
-  passThroughRateLimitHeaders,
-  proxyNestJson,
-} from "@/lib/api/nest-proxy";
+import { getResidentFlatForSession } from "@/lib/resident-flat";
 import { shimOrFallback } from "@/lib/api/nest-shim";
+
+const LEGACY_ROUTE = "/api/staff/payments";
+const NEST_GET = "/api/v1/operations/staff/payments/list";
+const NEST_POST = "/api/v1/operations/staff/payments/process";
 
 function currentMonth() {
   const now = new Date();
@@ -22,18 +18,6 @@ function parseAmount(value: unknown) {
   return Number.isFinite(amount) && amount > 0 ? amount : null;
 }
 
-async function getResidentFlat(session: NonNullable<Awaited<ReturnType<typeof getSession>>>) {
-  if (!session.flatId) return null;
-  return prisma.flat.findFirst({
-    where: { id: session.flatId, societyId: session.societyId },
-    select: { id: true, flatNumber: true, wing: true },
-  });
-}
-
-const LEGACY_ROUTE = "/api/staff/payments";
-const NEST_GET = "/api/v1/operations/staff/payments/list";
-const NEST_POST = "/api/v1/operations/staff/payments/process";
-
 async function legacyGET() {
   try {
     const session = await getSession();
@@ -41,7 +25,7 @@ async function legacyGET() {
       return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const flat = await getResidentFlat(session);
+    const flat = await getResidentFlatForSession(session);
     if (!flat) {
       return Response.json({ error: "No flat linked to this account" }, { status: 400 });
     }
@@ -93,7 +77,7 @@ async function legacyPOST(request: NextRequest) {
       return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const flat = await getResidentFlat(session);
+    const flat = await getResidentFlatForSession(session);
     if (!flat) {
       return Response.json({ error: "No flat linked to this account" }, { status: 400 });
     }
@@ -149,7 +133,7 @@ async function legacyPATCH(request: NextRequest) {
       return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const flat = await getResidentFlat(session);
+    const flat = await getResidentFlatForSession(session);
     if (!flat) {
       return Response.json({ error: "No flat linked to this account" }, { status: 400 });
     }
@@ -189,6 +173,6 @@ async function legacyPATCH(request: NextRequest) {
   }
 }
 
-export const GET = shimOrFallback({ legacyRoute: "/api/staff", nestPath: "/api/v1/operations/staff", method: "GET" }, legacyGET);
-export const POST = shimOrFallback({ legacyRoute: "/api/staff", nestPath: "/api/v1/operations/staff", method: "POST" }, legacyPOST);
-export const PATCH = shimOrFallback({ legacyRoute: "/api/staff", nestPath: "/api/v1/operations/staff", method: "PATCH" }, legacyPATCH);
+export const GET = shimOrFallback({ legacyRoute: LEGACY_ROUTE, nestPath: NEST_GET, method: "GET" }, legacyGET);
+export const POST = shimOrFallback({ legacyRoute: LEGACY_ROUTE, nestPath: NEST_POST, method: "POST" }, legacyPOST);
+export const PATCH = shimOrFallback({ legacyRoute: LEGACY_ROUTE, nestPath: NEST_POST, method: "PATCH" }, legacyPATCH);
