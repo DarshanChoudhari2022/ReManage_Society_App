@@ -2,7 +2,24 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Contact, Plus, MessageCircleMore, User as UserIcon } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import {
+  Home,
+  Contact,
+  Plus,
+  MessageCircleMore,
+  User as UserIcon,
+  Shield,
+  Package,
+  Phone,
+  X,
+  UserCheck,
+  AlertTriangle,
+  Building2,
+} from "lucide-react";
+import { useUser } from "@/lib/user-context";
+import { usePersonaNav } from "@/lib/navigation/use-persona-nav";
+import { getNavIcon } from "@/lib/navigation/nav-icons";
 
 interface BottomNavProps {
   userRole?: string;
@@ -10,43 +27,162 @@ interface BottomNavProps {
   societyId?: string;
 }
 
+const QUICK_ACTIONS = [
+  { href: "/my-visitors", label: "Pre-approve Visitor", icon: UserCheck },
+  { href: "/complaints", label: "Raise Complaint", icon: AlertTriangle },
+  { href: "/amenities", label: "Book Amenity", icon: Building2 },
+  { href: "/emergency", label: "SOS", icon: Phone },
+] as const;
+
 export default function BottomNav({
   userRole = "member",
   userId,
   societyId,
 }: BottomNavProps) {
   const pathname = usePathname();
+  const { user } = useUser();
+  const [showActions, setShowActions] = useState(false);
+  const sheetRef = useRef<HTMLDivElement>(null);
+
+  const personaNav = usePersonaNav(
+    societyId
+      ? { subject: userId || user.email || "user", societyId, role: userRole }
+      : null,
+  );
+
+  useEffect(() => {
+    if (!showActions) return;
+    const handler = (event: MouseEvent) => {
+      if (sheetRef.current && !sheetRef.current.contains(event.target as Node)) {
+        setShowActions(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [showActions]);
+
+  const isActive = (href: string) =>
+    href === "/dashboard" ? pathname === "/dashboard" || pathname === "/" : pathname.startsWith(href);
+
+  const navLinkClass = (href: string) =>
+    `flex flex-col items-center justify-center w-16 gap-1 ${
+      isActive(href) ? "text-[#F97316]" : "text-gray-400 hover:text-gray-600"
+    }`;
+
+  const iconStroke = (href: string) => (isActive(href) ? 2.5 : 2);
+
+  if (personaNav?.persona === "guard") {
+    const guardTabs = [
+      { href: "/visitors", label: "Gate", icon: Shield },
+      { href: "/packages", label: "Parcels", icon: Package },
+      { href: "/emergency", label: "SOS", icon: Phone },
+    ];
+
+    return (
+      <div className="fixed bottom-0 left-0 right-0 z-40 mx-auto max-w-[420px] border-t border-gray-100 bg-white pb-safe shadow-[0_-4px_20px_rgba(0,0,0,0.05)] lg:hidden">
+        <div className="relative flex h-16 items-center justify-around px-2">
+          {guardTabs.map((tab) => (
+            <Link key={tab.href} href={tab.href} className={navLinkClass(tab.href)}>
+              <tab.icon className="h-[22px] w-[22px]" strokeWidth={iconStroke(tab.href)} />
+              <span className="text-[10px] font-semibold">{tab.label}</span>
+            </Link>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (personaNav && personaNav.persona !== "resident" && personaNav.bottomNav.length > 0) {
+    const tabs = personaNav.bottomNav.slice(0, 5);
+
+    return (
+      <div className="fixed bottom-0 left-0 right-0 z-40 mx-auto max-w-[420px] border-t border-gray-100 bg-white pb-safe shadow-[0_-4px_20px_rgba(0,0,0,0.05)] lg:hidden">
+        <div className="relative flex h-16 items-center justify-around px-2">
+          {tabs.map((tab) => {
+            const Icon = getNavIcon(tab.iconKey);
+            return (
+              <Link key={tab.href} href={tab.href} className={navLinkClass(tab.href)}>
+                <Icon className="h-[22px] w-[22px]" strokeWidth={iconStroke(tab.href)} />
+                <span className="text-[10px] font-semibold">{tab.label}</span>
+              </Link>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-100 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] pb-safe lg:hidden max-w-[420px] mx-auto">
-      <div className="flex h-16 items-center justify-around px-2 relative">
-        <Link href="/dashboard" className={`flex flex-col items-center justify-center w-16 gap-1 ${pathname === "/dashboard" || pathname === "/" ? "text-[#F97316]" : "text-gray-400 hover:text-gray-600"}`}>
-          <Home className="w-[22px] h-[22px]" strokeWidth={pathname === "/dashboard" || pathname === "/" ? 2.5 : 2} />
-          <span className="text-[10px] font-semibold">Home</span>
-        </Link>
-        
-        <Link href="/my-society" className={`flex flex-col items-center justify-center w-16 gap-1 ${pathname.startsWith("/my-society") ? "text-[#F97316]" : "text-gray-400 hover:text-gray-600"}`}>
-          <Contact className="w-[22px] h-[22px]" strokeWidth={pathname.startsWith("/my-society") ? 2.5 : 2} />
-          <span className="text-[10px] font-semibold">My Society</span>
-        </Link>
-        
-        {/* Center Floating Action Button */}
-        <div className="relative w-16 flex justify-center -mt-8">
-          <button className="w-12 h-12 bg-[#F97316] hover:bg-[#ea580c] text-white rounded-full flex items-center justify-center shadow-[0_4px_10px_rgba(249,115,22,0.3)] transition-transform hover:scale-105 active:scale-95">
-            <Plus className="w-6 h-6" strokeWidth={2.5} />
-          </button>
+    <>
+      {showActions && (
+        <div className="fixed inset-0 z-50 bg-black/30 lg:hidden" aria-hidden="true" />
+      )}
+
+      <div className="fixed bottom-0 left-0 right-0 z-40 mx-auto max-w-[420px] border-t border-gray-100 bg-white pb-safe shadow-[0_-4px_20px_rgba(0,0,0,0.05)] lg:hidden">
+        {showActions && (
+          <div
+            ref={sheetRef}
+            className="absolute bottom-[4.5rem] left-1/2 z-50 w-[min(18rem,calc(100%-2rem))] -translate-x-1/2 rounded-2xl border border-gray-100 bg-white p-2 shadow-xl"
+          >
+            <div className="mb-1 flex items-center justify-between px-2 py-1">
+              <p className="text-xs font-bold uppercase tracking-wider text-gray-500">Quick Add</p>
+              <button
+                type="button"
+                onClick={() => setShowActions(false)}
+                className="rounded-lg p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+                aria-label="Close quick actions"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            {QUICK_ACTIONS.map((action) => (
+              <Link
+                key={action.href}
+                href={action.href}
+                onClick={() => setShowActions(false)}
+                className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-gray-700 transition-colors hover:bg-[#FFF7ED]"
+              >
+                <action.icon className="h-4 w-4 text-[#F97316]" />
+                {action.label}
+              </Link>
+            ))}
+          </div>
+        )}
+
+        <div className="relative flex h-16 items-center justify-around px-2">
+          <Link href="/dashboard" className={navLinkClass("/dashboard")}>
+            <Home className="h-[22px] w-[22px]" strokeWidth={iconStroke("/dashboard")} />
+            <span className="text-[10px] font-semibold">Home</span>
+          </Link>
+
+          <Link href="/my-society" className={navLinkClass("/my-society")}>
+            <Contact className="h-[22px] w-[22px]" strokeWidth={iconStroke("/my-society")} />
+            <span className="text-[10px] font-semibold">My Society</span>
+          </Link>
+
+          <div className="relative -mt-8 flex w-16 justify-center">
+            <button
+              type="button"
+              onClick={() => setShowActions((open) => !open)}
+              className="flex h-12 w-12 items-center justify-center rounded-full bg-[#F97316] text-white shadow-[0_4px_10px_rgba(249,115,22,0.3)] transition-transform hover:scale-105 hover:bg-[#ea580c] active:scale-95"
+              aria-label="Quick actions"
+              aria-expanded={showActions}
+            >
+              <Plus className="h-6 w-6" strokeWidth={2.5} />
+            </button>
+          </div>
+
+          <Link href="/services" className={navLinkClass("/services")}>
+            <MessageCircleMore className="h-[22px] w-[22px]" strokeWidth={iconStroke("/services")} />
+            <span className="text-[10px] font-semibold">Services</span>
+          </Link>
+
+          <Link href="/profile" className={navLinkClass("/profile")}>
+            <UserIcon className="h-[22px] w-[22px]" strokeWidth={iconStroke("/profile")} />
+            <span className="text-[10px] font-semibold">Profile</span>
+          </Link>
         </div>
-        
-        <Link href="/services" className={`flex flex-col items-center justify-center w-16 gap-1 ${pathname.startsWith("/services") ? "text-[#F97316]" : "text-gray-400 hover:text-gray-600"}`}>
-          <MessageCircleMore className="w-[22px] h-[22px]" strokeWidth={pathname.startsWith("/services") ? 2.5 : 2} />
-          <span className="text-[10px] font-semibold">Services</span>
-        </Link>
-        
-        <Link href="/profile" className={`flex flex-col items-center justify-center w-16 gap-1 ${pathname.startsWith("/profile") ? "text-[#F97316]" : "text-gray-400 hover:text-gray-600"}`}>
-          <UserIcon className="w-[22px] h-[22px]" strokeWidth={pathname.startsWith("/profile") ? 2.5 : 2} />
-          <span className="text-[10px] font-semibold">Profile</span>
-        </Link>
       </div>
-    </div>
+    </>
   );
 }

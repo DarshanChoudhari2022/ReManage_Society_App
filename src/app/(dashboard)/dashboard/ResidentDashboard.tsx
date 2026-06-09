@@ -52,32 +52,32 @@ export default function ResidentDashboard({ user }: any) {
             <p className="text-white/90 text-xs font-medium mb-1">Total Outstanding</p>
             <h2 className="text-white text-3xl font-bold tracking-tight">₹ 2,450</h2>
           </div>
-          <button className="bg-white text-[#F97316] hover:bg-orange-50 transition-colors font-bold text-sm px-5 py-2 rounded-full shadow-sm">
+          <Link href="/my-bills" className="bg-white text-[#F97316] hover:bg-orange-50 transition-colors font-bold text-sm px-5 py-2 rounded-full shadow-sm">
             Pay Now
-          </button>
+          </Link>
         </div>
       </div>
 
       {/* SECTION 3 - Stats Row */}
       <div className="px-5 mb-8">
         <div className="bg-white rounded-[16px] p-4 shadow-[0_2px_12px_rgba(0,0,0,0.06)] border border-gray-100 flex justify-between items-center">
-          <div className="flex-1 flex flex-col items-center">
+          <Link href="/notices" className="flex-1 flex flex-col items-center">
             <span className="text-xs font-bold text-gray-900 mb-1">Notices</span>
             <span className="text-2xl font-extrabold text-gray-900 leading-none">05</span>
             <span className="text-[10px] text-gray-500 mt-1 font-medium">Unread</span>
-          </div>
+          </Link>
           <div className="w-px h-12 bg-gray-100"></div>
-          <div className="flex-1 flex flex-col items-center">
+          <Link href="/complaints" className="flex-1 flex flex-col items-center">
             <span className="text-xs font-bold text-gray-900 mb-1">Complaints</span>
             <span className="text-2xl font-extrabold text-gray-900 leading-none">02</span>
             <span className="text-[10px] text-gray-500 mt-1 font-medium">Open</span>
-          </div>
+          </Link>
           <div className="w-px h-12 bg-gray-100"></div>
-          <div className="flex-1 flex flex-col items-center">
+          <Link href="/my-visitors" className="flex-1 flex flex-col items-center">
             <span className="text-xs font-bold text-gray-900 mb-1">Visitors</span>
             <span className="text-2xl font-extrabold text-gray-900 leading-none">03</span>
             <span className="text-[10px] text-gray-500 mt-1 font-medium">Today</span>
-          </div>
+          </Link>
         </div>
       </div>
 
@@ -130,12 +130,12 @@ export default function ResidentDashboard({ user }: any) {
             </div>
             <span className="text-[11px] font-medium text-gray-800">Events</span>
           </Link>
-          <button className="flex flex-col items-center gap-2 group">
+          <Link href="/services" className="flex flex-col items-center gap-2 group">
             <div className="w-12 h-12 rounded-[14px] bg-[#F3F4F6] flex items-center justify-center">
               <MoreVertical className="w-5 h-5 text-[#374151]" strokeWidth={2.5} />
             </div>
             <span className="text-[11px] font-medium text-gray-800">More</span>
-          </button>
+          </Link>
         </div>
       </div>
 

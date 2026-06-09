@@ -55,6 +55,9 @@ const ROLE_ROUTES: Record<string, string[]> = {
 
   // ── Society Member: community + personal features ─────
   member: [
+    "/my-society",
+    "/services",
+    "/profile",
     "/my-bills",
     "/receipts",
     "/my-visitors",
@@ -99,6 +102,9 @@ const ROLE_ROUTES: Record<string, string[]> = {
 
   // ── Tenant: same as member ────────────────────────────
   tenant: [
+    "/my-society",
+    "/services",
+    "/profile",
     "/my-bills",
     "/receipts",
     "/my-visitors",

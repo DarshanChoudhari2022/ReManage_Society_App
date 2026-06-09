@@ -666,23 +666,23 @@ function ResidentDashboard({
 
         {/* SECTION 3 - Stats Row */}
         <div className="bg-white dark:bg-[#1E1E1E] rounded-2xl py-4 px-2 shadow-[0_2px_12px_rgba(0,0,0,0.04)] dark:shadow-[0_2px_12px_rgba(0,0,0,0.3)] border border-[#FED7AA]/40 dark:border-[#303030] flex justify-between items-center">
-          <div className="flex-1 flex flex-col items-center">
+          <Link href="/notices" className="flex-1 flex flex-col items-center">
             <span className="text-[11px] font-bold text-gray-500 dark:text-gray-400 mb-1">{t("Notices")}</span>
             <span className="text-xl font-extrabold text-[#F97316] dark:text-[#FB923C] leading-none">{String(unreadNotices).padStart(2, "0")}</span>
             <span className="text-[10px] text-gray-400 dark:text-gray-500 mt-1 font-medium">{t("Unread")}</span>
-          </div>
+          </Link>
           <div className="w-px h-10 bg-gray-100 dark:bg-[#303030]"></div>
-          <div className="flex-1 flex flex-col items-center">
+          <Link href="/complaints" className="flex-1 flex flex-col items-center">
             <span className="text-[11px] font-bold text-gray-500 dark:text-gray-400 mb-1">{t("Complaints")}</span>
             <span className="text-xl font-extrabold text-gray-900 dark:text-[#FAF7F5] leading-none">{String(openComplaints).padStart(2, "0")}</span>
             <span className="text-[10px] text-gray-400 dark:text-gray-500 mt-1 font-medium">{t("Open")}</span>
-          </div>
+          </Link>
           <div className="w-px h-10 bg-gray-100 dark:bg-[#303030]"></div>
-          <div className="flex-1 flex flex-col items-center">
+          <Link href="/my-visitors" className="flex-1 flex flex-col items-center">
             <span className="text-[11px] font-bold text-gray-500 dark:text-gray-400 mb-1">{t("Visitors")}</span>
             <span className="text-xl font-extrabold text-[#2563EB] dark:text-[#60A5FA] leading-none">{String(visitorsToday).padStart(2, "0")}</span>
             <span className="text-[10px] text-gray-400 dark:text-gray-500 mt-1 font-medium">{t("Today")}</span>
-          </div>
+          </Link>
         </div>
 
         {/* SECTION 4 - Quick Access Grid (wrapped in card) */}
@@ -734,12 +734,12 @@ function ResidentDashboard({
               </div>
               <span className="text-[11px] font-semibold text-gray-700 dark:text-gray-300">{t("Events")}</span>
             </Link>
-            <button className="flex flex-col items-center gap-1.5">
+            <Link href="/services" className="flex flex-col items-center gap-1.5">
               <div className="w-11 h-11 rounded-[12px] bg-[#F3F4F6] dark:bg-[#374151]/40 flex items-center justify-center border border-gray-100 dark:border-[#374151]/60">
                 <MoreHorizontal className="w-5 h-5 text-[#6B7280] dark:text-[#9CA3AF]" strokeWidth={2} />
               </div>
               <span className="text-[11px] font-semibold text-gray-700 dark:text-gray-300">{t("More")}</span>
-            </button>
+            </Link>
           </div>
         </div>
 
