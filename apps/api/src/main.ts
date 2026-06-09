@@ -3,12 +3,14 @@ import { Logger, ValidationPipe } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import { FastifyAdapter, NestFastifyApplication } from "@nestjs/platform-fastify";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
+import { assertProductionReady } from "../../../packages/config/src/production.ts";
 import { AppModule } from "./app.module.js";
 import { ProblemJsonFilter } from "./common/problem-json.filter.js";
 
 const logger = new Logger("ApiBootstrap");
 
 async function bootstrap() {
+  assertProductionReady(process.env);
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     new FastifyAdapter({

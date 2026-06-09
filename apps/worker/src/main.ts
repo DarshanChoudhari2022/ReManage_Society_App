@@ -2,6 +2,7 @@ import "reflect-metadata";
 import { Logger } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
+import { assertProductionReady } from "../../../packages/config/src/production.ts";
 import { AppModule } from "./app.module.js";
 import { WorkerHealthService } from "./health/worker-health.js";
 
@@ -14,6 +15,8 @@ function sendJson(response: ServerResponse, statusCode: number, body: unknown): 
 }
 
 async function bootstrap() {
+  assertProductionReady(process.env);
+
   const app = await NestFactory.createApplicationContext(AppModule, {
     logger: ["log", "warn", "error"],
   });
