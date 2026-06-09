@@ -19,18 +19,25 @@ export default defineConfig({
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
   },
-  projects: [
-    {
-      name: "Desktop Chrome",
-      use: { ...devices["Desktop Chrome"] },
-    },
-    {
-      name: "Pixel 7",
-      use: { ...devices["Pixel 7"] },
-    },
-    {
-      name: "iPad Mini",
-      use: { ...devices["iPad Mini"] },
-    },
-  ],
+  projects: process.env.CI
+    ? [
+        {
+          name: "Desktop Chrome",
+          use: { ...devices["Desktop Chrome"] },
+        },
+      ]
+    : [
+        {
+          name: "Desktop Chrome",
+          use: { ...devices["Desktop Chrome"] },
+        },
+        {
+          name: "Pixel 7",
+          use: { ...devices["Pixel 7"] },
+        },
+        {
+          name: "iPad Mini",
+          use: { ...devices["iPad Mini"] },
+        },
+      ],
 });
