@@ -27,6 +27,7 @@ const publicPaths = [
   "/complaint/submit",    // Public complaint submission
   "/api/complaint/public",
   "/api/subscription",    // Subscription check
+  "/api/health/db",       // DB connectivity diagnostic (redacted host only)
 ];
 
 // Static assets that should never go through auth
