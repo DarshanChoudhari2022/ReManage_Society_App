@@ -7,14 +7,14 @@ import { recordMaintenanceBillPayment } from "@/domain/maintenance-finance";
 
 export async function POST(
   request: NextRequest,
-  ctx: RouteContext<"/api/my-bills/[id]/pay">
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await getSession();
   if (!session?.societyId) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { id } = await ctx.params;
+  const { id } = await params;
   const body = await request.json().catch(() => ({}));
 
   const user = await prisma.user.findUnique({

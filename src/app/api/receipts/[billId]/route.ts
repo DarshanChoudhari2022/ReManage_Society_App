@@ -17,14 +17,14 @@ const NEST_POST = "/api/v1/finance-core/payments/record";
 
 async function legacyGET(
   _request: NextRequest,
-  ctx: RouteContext<"/api/receipts/[billId]">
+  { params }: { params: Promise<{ billId: string }> }
 ) {
   const session = await getSession();
   if (!session?.societyId) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { billId } = await ctx.params;
+  const { billId } = await params;
 
   const bill = await prisma.maintenanceBill.findFirst({
     where: {

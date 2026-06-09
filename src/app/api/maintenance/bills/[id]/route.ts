@@ -21,14 +21,14 @@ const NEST_PATCH = "/api/v1/finance-core/maintenance/bills/detail/update";
 
 async function legacyPATCH(
   request: NextRequest,
-  ctx: RouteContext<"/api/maintenance/bills/[id]">
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await getSession();
   if (!session?.societyId) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { id } = await ctx.params;
+  const { id } = await params;
   const body = await request.json();
 
   const bill = await prisma.maintenanceBill.findFirst({
@@ -159,14 +159,14 @@ async function legacyPATCH(
 
 async function legacyDELETE(
   _request: NextRequest,
-  ctx: RouteContext<"/api/maintenance/bills/[id]">
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await getSession();
   if (!session?.societyId || !["chairman", "secretary", "treasurer"].includes(session.role)) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { id } = await ctx.params;
+  const { id } = await params;
   const bill = await prisma.maintenanceBill.findFirst({
     where: { id, societyId: session.societyId },
     include: { flat: true },

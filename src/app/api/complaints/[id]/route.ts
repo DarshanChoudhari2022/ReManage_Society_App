@@ -18,14 +18,14 @@ const NEST_DELETE = "/api/v1/community/helpdesk/detail/remove";
 
 async function legacyPATCH(
   request: NextRequest,
-  ctx: RouteContext<"/api/complaints/[id]">
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await getSession();
   if (!session?.societyId) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { id } = await ctx.params;
+  const { id } = await params;
   const body = await request.json();
 
   const complaint = await prisma.complaint.findFirst({
@@ -50,14 +50,14 @@ async function legacyPATCH(
 
 async function legacyDELETE(
   request: NextRequest,
-  ctx: RouteContext<"/api/complaints/[id]">
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await getSession();
   if (!session?.societyId) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { id } = await ctx.params;
+  const { id } = await params;
 
   await prisma.complaint.deleteMany({
     where: { id, societyId: session!.societyId },
