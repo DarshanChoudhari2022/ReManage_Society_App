@@ -2,7 +2,21 @@ import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import { getSession } from "@/lib/auth";
 
-export async function GET() {
+
+import {
+  buildDeprecationHeaders,
+  isNestShimEnabled,
+  jsonWithHeaders,
+  passThroughRateLimitHeaders,
+  proxyNestJson,
+} from "@/lib/api/nest-proxy";
+import { shimOrFallback } from "@/lib/api/nest-shim";
+
+const LEGACY_ROUTE = "/api/staff";
+const NEST_GET = "/api/v1/operations/staff/list";
+const NEST_POST = "/api/v1/operations/staff/create";
+
+async function legacyGET() {
   try {
     const session = await getSession();
     if (!session?.societyId) {
@@ -26,7 +40,7 @@ export async function GET() {
   }
 }
 
-export async function POST(request: NextRequest) {
+async function legacyPOST(request: NextRequest) {
   try {
     const session = await getSession();
     if (!session?.societyId) {
@@ -76,3 +90,6 @@ export async function POST(request: NextRequest) {
     return Response.json({ error: "Failed to create staff" }, { status: 500 });
   }
 }
+
+export const GET = shimOrFallback({ legacyRoute: "/api/staff", nestPath: "/api/v1/operations/staff", method: "GET" }, legacyGET);
+export const POST = shimOrFallback({ legacyRoute: "/api/staff", nestPath: "/api/v1/operations/staff", method: "POST" }, legacyPOST);

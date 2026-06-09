@@ -2,7 +2,20 @@ import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 
-export async function GET(
+
+import {
+  buildDeprecationHeaders,
+  isNestShimEnabled,
+  jsonWithHeaders,
+  passThroughRateLimitHeaders,
+  proxyNestJson,
+} from "@/lib/api/nest-proxy";
+import { shimOrFallback } from "@/lib/api/nest-shim";
+
+const LEGACY_ROUTE = "/api/receipts/[billId]";
+const NEST_POST = "/api/v1/finance-core/payments/record";
+
+async function legacyGET(
   _request: NextRequest,
   ctx: RouteContext<"/api/receipts/[billId]">
 ) {
@@ -28,3 +41,5 @@ export async function GET(
 
   return Response.json({ bill });
 }
+
+export const GET = shimOrFallback({ legacyRoute: "/api/receipts", nestPath: "/api/v1/finance-core/payments/record", method: "GET" }, legacyGET);

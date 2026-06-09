@@ -2,7 +2,21 @@ import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 
-export async function GET() {
+
+import {
+  buildDeprecationHeaders,
+  isNestShimEnabled,
+  jsonWithHeaders,
+  passThroughRateLimitHeaders,
+  proxyNestJson,
+} from "@/lib/api/nest-proxy";
+import { shimOrFallback } from "@/lib/api/nest-shim";
+
+const LEGACY_ROUTE = "/api/facilities";
+const NEST_GET = "/api/v1/operations/amenities/list";
+const NEST_POST = "/api/v1/operations/amenities/create";
+
+async function legacyGET() {
   const session = await getSession();
   if (!session?.societyId) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
@@ -23,7 +37,7 @@ export async function GET() {
   return Response.json({ facilities });
 }
 
-export async function POST(request: NextRequest) {
+async function legacyPOST(request: NextRequest) {
   const session = await getSession();
   if (!session?.societyId) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
@@ -66,3 +80,6 @@ export async function POST(request: NextRequest) {
     return Response.json({ error: "Something went wrong" }, { status: 500 });
   }
 }
+
+export const GET = shimOrFallback({ legacyRoute: "/api/facilities", nestPath: "/api/v1/operations/amenities", method: "GET" }, legacyGET);
+export const POST = shimOrFallback({ legacyRoute: "/api/facilities", nestPath: "/api/v1/operations/amenities", method: "POST" }, legacyPOST);

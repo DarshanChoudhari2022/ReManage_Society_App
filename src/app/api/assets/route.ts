@@ -1,7 +1,21 @@
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/rbac";
 
-export async function GET() {
+
+import {
+  buildDeprecationHeaders,
+  isNestShimEnabled,
+  jsonWithHeaders,
+  passThroughRateLimitHeaders,
+  proxyNestJson,
+} from "@/lib/api/nest-proxy";
+import { shimOrFallback } from "@/lib/api/nest-shim";
+
+const LEGACY_ROUTE = "/api/assets";
+const NEST_GET = "/api/v1/operations/assets/list";
+const NEST_POST = "/api/v1/operations/assets/create";
+
+async function legacyGET() {
   const { error, status, session } = await requireAdmin();
   if (error) return Response.json({ error }, { status });
 
@@ -13,7 +27,7 @@ export async function GET() {
   return Response.json(assets);
 }
 
-export async function POST(request: Request) {
+async function legacyPOST(request: Request) {
   const { error, status, session } = await requireAdmin();
   if (error) return Response.json({ error }, { status });
 
@@ -48,3 +62,6 @@ export async function POST(request: Request) {
 
   return Response.json(asset, { status: 201 });
 }
+
+export const GET = shimOrFallback({ legacyRoute: "/api/assets", nestPath: "/api/v1/operations/assets", method: "GET" }, legacyGET);
+export const POST = shimOrFallback({ legacyRoute: "/api/assets", nestPath: "/api/v1/operations/assets", method: "POST" }, legacyPOST);

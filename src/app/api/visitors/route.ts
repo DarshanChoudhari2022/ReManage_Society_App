@@ -9,6 +9,7 @@ import {
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import { logCreated } from "@/lib/activity-log";
+import { shimOrFallback } from "@/lib/api/nest-shim";
 
 const LEGACY_ROUTE = "/api/visitors";
 const NEST_LIST = "/api/v1/operations/visitors/list";
@@ -26,7 +27,7 @@ function adaptNestVisitors(records: LegacyVisitorRow[]): LegacyVisitorRow[] {
   }));
 }
 
-export async function GET(request: NextRequest) {
+async function legacyGET(request: NextRequest) {
   const session = await getSession();
   if (!session?.societyId) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
@@ -124,7 +125,7 @@ export async function GET(request: NextRequest) {
   );
 }
 
-export async function POST(request: NextRequest) {
+async function legacyPOST(request: NextRequest) {
   const session = await getSession();
   if (!session?.societyId) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
@@ -167,3 +168,6 @@ export async function POST(request: NextRequest) {
     return Response.json({ error: "Something went wrong" }, { status: 500 });
   }
 }
+
+export const GET = shimOrFallback({ legacyRoute: "/api/visitors", nestPath: "/api/v1/operations/visitors", method: "GET" }, legacyGET);
+export const POST = shimOrFallback({ legacyRoute: "/api/visitors", nestPath: "/api/v1/operations/visitors", method: "POST" }, legacyPOST);

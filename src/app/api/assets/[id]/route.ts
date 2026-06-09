@@ -1,7 +1,22 @@
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/rbac";
 
-export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
+
+import {
+  buildDeprecationHeaders,
+  isNestShimEnabled,
+  jsonWithHeaders,
+  passThroughRateLimitHeaders,
+  proxyNestJson,
+} from "@/lib/api/nest-proxy";
+import { shimOrFallback } from "@/lib/api/nest-shim";
+
+const LEGACY_ROUTE = "/api/assets/[id]";
+const NEST_GET = "/api/v1/operations/assets/detail/get";
+const NEST_PATCH = "/api/v1/operations/assets/detail/update";
+const NEST_DELETE = "/api/v1/operations/assets/detail/remove";
+
+async function legacyPATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { error, status, session } = await requireAdmin();
   if (error) return Response.json({ error }, { status });
 
@@ -32,7 +47,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   return Response.json(updated);
 }
 
-export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
+async function legacyDELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { error, status, session } = await requireAdmin();
   if (error) return Response.json({ error }, { status });
 
@@ -44,3 +59,6 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
 
   return Response.json({ success: true });
 }
+
+export const PATCH = shimOrFallback({ legacyRoute: "/api/assets", nestPath: "/api/v1/operations/assets", method: "PATCH" }, legacyPATCH);
+export const DELETE = shimOrFallback({ legacyRoute: "/api/assets", nestPath: "/api/v1/operations/assets", method: "DELETE" }, legacyDELETE);

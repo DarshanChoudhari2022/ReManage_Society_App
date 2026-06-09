@@ -58,10 +58,7 @@ ALTER TABLE "Package" FORCE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS tenant_isolation ON "Package";
 CREATE POLICY tenant_isolation ON "Package" USING ("societyId" = current_setting('app.current_society_id', true)) WITH CHECK ("societyId" = current_setting('app.current_society_id', true));
 
-ALTER TABLE "UserSession" ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "UserSession" FORCE ROW LEVEL SECURITY;
-DROP POLICY IF EXISTS tenant_isolation ON "UserSession";
-CREATE POLICY tenant_isolation ON "UserSession" USING ("societyId" = current_setting('app.current_society_id', true)) WITH CHECK ("societyId" = current_setting('app.current_society_id', true));
+
 
 ALTER TABLE "SecurityEvent" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "SecurityEvent" FORCE ROW LEVEL SECURITY;

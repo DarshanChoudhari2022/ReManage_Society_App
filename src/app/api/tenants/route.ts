@@ -5,6 +5,16 @@ import { ensureUnitForFlat } from "@/domain/unit-migration";
 import { moveOutOccupancy, refreshUnitOccupancyStatus } from "@/domain/occupancy-lifecycle";
 import bcrypt from "bcryptjs";
 
+
+import {
+  buildDeprecationHeaders,
+  isNestShimEnabled,
+  jsonWithHeaders,
+  passThroughRateLimitHeaders,
+  proxyNestJson,
+} from "@/lib/api/nest-proxy";
+import { shimOrFallback } from "@/lib/api/nest-shim";
+
 function generateTemporaryPassword(phone: string) {
   const suffix = String(phone || "").replace(/\D/g, "").slice(-4) || Math.random().toString(36).slice(2, 6).toUpperCase();
   return `Tenant@${suffix}`;
@@ -20,7 +30,11 @@ function parseOptionalDate(value: unknown) {
   return Number.isNaN(date.getTime()) ? null : date;
 }
 
-export async function GET() {
+const LEGACY_ROUTE = "/api/tenants";
+const NEST_GET = "/api/v1/society-core/tenants/list";
+const NEST_POST = "/api/v1/society-core/tenants/create";
+
+async function legacyGET() {
   try {
     const session = await getSession();
     if (!session?.societyId) {
@@ -87,7 +101,7 @@ export async function GET() {
   }
 }
 
-export async function POST(request: NextRequest) {
+async function legacyPOST(request: NextRequest) {
   try {
     const session = await getSession();
     if (!session?.societyId) {
@@ -239,7 +253,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function PATCH(request: NextRequest) {
+async function legacyPATCH(request: NextRequest) {
   try {
     const session = await getSession();
     if (!session?.societyId || !["chairman", "secretary"].includes(session.role)) {
@@ -563,3 +577,7 @@ export async function PATCH(request: NextRequest) {
     return Response.json({ error: "Failed to create tenant login" }, { status: 500 });
   }
 }
+
+export const GET = shimOrFallback({ legacyRoute: "/api/tenants", nestPath: "/api/v1/society-core", method: "GET" }, legacyGET);
+export const POST = shimOrFallback({ legacyRoute: "/api/tenants", nestPath: "/api/v1/society-core", method: "POST" }, legacyPOST);
+export const PATCH = shimOrFallback({ legacyRoute: "/api/tenants", nestPath: "/api/v1/society-core", method: "PATCH" }, legacyPATCH);

@@ -2,7 +2,21 @@ import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 
-export async function PATCH(
+
+import {
+  buildDeprecationHeaders,
+  isNestShimEnabled,
+  jsonWithHeaders,
+  passThroughRateLimitHeaders,
+  proxyNestJson,
+} from "@/lib/api/nest-proxy";
+import { shimOrFallback } from "@/lib/api/nest-shim";
+
+const LEGACY_ROUTE = "/api/complaints/[id]";
+const NEST_PATCH = "/api/v1/community/helpdesk/detail/update";
+const NEST_DELETE = "/api/v1/community/helpdesk/detail/remove";
+
+async function legacyPATCH(
   request: NextRequest,
   ctx: RouteContext<"/api/complaints/[id]">
 ) {
@@ -34,7 +48,7 @@ export async function PATCH(
   return Response.json({ complaint: updated });
 }
 
-export async function DELETE(
+async function legacyDELETE(
   request: NextRequest,
   ctx: RouteContext<"/api/complaints/[id]">
 ) {
@@ -51,3 +65,6 @@ export async function DELETE(
 
   return Response.json({ success: true });
 }
+
+export const PATCH = shimOrFallback({ legacyRoute: "/api/complaints", nestPath: "/api/v1/community/helpdesk", method: "PATCH" }, legacyPATCH);
+export const DELETE = shimOrFallback({ legacyRoute: "/api/complaints", nestPath: "/api/v1/community/helpdesk", method: "DELETE" }, legacyDELETE);

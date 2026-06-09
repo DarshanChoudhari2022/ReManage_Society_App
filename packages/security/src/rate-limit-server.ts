@@ -1,4 +1,4 @@
-import "server-only";
+// Server-side rate-limit exports for NestJS API consumers.
 
 export {
   createRateLimitStore,

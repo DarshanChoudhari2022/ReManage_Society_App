@@ -2,6 +2,16 @@ import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { EXPENSE_CATEGORY_IDS, defaultExpenseCategoryForFund } from "@/lib/finance-categories";
 
+
+import {
+  buildDeprecationHeaders,
+  isNestShimEnabled,
+  jsonWithHeaders,
+  passThroughRateLimitHeaders,
+  proxyNestJson,
+} from "@/lib/api/nest-proxy";
+import { shimOrFallback } from "@/lib/api/nest-shim";
+
 function fiscalYearFor(date: Date) {
   const year = date.getFullYear();
   const month = date.getMonth() + 1;
@@ -17,7 +27,11 @@ async function requireFinanceAccess() {
   return { error: null, status: 200, session };
 }
 
-export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
+const LEGACY_ROUTE = "/api/funds/[id]/transactions";
+const NEST_GET = "/api/v1/finance-core/funds/transactions/list";
+const NEST_POST = "/api/v1/finance-core/funds/transactions/record";
+
+async function legacyPOST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { error, status, session } = await requireFinanceAccess();
   if (error) return Response.json({ error }, { status });
 
@@ -96,3 +110,5 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
   return Response.json(transaction, { status: 201 });
 }
+
+export const POST = shimOrFallback({ legacyRoute: "/api/funds", nestPath: "/api/v1/finance-core", method: "POST" }, legacyPOST);

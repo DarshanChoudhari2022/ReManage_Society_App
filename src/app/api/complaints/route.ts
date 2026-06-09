@@ -3,11 +3,44 @@ import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import { logCreated } from "@/lib/activity-log";
 import { broadcastNotification } from "@/lib/notifications";
+import {
+  buildDeprecationHeaders,
+  isNestShimEnabled,
+  jsonWithHeaders,
+  passThroughRateLimitHeaders,
+  proxyNestJson,
+} from "@/lib/api/nest-proxy";
+import { shimOrFallback } from "@/lib/api/nest-shim";
 
-export async function GET() {
+const LEGACY_ROUTE = "/api/complaints";
+const NEST_LIST = "/api/v1/community/helpdesk/list";
+const NEST_CREATE = "/api/v1/community/helpdesk/create";
+
+async function legacyGET() {
   const session = await getSession();
   if (!session?.societyId) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  if (isNestShimEnabled()) {
+    const proxied = await proxyNestJson<unknown[]>({
+      path: NEST_LIST,
+      session,
+      body: { societyId: session.societyId },
+    });
+
+    if (proxied.ok) {
+      return jsonWithHeaders(
+        { complaints: proxied.data },
+        {
+          status: 200,
+          extraHeaders: {
+            ...buildDeprecationHeaders({ routePath: LEGACY_ROUTE, successorPath: NEST_LIST }),
+            ...passThroughRateLimitHeaders(proxied.headers),
+          },
+        },
+      );
+    }
   }
 
   const complaints = await prisma.complaint.findMany({
@@ -22,10 +55,16 @@ export async function GET() {
     total: complaints.length,
   };
 
-  return Response.json({ complaints, stats, societyId: session!.societyId });
+  return jsonWithHeaders(
+    { complaints, stats, societyId: session!.societyId },
+    {
+      status: 200,
+      extraHeaders: buildDeprecationHeaders({ routePath: LEGACY_ROUTE, successorPath: NEST_LIST }),
+    },
+  );
 }
 
-export async function POST(request: NextRequest) {
+async function legacyPOST(request: NextRequest) {
   const session = await getSession();
   if (!session?.societyId) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
@@ -67,8 +106,17 @@ export async function POST(request: NextRequest) {
       "/complaints"
     );
 
-    return Response.json({ complaint }, { status: 201 });
+    return jsonWithHeaders(
+      { complaint },
+      {
+        status: 201,
+        extraHeaders: buildDeprecationHeaders({ routePath: LEGACY_ROUTE, successorPath: NEST_CREATE }),
+      },
+    );
   } catch {
     return Response.json({ error: "Something went wrong" }, { status: 500 });
   }
 }
+
+export const GET = shimOrFallback({ legacyRoute: "/api/complaints", nestPath: "/api/v1/community/helpdesk", method: "GET" }, legacyGET);
+export const POST = shimOrFallback({ legacyRoute: "/api/complaints", nestPath: "/api/v1/community/helpdesk", method: "POST" }, legacyPOST);

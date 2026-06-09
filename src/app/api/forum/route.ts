@@ -2,7 +2,21 @@ import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { NextRequest } from "next/server";
 
-export async function GET(request: NextRequest) {
+
+import {
+  buildDeprecationHeaders,
+  isNestShimEnabled,
+  jsonWithHeaders,
+  passThroughRateLimitHeaders,
+  proxyNestJson,
+} from "@/lib/api/nest-proxy";
+import { shimOrFallback } from "@/lib/api/nest-shim";
+
+const LEGACY_ROUTE = "/api/forum";
+const NEST_GET = "/api/v1/community/forum/list";
+const NEST_POST = "/api/v1/community/forum/create";
+
+async function legacyGET(request: NextRequest) {
   try {
     const session = await getSession();
     if (!session?.societyId) {
@@ -37,7 +51,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-export async function POST(request: NextRequest) {
+async function legacyPOST(request: NextRequest) {
   try {
     const session = await getSession();
     if (!session?.societyId) {
@@ -69,3 +83,6 @@ export async function POST(request: NextRequest) {
     return Response.json({ error: "Failed to create thread" }, { status: 500 });
   }
 }
+
+export const GET = shimOrFallback({ legacyRoute: "/api/forum", nestPath: "/api/v1/community/forum", method: "GET" }, legacyGET);
+export const POST = shimOrFallback({ legacyRoute: "/api/forum", nestPath: "/api/v1/community/forum", method: "POST" }, legacyPOST);

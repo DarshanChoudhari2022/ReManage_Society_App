@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import toast from "react-hot-toast";
-import { Building2, Eye, EyeOff } from "lucide-react";
+import { Building2, Eye, EyeOff, Shield } from "lucide-react";
 import { getDefaultRoute } from "@/lib/role-access";
 
 export default function LoginPage() {
@@ -126,6 +126,20 @@ export default function LoginPage() {
               )}
             </button>
           </form>
+
+          <div className="my-6 flex items-center justify-center space-x-4">
+            <div className="h-px bg-border/50 w-full" />
+            <span className="text-xs text-text-tertiary uppercase font-bold tracking-wider">OR</span>
+            <div className="h-px bg-border/50 w-full" />
+          </div>
+
+          <a 
+            href="/api/auth/login"
+            className="btn btn-secondary w-full btn-lg flex items-center justify-center gap-2"
+          >
+            <Shield className="w-5 h-5 text-primary" />
+            Sign in with Keycloak
+          </a>
 
           <div className="mt-4 text-center">
             <p className="text-sm text-text-secondary">

@@ -2,6 +2,16 @@ import { NextRequest } from "next/server";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
+
+import {
+  buildDeprecationHeaders,
+  isNestShimEnabled,
+  jsonWithHeaders,
+  passThroughRateLimitHeaders,
+  proxyNestJson,
+} from "@/lib/api/nest-proxy";
+import { shimOrFallback } from "@/lib/api/nest-shim";
+
 function currentMonth() {
   const now = new Date();
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
@@ -20,7 +30,11 @@ async function getResidentFlat(session: NonNullable<Awaited<ReturnType<typeof ge
   });
 }
 
-export async function GET() {
+const LEGACY_ROUTE = "/api/staff/payments";
+const NEST_GET = "/api/v1/operations/staff/payments/list";
+const NEST_POST = "/api/v1/operations/staff/payments/process";
+
+async function legacyGET() {
   try {
     const session = await getSession();
     if (!session?.societyId || !["member", "tenant"].includes(session.role)) {
@@ -72,7 +86,7 @@ export async function GET() {
   }
 }
 
-export async function POST(request: NextRequest) {
+async function legacyPOST(request: NextRequest) {
   try {
     const session = await getSession();
     if (!session?.societyId || !["member", "tenant"].includes(session.role)) {
@@ -128,7 +142,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function PATCH(request: NextRequest) {
+async function legacyPATCH(request: NextRequest) {
   try {
     const session = await getSession();
     if (!session?.societyId || !["member", "tenant"].includes(session.role)) {
@@ -174,3 +188,7 @@ export async function PATCH(request: NextRequest) {
     return Response.json({ error: "Failed to update staff payment" }, { status: 500 });
   }
 }
+
+export const GET = shimOrFallback({ legacyRoute: "/api/staff", nestPath: "/api/v1/operations/staff", method: "GET" }, legacyGET);
+export const POST = shimOrFallback({ legacyRoute: "/api/staff", nestPath: "/api/v1/operations/staff", method: "POST" }, legacyPOST);
+export const PATCH = shimOrFallback({ legacyRoute: "/api/staff", nestPath: "/api/v1/operations/staff", method: "PATCH" }, legacyPATCH);

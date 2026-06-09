@@ -3,6 +3,16 @@ import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { createNotification } from "@/lib/notifications";
 
+
+import {
+  buildDeprecationHeaders,
+  isNestShimEnabled,
+  jsonWithHeaders,
+  passThroughRateLimitHeaders,
+  proxyNestJson,
+} from "@/lib/api/nest-proxy";
+import { shimOrFallback } from "@/lib/api/nest-shim";
+
 const OWNER_RELATIONSHIPS = ["OWNER", "CO_OWNER"];
 
 function parseAmount(value: unknown) {
@@ -73,7 +83,11 @@ async function getOwnerOccupancyForTenant(tenantId: string, societyId: string, u
   return { tenant, unit, currentOwner, primaryOwner, activeTenantOccupancy };
 }
 
-export async function GET() {
+const LEGACY_ROUTE = "/api/rent-invoices";
+const NEST_GET = "/api/v1/finance-core/invoices/list";
+const NEST_POST = "/api/v1/finance-core/invoices/create";
+
+async function legacyGET() {
   try {
     const session = await getSession();
     if (!session?.societyId) {
@@ -187,7 +201,7 @@ export async function GET() {
   }
 }
 
-export async function POST(request: NextRequest) {
+async function legacyPOST(request: NextRequest) {
   try {
     const session = await getSession();
     if (!session?.societyId) {
@@ -247,8 +261,8 @@ export async function POST(request: NextRequest) {
     }
 
     return Response.json({ invoice });
-  } catch (error: any) {
-    if (error?.code === "P2002") {
+  } catch (error: unknown) {
+    if ((error as { code?: string })?.code === "P2002") {
       return Response.json({ error: "Rent invoice for this tenant and month already exists" }, { status: 400 });
     }
     console.error("Failed to create rent invoice:", error);
@@ -256,7 +270,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function PATCH(request: NextRequest) {
+async function legacyPATCH(request: NextRequest) {
   try {
     const session = await getSession();
     if (!session?.societyId) {
@@ -343,3 +357,7 @@ export async function PATCH(request: NextRequest) {
     return Response.json({ error: "Failed to update rent invoice" }, { status: 500 });
   }
 }
+
+export const GET = shimOrFallback({ legacyRoute: "/api/rent-invoices", nestPath: "/api/v1/finance-core/invoices/create", method: "GET" }, legacyGET);
+export const POST = shimOrFallback({ legacyRoute: "/api/rent-invoices", nestPath: "/api/v1/finance-core/invoices/create", method: "POST" }, legacyPOST);
+export const PATCH = shimOrFallback({ legacyRoute: "/api/rent-invoices", nestPath: "/api/v1/finance-core/invoices/create", method: "PATCH" }, legacyPATCH);

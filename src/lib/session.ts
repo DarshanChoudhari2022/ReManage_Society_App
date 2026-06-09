@@ -27,6 +27,7 @@ export interface SessionPayload {
   email: string;
   flatId?: string;
   mfaVerified?: boolean;
+  accessToken?: string;
   expiresAt: Date;
 }
 

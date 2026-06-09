@@ -2,13 +2,26 @@ import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { salaryCategoryForStaffRole } from "@/lib/finance-categories";
 
+
+import {
+  buildDeprecationHeaders,
+  isNestShimEnabled,
+  jsonWithHeaders,
+  passThroughRateLimitHeaders,
+  proxyNestJson,
+} from "@/lib/api/nest-proxy";
+import { shimOrFallback } from "@/lib/api/nest-shim";
+
 function fiscalYearFor(date: Date) {
   const year = date.getFullYear();
   const month = date.getMonth() + 1;
   return month >= 4 ? `${year}-${String(year + 1).slice(-2)}` : `${year - 1}-${String(year).slice(-2)}`;
 }
 
-export async function POST(
+const LEGACY_ROUTE = "/api/salaries/[id]/pay";
+const NEST_POST = "/api/v1/finance-core/salaries/pay/process";
+
+async function legacyPOST(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -74,3 +87,5 @@ export async function POST(
 
   return Response.json(updated);
 }
+
+export const POST = shimOrFallback({ legacyRoute: "/api/salaries", nestPath: "/api/v1/finance-core", method: "POST" }, legacyPOST);

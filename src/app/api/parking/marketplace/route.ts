@@ -3,7 +3,21 @@ import { prisma } from "@/lib/prisma";
 import { findParkingOverlap, getOccupancyContext, parseParkingEndDate } from "@/domain/community";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET() {
+
+import {
+  buildDeprecationHeaders,
+  isNestShimEnabled,
+  jsonWithHeaders,
+  passThroughRateLimitHeaders,
+  proxyNestJson,
+} from "@/lib/api/nest-proxy";
+import { shimOrFallback } from "@/lib/api/nest-shim";
+
+const LEGACY_ROUTE = "/api/parking/marketplace";
+const NEST_GET = "/api/v1/operations/parking/marketplace/list";
+const NEST_POST = "/api/v1/operations/parking/marketplace/list-spot";
+
+async function legacyGET() {
   const session = await getSession();
   if (!session?.societyId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -49,7 +63,7 @@ export async function GET() {
   }
 }
 
-export async function PATCH(request: NextRequest) {
+async function legacyPATCH(request: NextRequest) {
   const session = await getSession();
   if (!session?.societyId || !session.flatId) {
     return NextResponse.json({ error: "Only flat members can manage parking exchange" }, { status: 401 });
@@ -233,7 +247,7 @@ export async function PATCH(request: NextRequest) {
   }
 }
 
-export async function POST(request: NextRequest) {
+async function legacyPOST(request: NextRequest) {
   const session = await getSession();
   if (!session?.societyId || !session.flatId) {
     return NextResponse.json({ error: "Only flat members can share parking" }, { status: 401 });
@@ -336,3 +350,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Failed to create entry" }, { status: 500 });
   }
 }
+
+export const GET = shimOrFallback({ legacyRoute: "/api/parking", nestPath: "/api/v1/operations/parking", method: "GET" }, legacyGET);
+export const PATCH = shimOrFallback({ legacyRoute: "/api/parking", nestPath: "/api/v1/operations/parking", method: "PATCH" }, legacyPATCH);
+export const POST = shimOrFallback({ legacyRoute: "/api/parking", nestPath: "/api/v1/operations/parking", method: "POST" }, legacyPOST);

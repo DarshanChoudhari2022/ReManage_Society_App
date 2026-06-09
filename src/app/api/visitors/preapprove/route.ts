@@ -2,8 +2,21 @@ import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { NextRequest } from "next/server";
 
+
+import {
+  buildDeprecationHeaders,
+  isNestShimEnabled,
+  jsonWithHeaders,
+  passThroughRateLimitHeaders,
+  proxyNestJson,
+} from "@/lib/api/nest-proxy";
+import { shimOrFallback } from "@/lib/api/nest-shim";
+
 // GET - list visitors with pre-approval status
-export async function GET(request: NextRequest) {
+const LEGACY_ROUTE = "/api/visitors/preapprove";
+const NEST_POST = "/api/v1/operations/visitors/preapprove/create";
+
+async function legacyGET(request: NextRequest) {
   try {
     const session = await getSession();
     if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
@@ -49,7 +62,7 @@ export async function GET(request: NextRequest) {
 }
 
 // POST - create pre-approved visitor entry
-export async function POST(request: NextRequest) {
+async function legacyPOST(request: NextRequest) {
   try {
     const session = await getSession();
     if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
@@ -112,7 +125,7 @@ export async function POST(request: NextRequest) {
 }
 
 // PATCH - approve/reject a visitor (member responds to guard request)
-export async function PATCH(request: NextRequest) {
+async function legacyPATCH(request: NextRequest) {
   try {
     const session = await getSession();
     if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
@@ -152,3 +165,7 @@ export async function PATCH(request: NextRequest) {
     return Response.json({ error: "Failed" }, { status: 500 });
   }
 }
+
+export const GET = shimOrFallback({ legacyRoute: "/api/visitors", nestPath: "/api/v1/operations/visitors", method: "GET" }, legacyGET);
+export const POST = shimOrFallback({ legacyRoute: "/api/visitors", nestPath: "/api/v1/operations/visitors", method: "POST" }, legacyPOST);
+export const PATCH = shimOrFallback({ legacyRoute: "/api/visitors", nestPath: "/api/v1/operations/visitors", method: "PATCH" }, legacyPATCH);

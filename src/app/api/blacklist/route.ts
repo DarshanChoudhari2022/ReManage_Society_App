@@ -2,7 +2,21 @@ import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import { getSession } from "@/lib/auth";
 
-export async function GET() {
+
+import {
+  buildDeprecationHeaders,
+  isNestShimEnabled,
+  jsonWithHeaders,
+  passThroughRateLimitHeaders,
+  proxyNestJson,
+} from "@/lib/api/nest-proxy";
+import { shimOrFallback } from "@/lib/api/nest-shim";
+
+const LEGACY_ROUTE = "/api/blacklist";
+const NEST_GET = "/api/v1/operations/blacklist/list";
+const NEST_POST = "/api/v1/operations/blacklist/add";
+
+async function legacyGET() {
   try {
     const session = await getSession();
     if (!session?.societyId) {
@@ -20,7 +34,7 @@ export async function GET() {
   }
 }
 
-export async function POST(request: NextRequest) {
+async function legacyPOST(request: NextRequest) {
   try {
     const session = await getSession();
     if (!session?.societyId || !["chairman", "secretary"].includes(session!.role)) {
@@ -50,7 +64,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function PATCH(request: NextRequest) {
+async function legacyPATCH(request: NextRequest) {
   try {
     const session = await getSession();
     if (!session?.societyId || !["chairman", "secretary"].includes(session!.role)) {
@@ -69,3 +83,7 @@ export async function PATCH(request: NextRequest) {
     return Response.json({ error: "Failed to update blacklist" }, { status: 500 });
   }
 }
+
+export const GET = shimOrFallback({ legacyRoute: "/api/blacklist", nestPath: "/api/v1/operations/blacklist", method: "GET" }, legacyGET);
+export const POST = shimOrFallback({ legacyRoute: "/api/blacklist", nestPath: "/api/v1/operations/blacklist", method: "POST" }, legacyPOST);
+export const PATCH = shimOrFallback({ legacyRoute: "/api/blacklist", nestPath: "/api/v1/operations/blacklist", method: "PATCH" }, legacyPATCH);

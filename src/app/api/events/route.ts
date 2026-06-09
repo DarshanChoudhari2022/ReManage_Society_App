@@ -2,7 +2,21 @@ import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { NextRequest } from "next/server";
 
-export async function GET(request: NextRequest) {
+
+import {
+  buildDeprecationHeaders,
+  isNestShimEnabled,
+  jsonWithHeaders,
+  passThroughRateLimitHeaders,
+  proxyNestJson,
+} from "@/lib/api/nest-proxy";
+import { shimOrFallback } from "@/lib/api/nest-shim";
+
+const LEGACY_ROUTE = "/api/events";
+const NEST_GET = "/api/v1/community/events/list";
+const NEST_POST = "/api/v1/community/events/create";
+
+async function legacyGET(request: NextRequest) {
   try {
     const session = await getSession();
     if (!session?.societyId) {
@@ -40,7 +54,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-export async function POST(request: NextRequest) {
+async function legacyPOST(request: NextRequest) {
   try {
     const session = await getSession();
     if (!session?.societyId || !["chairman", "secretary", "treasurer"].includes(session!.role)) {
@@ -89,7 +103,7 @@ export async function POST(request: NextRequest) {
 }
 
 // PATCH: RSVP to event
-export async function PATCH(request: NextRequest) {
+async function legacyPATCH(request: NextRequest) {
   try {
     const session = await getSession();
     if (!session?.societyId) {
@@ -128,3 +142,7 @@ export async function PATCH(request: NextRequest) {
     return Response.json({ error: "Failed to RSVP" }, { status: 500 });
   }
 }
+
+export const GET = shimOrFallback({ legacyRoute: "/api/events", nestPath: "/api/v1/community/events", method: "GET" }, legacyGET);
+export const POST = shimOrFallback({ legacyRoute: "/api/events", nestPath: "/api/v1/community/events", method: "POST" }, legacyPOST);
+export const PATCH = shimOrFallback({ legacyRoute: "/api/events", nestPath: "/api/v1/community/events", method: "PATCH" }, legacyPATCH);

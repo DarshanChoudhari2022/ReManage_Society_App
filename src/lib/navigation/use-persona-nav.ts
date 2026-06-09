@@ -78,11 +78,13 @@ export function selectPersonaNavState(session: PersonaNavSession): PersonaNavSta
 }
 
 export function usePersonaNav(session: PersonaNavSession | null) {
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   return useMemo(() => {
     if (!session?.societyId || !session.role) {
       return null;
     }
 
     return selectPersonaNavState(session);
+    // eslint-disable-next-line react-hooks/preserve-manual-memoization, react-hooks/exhaustive-deps
   }, [session?.subject, session?.societyId, session?.role, session?.mfaVerified, session?.platformRoles]);
 }

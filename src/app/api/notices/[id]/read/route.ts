@@ -1,8 +1,21 @@
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 
+
+import {
+  buildDeprecationHeaders,
+  isNestShimEnabled,
+  jsonWithHeaders,
+  passThroughRateLimitHeaders,
+  proxyNestJson,
+} from "@/lib/api/nest-proxy";
+import { shimOrFallback } from "@/lib/api/nest-shim";
+
 // Mark notice as read by current user
-export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
+const LEGACY_ROUTE = "/api/notices/[id]/read";
+const NEST_POST = "/api/v1/community/notices/read/mark";
+
+async function legacyPOST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getSession();
   if (!session?.societyId) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
@@ -34,7 +47,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 }
 
 // Get read receipts for a notice (admin only)
-export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
+async function legacyGET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getSession();
   if (!session?.societyId) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
@@ -58,3 +71,6 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     readPercentage: totalMembers > 0 ? Math.round((reads.length / totalMembers) * 100) : 0,
   });
 }
+
+export const POST = shimOrFallback({ legacyRoute: "/api/notices", nestPath: "/api/v1/community/notices", method: "POST" }, legacyPOST);
+export const GET = shimOrFallback({ legacyRoute: "/api/notices", nestPath: "/api/v1/community/notices", method: "GET" }, legacyGET);

@@ -19,6 +19,7 @@ export default function ThemeToggle() {
 
   // Wait until client-side mount
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
 
     const theme = localStorage.getItem("theme");

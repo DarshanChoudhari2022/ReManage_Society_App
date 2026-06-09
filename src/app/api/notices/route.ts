@@ -10,12 +10,13 @@ import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import { logCreated } from "@/lib/activity-log";
 import { broadcastNotification } from "@/lib/notifications";
+import { shimOrFallback } from "@/lib/api/nest-shim";
 
 const LEGACY_ROUTE = "/api/notices";
 const NEST_LIST = "/api/v1/community/notices/list";
 const NEST_CREATE = "/api/v1/community/notices/create";
 
-export async function GET() {
+async function legacyGET() {
   const session = await getSession();
   if (!session?.societyId) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
@@ -62,7 +63,7 @@ export async function GET() {
   );
 }
 
-export async function POST(request: NextRequest) {
+async function legacyPOST(request: NextRequest) {
   const session = await getSession();
   if (!session?.societyId) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
@@ -158,3 +159,6 @@ export async function POST(request: NextRequest) {
     return Response.json({ error: "Something went wrong" }, { status: 500 });
   }
 }
+
+export const GET = shimOrFallback({ legacyRoute: "/api/notices", nestPath: "/api/v1/community/notices", method: "GET" }, legacyGET);
+export const POST = shimOrFallback({ legacyRoute: "/api/notices", nestPath: "/api/v1/community/notices", method: "POST" }, legacyPOST);

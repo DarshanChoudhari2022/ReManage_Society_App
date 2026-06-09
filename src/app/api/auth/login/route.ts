@@ -4,6 +4,8 @@ import { authRateLimit } from "@/lib/rate-limit";
 import bcrypt from "bcryptjs";
 import { NextRequest } from "next/server";
 import { headers } from "next/headers";
+import { getOidcLoginUrl } from "@/lib/auth";
+import { redirect } from "next/navigation";
 
 // Retry helper for transient PgBouncer / connection errors
 async function findUserWithRetry(email: string, retries = 1) {
@@ -92,5 +94,11 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+export async function GET(request: NextRequest) {
+  const redirectUri = new URL("/api/auth/callback", request.url).toString();
+  const loginUrl = getOidcLoginUrl(redirectUri);
+  redirect(loginUrl);
 }
 

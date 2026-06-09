@@ -1,6 +1,16 @@
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 
+
+import {
+  buildDeprecationHeaders,
+  isNestShimEnabled,
+  jsonWithHeaders,
+  passThroughRateLimitHeaders,
+  proxyNestJson,
+} from "@/lib/api/nest-proxy";
+import { shimOrFallback } from "@/lib/api/nest-shim";
+
 async function requireFinanceAccess() {
   const session = await getSession();
   if (!session?.societyId) return { error: "Unauthorized", status: 401, session: null };
@@ -10,7 +20,11 @@ async function requireFinanceAccess() {
   return { error: null, status: 200, session };
 }
 
-export async function GET() {
+const LEGACY_ROUTE = "/api/salaries";
+const NEST_GET = "/api/v1/finance-core/salaries/list";
+const NEST_POST = "/api/v1/finance-core/salaries/create";
+
+async function legacyGET() {
   const { error, status, session } = await requireFinanceAccess();
   if (error) return Response.json({ error }, { status });
 
@@ -22,7 +36,7 @@ export async function GET() {
   return Response.json(salaries);
 }
 
-export async function POST(request: Request) {
+async function legacyPOST(request: Request) {
   const { error, status, session } = await requireFinanceAccess();
   if (error) return Response.json({ error }, { status });
 
@@ -74,3 +88,6 @@ export async function POST(request: Request) {
 
   return Response.json(salary, { status: 201 });
 }
+
+export const GET = shimOrFallback({ legacyRoute: "/api/salaries", nestPath: "/api/v1/finance-core", method: "GET" }, legacyGET);
+export const POST = shimOrFallback({ legacyRoute: "/api/salaries", nestPath: "/api/v1/finance-core", method: "POST" }, legacyPOST);

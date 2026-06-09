@@ -1,6 +1,16 @@
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 
+
+import {
+  buildDeprecationHeaders,
+  isNestShimEnabled,
+  jsonWithHeaders,
+  passThroughRateLimitHeaders,
+  proxyNestJson,
+} from "@/lib/api/nest-proxy";
+import { shimOrFallback } from "@/lib/api/nest-shim";
+
 function resolveOccupancy(unit?: {
   occupancyStatus: string;
   occupancies: Array<{
@@ -50,7 +60,11 @@ const flatOccupancyInclude = {
 } as const;
 
 // Gate actions: visitor entry, exit, package logging, staff attendance
-export async function POST(request: NextRequest) {
+const LEGACY_ROUTE = "/api/guard/gate";
+const NEST_GET = "/api/v1/operations/guard/gate/log";
+const NEST_POST = "/api/v1/operations/guard/gate/entry";
+
+async function legacyPOST(request: NextRequest) {
   try {
     const { guardId, action, ...payload } = await request.json();
 
@@ -581,7 +595,7 @@ export async function POST(request: NextRequest) {
 // GET GATE DASHBOARD DATA
 // =========================================================
 
-export async function GET(request: NextRequest) {
+async function legacyGET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
 
@@ -764,3 +778,6 @@ export async function GET(request: NextRequest) {
     );
   }
 }
+
+export const POST = shimOrFallback({ legacyRoute: "/api/guard", nestPath: "/api/v1/operations", method: "POST" }, legacyPOST);
+export const GET = shimOrFallback({ legacyRoute: "/api/guard", nestPath: "/api/v1/operations", method: "GET" }, legacyGET);

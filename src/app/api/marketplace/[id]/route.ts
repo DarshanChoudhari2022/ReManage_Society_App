@@ -2,7 +2,22 @@ import { prisma } from "@/lib/prisma";
 import { requirePermission } from "@/lib/rbac";
 import { getOccupancyContext } from "@/domain/community";
 
-export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
+
+import {
+  buildDeprecationHeaders,
+  isNestShimEnabled,
+  jsonWithHeaders,
+  passThroughRateLimitHeaders,
+  proxyNestJson,
+} from "@/lib/api/nest-proxy";
+import { shimOrFallback } from "@/lib/api/nest-shim";
+
+const LEGACY_ROUTE = "/api/marketplace/[id]";
+const NEST_GET = "/api/v1/community/marketplace/detail/get";
+const NEST_PATCH = "/api/v1/community/marketplace/detail/update";
+const NEST_DELETE = "/api/v1/community/marketplace/detail/remove";
+
+async function legacyPATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { error, status, session } = await requirePermission("dashboard");
   if (error) return Response.json({ error }, { status });
 
@@ -114,7 +129,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   return Response.json(updated);
 }
 
-export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
+async function legacyPOST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { error, status, session } = await requirePermission("dashboard");
   if (error) return Response.json({ error }, { status });
   if (!session?.societyId) return Response.json({ error: "Unauthorized" }, { status: 401 });
@@ -183,7 +198,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   return Response.json({ interest }, { status: existing ? 200 : 201 });
 }
 
-export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
+async function legacyDELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { error, status, session } = await requirePermission("dashboard");
   if (error) return Response.json({ error }, { status });
 
@@ -207,3 +222,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
   });
   return Response.json({ success: true });
 }
+
+export const PATCH = shimOrFallback({ legacyRoute: "/api/marketplace", nestPath: "/api/v1/community/marketplace", method: "PATCH" }, legacyPATCH);
+export const POST = shimOrFallback({ legacyRoute: "/api/marketplace", nestPath: "/api/v1/community/marketplace", method: "POST" }, legacyPOST);
+export const DELETE = shimOrFallback({ legacyRoute: "/api/marketplace", nestPath: "/api/v1/community/marketplace", method: "DELETE" }, legacyDELETE);

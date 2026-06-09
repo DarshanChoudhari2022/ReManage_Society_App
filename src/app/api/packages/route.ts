@@ -2,7 +2,21 @@ import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import { getSession } from "@/lib/auth";
 
-export async function GET(request: NextRequest) {
+
+import {
+  buildDeprecationHeaders,
+  isNestShimEnabled,
+  jsonWithHeaders,
+  passThroughRateLimitHeaders,
+  proxyNestJson,
+} from "@/lib/api/nest-proxy";
+import { shimOrFallback } from "@/lib/api/nest-shim";
+
+const LEGACY_ROUTE = "/api/packages";
+const NEST_GET = "/api/v1/operations/packages/list";
+const NEST_POST = "/api/v1/operations/packages/log";
+
+async function legacyGET(request: NextRequest) {
   try {
     const session = await getSession();
     if (!session?.societyId) {
@@ -30,7 +44,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-export async function POST(request: NextRequest) {
+async function legacyPOST(request: NextRequest) {
   try {
     const session = await getSession();
     if (!session?.societyId) {
@@ -84,7 +98,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function PATCH(request: NextRequest) {
+async function legacyPATCH(request: NextRequest) {
   try {
     const session = await getSession();
     if (!session?.societyId) {
@@ -126,3 +140,7 @@ export async function PATCH(request: NextRequest) {
     return Response.json({ error: "Failed to update package" }, { status: 500 });
   }
 }
+
+export const GET = shimOrFallback({ legacyRoute: "/api/packages", nestPath: "/api/v1/operations/packages", method: "GET" }, legacyGET);
+export const POST = shimOrFallback({ legacyRoute: "/api/packages", nestPath: "/api/v1/operations/packages", method: "POST" }, legacyPOST);
+export const PATCH = shimOrFallback({ legacyRoute: "/api/packages", nestPath: "/api/v1/operations/packages", method: "PATCH" }, legacyPATCH);

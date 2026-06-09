@@ -2,7 +2,20 @@ import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 
-export async function GET(request: NextRequest) {
+
+import {
+  buildDeprecationHeaders,
+  isNestShimEnabled,
+  jsonWithHeaders,
+  passThroughRateLimitHeaders,
+  proxyNestJson,
+} from "@/lib/api/nest-proxy";
+import { shimOrFallback } from "@/lib/api/nest-shim";
+
+const LEGACY_ROUTE = "/api/reports/annual";
+const NEST_GET = "/api/v1/finance-core/reports/annual/generate";
+
+async function legacyGET(request: NextRequest) {
   const session = await getSession();
   if (!session?.societyId) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
@@ -54,3 +67,5 @@ export async function GET(request: NextRequest) {
     },
   });
 }
+
+export const GET = shimOrFallback({ legacyRoute: "/api/reports", nestPath: "/api/v1/finance-core/reports", method: "GET" }, legacyGET);

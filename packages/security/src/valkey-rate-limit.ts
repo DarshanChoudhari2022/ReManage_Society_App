@@ -86,11 +86,27 @@ export function createRateLimitStore(forceInMemory = false): RateLimitStore {
 
   const target = parseValkeyUrl();
 
-  if (!forceInMemory && target) {
-    sharedStore = new ValkeyRateLimitStore(new RespValkeyTransport(target));
+  const isProd = process.env.NODE_ENV === "production";
+  if (!forceInMemory && target && isProd) {
+    // Production with Valkey configured – use real store with automatic fallback.
+    const valkeyStore = new ValkeyRateLimitStore(new RespValkeyTransport(target));
+    // Wrap the store to fall back to in-memory on connection errors.
+    sharedStore = {
+      async increment(key: string, windowMs: number): Promise<number> {
+        try {
+          return await valkeyStore.increment(key, windowMs);
+        } catch {
+          // Valkey unreachable — fall back to in-memory for this process.
+          console.warn("[rate-limit] Valkey unreachable, falling back to in-memory store");
+          sharedStore = new InMemoryRateLimitStore();
+          return sharedStore.increment(key, windowMs);
+        }
+      },
+    };
     return sharedStore;
   }
 
+  // Development, tests, or when Valkey is unavailable — always use in-memory.
   sharedStore = new InMemoryRateLimitStore();
   return sharedStore;
 }

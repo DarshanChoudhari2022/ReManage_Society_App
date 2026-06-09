@@ -3,7 +3,21 @@ import { normalizeJoinCode } from "@/lib/join-code";
 import { NextRequest } from "next/server";
 import { ensureUnitsForSociety } from "@/domain/unit-migration";
 
-export async function GET(request: NextRequest) {
+
+import {
+  buildDeprecationHeaders,
+  isNestShimEnabled,
+  jsonWithHeaders,
+  passThroughRateLimitHeaders,
+  proxyNestJson,
+} from "@/lib/api/nest-proxy";
+import { shimOrFallback } from "@/lib/api/nest-shim";
+
+const LEGACY_ROUTE = "/api/societies/join-code";
+const NEST_GET = "/api/v1/society-core/join-code/get";
+const NEST_POST = "/api/v1/society-core/join-code/regenerate";
+
+async function legacyGET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const code = normalizeJoinCode(searchParams.get("code") || "");
 
@@ -85,3 +99,5 @@ export async function GET(request: NextRequest) {
     }),
   });
 }
+
+export const GET = shimOrFallback({ legacyRoute: "/api/societies", nestPath: "/api/v1/society-core", method: "GET" }, legacyGET);

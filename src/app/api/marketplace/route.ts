@@ -2,7 +2,21 @@ import { prisma } from "@/lib/prisma";
 import { requirePermission } from "@/lib/rbac";
 import { getOccupancyContext } from "@/domain/community";
 
-export async function GET() {
+
+import {
+  buildDeprecationHeaders,
+  isNestShimEnabled,
+  jsonWithHeaders,
+  passThroughRateLimitHeaders,
+  proxyNestJson,
+} from "@/lib/api/nest-proxy";
+import { shimOrFallback } from "@/lib/api/nest-shim";
+
+const LEGACY_ROUTE = "/api/marketplace";
+const NEST_GET = "/api/v1/community/marketplace/list";
+const NEST_POST = "/api/v1/community/marketplace/create";
+
+async function legacyGET() {
   const { error, status, session } = await requirePermission("dashboard");
   if (error) return Response.json({ error }, { status });
   if (!session?.societyId) return Response.json({ error: "Unauthorized" }, { status: 401 });
@@ -45,7 +59,7 @@ export async function GET() {
   }));
 }
 
-export async function POST(request: Request) {
+async function legacyPOST(request: Request) {
   const { error, status, session } = await requirePermission("dashboard");
   if (error) return Response.json({ error }, { status });
   if (!session?.societyId) return Response.json({ error: "Unauthorized" }, { status: 401 });
@@ -94,3 +108,6 @@ export async function POST(request: Request) {
 
   return Response.json(listing, { status: 201 });
 }
+
+export const GET = shimOrFallback({ legacyRoute: "/api/marketplace", nestPath: "/api/v1/community/marketplace", method: "GET" }, legacyGET);
+export const POST = shimOrFallback({ legacyRoute: "/api/marketplace", nestPath: "/api/v1/community/marketplace", method: "POST" }, legacyPOST);

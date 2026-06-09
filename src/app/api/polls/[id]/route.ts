@@ -2,7 +2,21 @@ import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 
-export async function PATCH(
+
+import {
+  buildDeprecationHeaders,
+  isNestShimEnabled,
+  jsonWithHeaders,
+  passThroughRateLimitHeaders,
+  proxyNestJson,
+} from "@/lib/api/nest-proxy";
+import { shimOrFallback } from "@/lib/api/nest-shim";
+
+const LEGACY_ROUTE = "/api/polls/[id]";
+const NEST_GET = "/api/v1/community/polls/detail/get";
+const NEST_POST = "/api/v1/community/polls/detail/vote";
+
+async function legacyPATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -57,3 +71,5 @@ export async function PATCH(
     return Response.json({ error: "Something went wrong" }, { status: 500 });
   }
 }
+
+export const PATCH = shimOrFallback({ legacyRoute: "/api/polls", nestPath: "/api/v1/community/polls", method: "PATCH" }, legacyPATCH);

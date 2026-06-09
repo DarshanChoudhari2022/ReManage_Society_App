@@ -14,7 +14,7 @@ import {
   Megaphone,
 } from "lucide-react";
 
-export default function ResidentDashboard({ user }: any) {
+export default function ResidentDashboard({ user }: { user?: { name?: string; avatar?: string; societyName?: string } }) {
   return (
     <div className="bg-white min-h-screen pb-24 font-sans max-w-[420px] mx-auto overflow-hidden">
       {/* SECTION 1 - Top Header */}

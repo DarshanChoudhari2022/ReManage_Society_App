@@ -2,8 +2,21 @@ import { prisma } from "@/lib/prisma";
 import { sendPushToFlat } from "@/lib/push";
 import { NextRequest } from "next/server";
 
+
+import {
+  buildDeprecationHeaders,
+  isNestShimEnabled,
+  jsonWithHeaders,
+  passThroughRateLimitHeaders,
+  proxyNestJson,
+} from "@/lib/api/nest-proxy";
+import { shimOrFallback } from "@/lib/api/nest-shim";
+
 // Guard creates a visitor entry and sends approval request to flat member
-export async function POST(request: NextRequest) {
+const LEGACY_ROUTE = "/api/guard/visitors";
+const NEST_GET = "/api/v1/operations/guard/visitors/list";
+
+async function legacyPOST(request: NextRequest) {
   try {
     const body = await request.json();
     const { guardId, societyId, visitorName, phone, flatNumber, purpose, vehicleNo, passcode } = body;
@@ -110,7 +123,7 @@ export async function POST(request: NextRequest) {
 }
 
 // GET - guard checks approval status of a visitor
-export async function GET(request: NextRequest) {
+async function legacyGET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const visitorId = searchParams.get("visitorId");
@@ -141,3 +154,6 @@ export async function GET(request: NextRequest) {
     return Response.json({ error: "Failed" }, { status: 500 });
   }
 }
+
+export const POST = shimOrFallback({ legacyRoute: "/api/guard", nestPath: "/api/v1/operations", method: "POST" }, legacyPOST);
+export const GET = shimOrFallback({ legacyRoute: "/api/guard", nestPath: "/api/v1/operations", method: "GET" }, legacyGET);

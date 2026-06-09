@@ -2,7 +2,21 @@ import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { NextRequest } from "next/server";
 
-export async function GET(
+
+import {
+  buildDeprecationHeaders,
+  isNestShimEnabled,
+  jsonWithHeaders,
+  passThroughRateLimitHeaders,
+  proxyNestJson,
+} from "@/lib/api/nest-proxy";
+import { shimOrFallback } from "@/lib/api/nest-shim";
+
+const LEGACY_ROUTE = "/api/forum/[threadId]";
+const NEST_GET = "/api/v1/community/forum/thread/get";
+const NEST_POST = "/api/v1/community/forum/thread/reply";
+
+async function legacyGET(
   request: NextRequest,
   { params }: { params: Promise<{ threadId: string }> }
 ) {
@@ -42,7 +56,7 @@ export async function GET(
 }
 
 // POST: Add reply
-export async function POST(
+async function legacyPOST(
   request: NextRequest,
   { params }: { params: Promise<{ threadId: string }> }
 ) {
@@ -91,3 +105,6 @@ export async function POST(
     return Response.json({ error: "Failed to post reply" }, { status: 500 });
   }
 }
+
+export const GET = shimOrFallback({ legacyRoute: "/api/forum", nestPath: "/api/v1/community/forum", method: "GET" }, legacyGET);
+export const POST = shimOrFallback({ legacyRoute: "/api/forum", nestPath: "/api/v1/community/forum", method: "POST" }, legacyPOST);

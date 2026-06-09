@@ -2,7 +2,21 @@ import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import { getSession } from "@/lib/auth";
 
-export async function GET(request: NextRequest) {
+
+import {
+  buildDeprecationHeaders,
+  isNestShimEnabled,
+  jsonWithHeaders,
+  passThroughRateLimitHeaders,
+  proxyNestJson,
+} from "@/lib/api/nest-proxy";
+import { shimOrFallback } from "@/lib/api/nest-shim";
+
+const LEGACY_ROUTE = "/api/staff/attendance";
+const NEST_GET = "/api/v1/operations/staff/attendance/list";
+const NEST_POST = "/api/v1/operations/staff/attendance/record";
+
+async function legacyGET(request: NextRequest) {
   try {
     const session = await getSession();
     if (!session?.societyId) {
@@ -37,7 +51,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-export async function POST(request: NextRequest) {
+async function legacyPOST(request: NextRequest) {
   try {
     const session = await getSession();
     if (!session?.societyId) {
@@ -90,3 +104,6 @@ export async function POST(request: NextRequest) {
     return Response.json({ error: "Failed to record attendance" }, { status: 500 });
   }
 }
+
+export const GET = shimOrFallback({ legacyRoute: "/api/staff", nestPath: "/api/v1/operations/staff", method: "GET" }, legacyGET);
+export const POST = shimOrFallback({ legacyRoute: "/api/staff", nestPath: "/api/v1/operations/staff", method: "POST" }, legacyPOST);

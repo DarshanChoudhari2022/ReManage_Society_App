@@ -3,6 +3,16 @@ import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import { ensureUnitForFlat } from "@/domain/unit-migration";
 
+
+import {
+  buildDeprecationHeaders,
+  isNestShimEnabled,
+  jsonWithHeaders,
+  passThroughRateLimitHeaders,
+  proxyNestJson,
+} from "@/lib/api/nest-proxy";
+import { shimOrFallback } from "@/lib/api/nest-shim";
+
 function buildNextSlotNumber(slots: Array<{ slotNumber: string }>, wing?: string | null) {
   const prefix = wing ? `${wing.toUpperCase()}-P` : "P";
   const max = slots.reduce((currentMax, slot) => {
@@ -12,7 +22,11 @@ function buildNextSlotNumber(slots: Array<{ slotNumber: string }>, wing?: string
   return `${prefix}-${String(max + 1).padStart(3, "0")}`;
 }
 
-export async function GET() {
+const LEGACY_ROUTE = "/api/parking";
+const NEST_GET = "/api/v1/operations/parking/list";
+const NEST_POST = "/api/v1/operations/parking/assign";
+
+async function legacyGET() {
   const session = await getSession();
   if (!session?.societyId) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
@@ -97,7 +111,7 @@ export async function GET() {
   });
 }
 
-export async function POST(request: NextRequest) {
+async function legacyPOST(request: NextRequest) {
   const session = await getSession();
   if (!session?.societyId) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
@@ -210,3 +224,6 @@ export async function POST(request: NextRequest) {
     return Response.json({ error: "Slot number may already exist" }, { status: 500 });
   }
 }
+
+export const GET = shimOrFallback({ legacyRoute: "/api/parking", nestPath: "/api/v1/operations/parking", method: "GET" }, legacyGET);
+export const POST = shimOrFallback({ legacyRoute: "/api/parking", nestPath: "/api/v1/operations/parking", method: "POST" }, legacyPOST);

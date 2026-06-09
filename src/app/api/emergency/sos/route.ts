@@ -2,8 +2,21 @@ import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { NextRequest } from "next/server";
 
+
+import {
+  buildDeprecationHeaders,
+  isNestShimEnabled,
+  jsonWithHeaders,
+  passThroughRateLimitHeaders,
+  proxyNestJson,
+} from "@/lib/api/nest-proxy";
+import { shimOrFallback } from "@/lib/api/nest-shim";
+
 // POST: Trigger SOS alert to all committee + guards
-export async function POST(request: NextRequest) {
+const LEGACY_ROUTE = "/api/emergency/sos";
+const NEST_POST = "/api/v1/operations/sos/trigger";
+
+async function legacyPOST(request: NextRequest) {
   try {
     const session = await getSession();
     if (!session?.societyId) {
@@ -73,3 +86,5 @@ export async function POST(request: NextRequest) {
     return Response.json({ error: "Failed to send alert" }, { status: 500 });
   }
 }
+
+export const POST = shimOrFallback({ legacyRoute: "/api/emergency", nestPath: "/api/v1/operations/sos", method: "POST" }, legacyPOST);

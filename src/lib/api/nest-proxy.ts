@@ -34,7 +34,10 @@ export async function proxyNestJson<T = unknown>(options: NestProxyOptions): Pro
   data: T;
   headers: Headers;
 }> {
-  const token = await mintSessionBridgeToken(options.session);
+  const bridgeEnabled = process.env.API_BFF_BRIDGE_ENABLED !== "false";
+  const token = (!bridgeEnabled && options.session.accessToken)
+    ? options.session.accessToken
+    : await mintSessionBridgeToken(options.session);
   const method = options.method ?? "POST";
   const headers: Record<string, string> = {
     Authorization: `Bearer ${token}`,

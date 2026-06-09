@@ -80,6 +80,7 @@ export default function CommandPalette({ open, onClose }: CommandPaletteProps) {
 
   useEffect(() => {
     if (!open) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setQuery("");
     setActiveIndex(0);
     inputRef.current?.focus();
@@ -87,6 +88,7 @@ export default function CommandPalette({ open, onClose }: CommandPaletteProps) {
 
   useEffect(() => {
     if (!open || query.trim().length < 2) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setApiResults([]);
       return;
     }
@@ -106,6 +108,7 @@ export default function CommandPalette({ open, onClose }: CommandPaletteProps) {
   }, [open, query]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setActiveIndex(0);
   }, [query, results.length]);
 

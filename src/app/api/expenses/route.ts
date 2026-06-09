@@ -4,6 +4,16 @@ import { NextRequest } from "next/server";
 import { logCreated } from "@/lib/activity-log";
 import { EXPENSE_CATEGORY_IDS } from "@/lib/finance-categories";
 
+
+import {
+  buildDeprecationHeaders,
+  isNestShimEnabled,
+  jsonWithHeaders,
+  passThroughRateLimitHeaders,
+  proxyNestJson,
+} from "@/lib/api/nest-proxy";
+import { shimOrFallback } from "@/lib/api/nest-shim";
+
 const MAX_PROOF_DATA_URL_LENGTH = 4_500_000;
 const ALLOWED_PROOF_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "application/pdf"]);
 
@@ -42,7 +52,11 @@ function validateBillProof(input: {
   return { billProofDataUrl, billProofFileName, billProofFileType };
 }
 
-export async function GET(request: NextRequest) {
+const LEGACY_ROUTE = "/api/expenses";
+const NEST_GET = "/api/v1/finance-core/expenses/list";
+const NEST_POST = "/api/v1/finance-core/expenses/create";
+
+async function legacyGET(request: NextRequest) {
   const session = await getSession();
   if (!session?.societyId || !["chairman", "secretary", "treasurer"].includes(session.role)) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
@@ -73,7 +87,7 @@ export async function GET(request: NextRequest) {
   return Response.json({ expenses, total });
 }
 
-export async function POST(request: NextRequest) {
+async function legacyPOST(request: NextRequest) {
   const session = await getSession();
   if (!session?.societyId || !["chairman", "secretary", "treasurer"].includes(session.role)) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
@@ -137,7 +151,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function PATCH(request: NextRequest) {
+async function legacyPATCH(request: NextRequest) {
   const session = await getSession();
   if (!session?.societyId || !["chairman", "secretary", "treasurer"].includes(session.role)) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
@@ -178,3 +192,7 @@ export async function PATCH(request: NextRequest) {
     return Response.json({ error: "Something went wrong" }, { status: 500 });
   }
 }
+
+export const GET = shimOrFallback({ legacyRoute: "/api/expenses", nestPath: "/api/v1/finance-core/expenses/record", method: "GET" }, legacyGET);
+export const POST = shimOrFallback({ legacyRoute: "/api/expenses", nestPath: "/api/v1/finance-core/expenses/record", method: "POST" }, legacyPOST);
+export const PATCH = shimOrFallback({ legacyRoute: "/api/expenses", nestPath: "/api/v1/finance-core/expenses/record", method: "PATCH" }, legacyPATCH);

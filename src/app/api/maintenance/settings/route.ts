@@ -2,7 +2,21 @@ import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 
-export async function GET() {
+
+import {
+  buildDeprecationHeaders,
+  isNestShimEnabled,
+  jsonWithHeaders,
+  passThroughRateLimitHeaders,
+  proxyNestJson,
+} from "@/lib/api/nest-proxy";
+import { shimOrFallback } from "@/lib/api/nest-shim";
+
+const LEGACY_ROUTE = "/api/maintenance/settings";
+const NEST_GET = "/api/v1/finance-core/maintenance/settings/get";
+const NEST_PUT = "/api/v1/finance-core/maintenance/settings/update";
+
+async function legacyGET() {
   const session = await getSession();
   if (!session?.societyId || !["chairman", "secretary", "treasurer"].includes(session.role)) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
@@ -15,7 +29,7 @@ export async function GET() {
   return Response.json({ society });
 }
 
-export async function PUT(request: NextRequest) {
+async function legacyPUT(request: NextRequest) {
   const session = await getSession();
   if (!session?.societyId || !["chairman", "secretary"].includes(session.role)) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
@@ -46,3 +60,6 @@ export async function PUT(request: NextRequest) {
     return Response.json({ error: "Something went wrong" }, { status: 500 });
   }
 }
+
+export const GET = shimOrFallback({ legacyRoute: "/api/maintenance", nestPath: "/api/v1/finance-core", method: "GET" }, legacyGET);
+export const PUT = shimOrFallback({ legacyRoute: "/api/maintenance", nestPath: "/api/v1/finance-core", method: "PUT" }, legacyPUT);

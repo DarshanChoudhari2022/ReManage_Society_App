@@ -3,7 +3,21 @@ import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import { ensureUnitForFlat } from "@/domain/unit-migration";
 
-export async function PATCH(
+
+import {
+  buildDeprecationHeaders,
+  isNestShimEnabled,
+  jsonWithHeaders,
+  passThroughRateLimitHeaders,
+  proxyNestJson,
+} from "@/lib/api/nest-proxy";
+import { shimOrFallback } from "@/lib/api/nest-shim";
+
+const LEGACY_ROUTE = "/api/parking/[id]";
+const NEST_PATCH = "/api/v1/operations/parking/detail/update";
+const NEST_DELETE = "/api/v1/operations/parking/detail/remove";
+
+async function legacyPATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -129,7 +143,7 @@ export async function PATCH(
   }
 }
 
-export async function DELETE(
+async function legacyDELETE(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -160,3 +174,6 @@ export async function DELETE(
   });
   return Response.json({ success: true });
 }
+
+export const PATCH = shimOrFallback({ legacyRoute: "/api/parking", nestPath: "/api/v1/operations/parking", method: "PATCH" }, legacyPATCH);
+export const DELETE = shimOrFallback({ legacyRoute: "/api/parking", nestPath: "/api/v1/operations/parking", method: "DELETE" }, legacyDELETE);

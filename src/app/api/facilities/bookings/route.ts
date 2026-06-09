@@ -3,7 +3,21 @@ import { prisma } from "@/lib/prisma";
 import { assertAmenityBookable, ensureAmenityForFacility, getOccupancyContext } from "@/domain/community";
 import { NextRequest } from "next/server";
 
-export async function POST(request: NextRequest) {
+
+import {
+  buildDeprecationHeaders,
+  isNestShimEnabled,
+  jsonWithHeaders,
+  passThroughRateLimitHeaders,
+  proxyNestJson,
+} from "@/lib/api/nest-proxy";
+import { shimOrFallback } from "@/lib/api/nest-shim";
+
+const LEGACY_ROUTE = "/api/facilities/bookings";
+const NEST_GET = "/api/v1/operations/amenities/bookings/list";
+const NEST_POST = "/api/v1/operations/amenities/bookings/create";
+
+async function legacyPOST(request: NextRequest) {
   const session = await getSession();
   if (!session?.societyId) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
@@ -82,7 +96,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function GET(request: NextRequest) {
+async function legacyGET(request: NextRequest) {
   const session = await getSession();
   if (!session?.societyId) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
@@ -103,3 +117,6 @@ export async function GET(request: NextRequest) {
 
   return Response.json({ bookings });
 }
+
+export const POST = shimOrFallback({ legacyRoute: "/api/facilities", nestPath: "/api/v1/operations/amenities", method: "POST" }, legacyPOST);
+export const GET = shimOrFallback({ legacyRoute: "/api/facilities", nestPath: "/api/v1/operations/amenities", method: "GET" }, legacyGET);

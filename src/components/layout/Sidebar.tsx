@@ -70,6 +70,7 @@ export default function Sidebar({
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsPinned(localStorage.getItem("society-sidebar-pinned") === "true");
   }, []);
 

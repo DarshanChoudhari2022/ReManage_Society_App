@@ -99,11 +99,17 @@ export default async function middleware(request: NextRequest) {
     return withSecurityHeaders(NextResponse.redirect(new URL(defaultRoute, request.url)));
   }
 
-  if (pathname.startsWith("/api/") && !(await apiRateLimit(payload.userId))) {
-    return withSecurityHeaders(NextResponse.json(
-      { error: "Too many requests. Please try again shortly." },
-      { status: 429 }
-    ));
+  if (pathname.startsWith("/api/")) {
+    try {
+      if (!(await apiRateLimit(payload.userId))) {
+        return withSecurityHeaders(NextResponse.json(
+          { error: "Too many requests. Please try again shortly." },
+          { status: 429 }
+        ));
+      }
+    } catch {
+      // Fail-open: allow request if rate limiter backend is unavailable (e.g. Valkey not running locally)
+    }
   }
 
   // Watchman trying to access /dashboard → redirect to /visitors

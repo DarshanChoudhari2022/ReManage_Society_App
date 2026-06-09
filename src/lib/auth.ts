@@ -15,6 +15,7 @@ export async function createSession(user: {
   name: string;
   email: string;
   flatId?: string | null;
+  accessToken?: string;
 }) {
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
   const sessionToken = await encryptSession({
@@ -24,6 +25,7 @@ export async function createSession(user: {
     name: user.name,
     email: user.email,
     flatId: user.flatId || "",
+    accessToken: user.accessToken,
     expiresAt,
   });
 
@@ -104,4 +106,52 @@ export async function getSessionUser() {
     include: { society: true },
   });
   return user;
+}
+
+export function getOidcLoginUrl(redirectUri: string) {
+  const issuer = process.env.KEYCLOAK_ISSUER_URL || "http://localhost:8080/realms/society-connect";
+  const clientId = process.env.KEYCLOAK_CLIENT_ID || "society-web";
+  return `${issuer}/protocol/openid-connect/auth?client_id=${clientId}&response_type=code&scope=openid profile email&redirect_uri=${encodeURIComponent(redirectUri)}`;
+}
+
+export function getOidcLogoutUrl(idTokenHint?: string, postLogoutRedirectUri?: string) {
+  const issuer = process.env.KEYCLOAK_ISSUER_URL || "http://localhost:8080/realms/society-connect";
+  const clientId = process.env.KEYCLOAK_CLIENT_ID || "society-web";
+  let url = `${issuer}/protocol/openid-connect/logout?client_id=${clientId}`;
+  if (idTokenHint) {
+    url += `&id_token_hint=${idTokenHint}`;
+  }
+  if (postLogoutRedirectUri) {
+    url += `&post_logout_redirect_uri=${encodeURIComponent(postLogoutRedirectUri)}`;
+  }
+  return url;
+}
+
+export async function exchangeOidcCode(code: string, redirectUri: string) {
+  const issuer = process.env.KEYCLOAK_ISSUER_URL || "http://localhost:8080/realms/society-connect";
+  const clientId = process.env.KEYCLOAK_CLIENT_ID || "society-web";
+  const clientSecret = process.env.KEYCLOAK_CLIENT_SECRET || "";
+
+  const params = new URLSearchParams({
+    grant_type: "authorization_code",
+    client_id: clientId,
+    client_secret: clientSecret,
+    code,
+    redirect_uri: redirectUri,
+  });
+
+  const response = await fetch(`${issuer}/protocol/openid-connect/token`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: params.toString(),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`OIDC exchange failed: ${errorText}`);
+  }
+
+  return response.json();
 }

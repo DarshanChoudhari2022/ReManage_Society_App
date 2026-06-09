@@ -2,7 +2,22 @@ import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 
-export async function GET(
+
+import {
+  buildDeprecationHeaders,
+  isNestShimEnabled,
+  jsonWithHeaders,
+  passThroughRateLimitHeaders,
+  proxyNestJson,
+} from "@/lib/api/nest-proxy";
+import { shimOrFallback } from "@/lib/api/nest-shim";
+
+const LEGACY_ROUTE = "/api/members/[id]";
+const NEST_GET = "/api/v1/society-core/members/detail/get";
+const NEST_PATCH = "/api/v1/society-core/members/detail/update";
+const NEST_DELETE = "/api/v1/society-core/members/detail/remove";
+
+async function legacyGET(
   _request: NextRequest,
   ctx: RouteContext<"/api/members/[id]">
 ) {
@@ -23,7 +38,7 @@ export async function GET(
   return Response.json({ member });
 }
 
-export async function PUT(
+async function legacyPUT(
   request: NextRequest,
   ctx: RouteContext<"/api/members/[id]">
 ) {
@@ -79,7 +94,7 @@ export async function PUT(
   return Response.json({ member });
 }
 
-export async function DELETE(
+async function legacyDELETE(
   _request: NextRequest,
   ctx: RouteContext<"/api/members/[id]">
 ) {
@@ -107,3 +122,7 @@ export async function DELETE(
 
   return Response.json({ success: true });
 }
+
+export const GET = shimOrFallback({ legacyRoute: "/api/members", nestPath: "/api/v1/society-core/directory/read", method: "GET" }, legacyGET);
+export const PUT = shimOrFallback({ legacyRoute: "/api/members", nestPath: "/api/v1/society-core/directory/read", method: "PUT" }, legacyPUT);
+export const DELETE = shimOrFallback({ legacyRoute: "/api/members", nestPath: "/api/v1/society-core/directory/read", method: "DELETE" }, legacyDELETE);

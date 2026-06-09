@@ -2,6 +2,17 @@ import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { isAdmin } from "@/lib/rbac";
 
+
+import {
+  buildDeprecationHeaders,
+  isNestShimEnabled,
+  jsonWithHeaders,
+  passThroughRateLimitHeaders,
+  proxyNestJson,
+} from "@/lib/api/nest-proxy";
+const LEGACY_ROUTE = "/api/activity-log";
+const NEST_GET = "/api/v1/society-core/activity-log/list";
+
 export async function GET(request: Request) {
   const session = await getSession();
   if (!session?.societyId) {

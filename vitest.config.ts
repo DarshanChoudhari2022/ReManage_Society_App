@@ -10,6 +10,7 @@ export default defineConfig({
       "@society/db": path.resolve(__dirname, "packages/db/src/index.ts"),
       "@society/finance-core": path.resolve(__dirname, "packages/finance-core/src/index.ts"),
       "@society/operations-core": path.resolve(__dirname, "packages/operations-core/src/index.ts"),
+      "@society/security/rate-limit-server": path.resolve(__dirname, "packages/security/src/rate-limit-server.ts"),
       "@society/security": path.resolve(__dirname, "packages/security/src/index.ts"),
       "@society/society-core": path.resolve(__dirname, "packages/society-core/src/index.ts"),
       "@society/test": path.resolve(__dirname, "packages/test/src/index.ts"),

@@ -2,7 +2,21 @@ import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 
-export async function GET() {
+
+import {
+  buildDeprecationHeaders,
+  isNestShimEnabled,
+  jsonWithHeaders,
+  passThroughRateLimitHeaders,
+  proxyNestJson,
+} from "@/lib/api/nest-proxy";
+import { shimOrFallback } from "@/lib/api/nest-shim";
+
+const LEGACY_ROUTE = "/api/polls";
+const NEST_GET = "/api/v1/community/polls/list";
+const NEST_POST = "/api/v1/community/polls/create";
+
+async function legacyGET() {
   const session = await getSession();
   if (!session?.societyId) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
@@ -16,7 +30,7 @@ export async function GET() {
   return Response.json({ polls });
 }
 
-export async function POST(request: NextRequest) {
+async function legacyPOST(request: NextRequest) {
   const session = await getSession();
   if (!session?.societyId) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
@@ -48,3 +62,6 @@ export async function POST(request: NextRequest) {
     return Response.json({ error: "Something went wrong" }, { status: 500 });
   }
 }
+
+export const GET = shimOrFallback({ legacyRoute: "/api/polls", nestPath: "/api/v1/community/polls", method: "GET" }, legacyGET);
+export const POST = shimOrFallback({ legacyRoute: "/api/polls", nestPath: "/api/v1/community/polls", method: "POST" }, legacyPOST);

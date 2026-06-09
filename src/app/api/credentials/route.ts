@@ -3,8 +3,21 @@ import { getSession } from "@/lib/auth";
 import { NextRequest } from "next/server";
 import bcrypt from "bcryptjs";
 
+
+import {
+  buildDeprecationHeaders,
+  isNestShimEnabled,
+  jsonWithHeaders,
+  passThroughRateLimitHeaders,
+  proxyNestJson,
+} from "@/lib/api/nest-proxy";
+import { shimOrFallback } from "@/lib/api/nest-shim";
+
 // POST: Auto-generate login credentials for all flats that don't have user accounts
-export async function POST(request: NextRequest) {
+const LEGACY_ROUTE = "/api/credentials";
+const NEST_POST = "/api/v1/society-core/credentials/issue";
+
+async function legacyPOST(request: NextRequest) {
   try {
     const session = await getSession();
     if (!session?.societyId || !["chairman", "secretary"].includes(session!.role)) {
@@ -123,7 +136,7 @@ export async function POST(request: NextRequest) {
 }
 
 // GET: List all member credentials (admin only)
-export async function GET() {
+async function legacyGET() {
   try {
     const session = await getSession();
     if (!session?.societyId || !["chairman", "secretary"].includes(session!.role)) {
@@ -166,3 +179,6 @@ export async function GET() {
     return Response.json({ error: "Failed to fetch credentials" }, { status: 500 });
   }
 }
+
+export const POST = shimOrFallback({ legacyRoute: "/api/credentials", nestPath: "/api/v1/society-core/credentials/issue", method: "POST" }, legacyPOST);
+export const GET = shimOrFallback({ legacyRoute: "/api/credentials", nestPath: "/api/v1/society-core/credentials/issue", method: "GET" }, legacyGET);

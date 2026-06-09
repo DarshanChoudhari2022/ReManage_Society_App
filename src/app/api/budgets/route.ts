@@ -2,6 +2,16 @@ import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { EXPENSE_CATEGORY_IDS, defaultExpenseCategoryForFund } from "@/lib/finance-categories";
 
+
+import {
+  buildDeprecationHeaders,
+  isNestShimEnabled,
+  jsonWithHeaders,
+  passThroughRateLimitHeaders,
+  proxyNestJson,
+} from "@/lib/api/nest-proxy";
+import { shimOrFallback } from "@/lib/api/nest-shim";
+
 async function requireFinanceAccess() {
   const session = await getSession();
   if (!session?.societyId) return { error: "Unauthorized", status: 401, session: null };
@@ -70,7 +80,11 @@ async function calculateActuals(societyId: string, fiscalYear: string, category:
   };
 }
 
-export async function GET() {
+const LEGACY_ROUTE = "/api/budgets";
+const NEST_GET = "/api/v1/finance-core/budgets/list";
+const NEST_POST = "/api/v1/finance-core/budgets/create";
+
+async function legacyGET() {
   const { error, status, session } = await requireFinanceAccess();
   if (error) return Response.json({ error }, { status });
 
@@ -117,7 +131,7 @@ export async function GET() {
   ));
 }
 
-export async function POST(request: Request) {
+async function legacyPOST(request: Request) {
   const { error, status, session } = await requireFinanceAccess();
   if (error) return Response.json({ error }, { status });
 
@@ -159,3 +173,6 @@ export async function POST(request: Request) {
 
   return Response.json(budget, { status: 201 });
 }
+
+export const GET = shimOrFallback({ legacyRoute: "/api/budgets", nestPath: "/api/v1/finance-core", method: "GET" }, legacyGET);
+export const POST = shimOrFallback({ legacyRoute: "/api/budgets", nestPath: "/api/v1/finance-core", method: "POST" }, legacyPOST);

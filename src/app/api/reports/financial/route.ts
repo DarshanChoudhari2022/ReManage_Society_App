@@ -2,8 +2,21 @@ import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/rbac";
 import { financeReportBucket } from "@/lib/finance-categories";
 
+
+import {
+  buildDeprecationHeaders,
+  isNestShimEnabled,
+  jsonWithHeaders,
+  passThroughRateLimitHeaders,
+  proxyNestJson,
+} from "@/lib/api/nest-proxy";
+import { shimOrFallback } from "@/lib/api/nest-shim";
+
 // Financial reports: Income/Expense statement
-export async function GET(request: Request) {
+const LEGACY_ROUTE = "/api/reports/financial";
+const NEST_GET = "/api/v1/finance-core/reports/financial/generate";
+
+async function legacyGET(request: Request) {
   const { error, status, session } = await requireAdmin();
   if (error) return Response.json({ error }, { status });
 
@@ -116,7 +129,7 @@ export async function GET(request: Request) {
       amount: (pendingBills._sum.amount || 0) + (pendingBills._sum.lateFee || 0),
     },
     funds,
-    budgets: budgets.map((b: any) => ({
+    budgets: budgets.map((b: { category: string; planned: number; actual: number }) => ({
       category: b.category,
       planned: b.planned,
       actual: b.actual,
@@ -125,3 +138,5 @@ export async function GET(request: Request) {
     })),
   });
 }
+
+export const GET = shimOrFallback({ legacyRoute: "/api/reports", nestPath: "/api/v1/finance-core/reports", method: "GET" }, legacyGET);

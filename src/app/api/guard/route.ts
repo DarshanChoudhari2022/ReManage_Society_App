@@ -3,7 +3,21 @@ import { NextRequest } from "next/server";
 import { getSession } from "@/lib/auth";
 import bcrypt from "bcryptjs";
 
-export async function GET() {
+
+import {
+  buildDeprecationHeaders,
+  isNestShimEnabled,
+  jsonWithHeaders,
+  passThroughRateLimitHeaders,
+  proxyNestJson,
+} from "@/lib/api/nest-proxy";
+import { shimOrFallback } from "@/lib/api/nest-shim";
+
+const LEGACY_ROUTE = "/api/guard";
+const NEST_GET = "/api/v1/operations/guard/list";
+const NEST_POST = "/api/v1/operations/guard/register";
+
+async function legacyGET() {
   try {
     const session = await getSession();
     if (!session?.societyId || !["chairman", "secretary", "treasurer"].includes(session.role)) {
@@ -21,7 +35,7 @@ export async function GET() {
   }
 }
 
-export async function PATCH(request: NextRequest) {
+async function legacyPATCH(request: NextRequest) {
   try {
     const session = await getSession();
     if (!session?.societyId || !["chairman", "secretary"].includes(session.role)) {
@@ -59,7 +73,7 @@ export async function PATCH(request: NextRequest) {
   }
 }
 
-export async function POST(request: NextRequest) {
+async function legacyPOST(request: NextRequest) {
   try {
     const session = await getSession();
     if (!session?.societyId || !["chairman", "secretary"].includes(session!.role)) {
@@ -135,3 +149,7 @@ export async function POST(request: NextRequest) {
     return Response.json({ error: "Failed to create guard" }, { status: 500 });
   }
 }
+
+export const GET = shimOrFallback({ legacyRoute: "/api/guard", nestPath: "/api/v1/operations", method: "GET" }, legacyGET);
+export const PATCH = shimOrFallback({ legacyRoute: "/api/guard", nestPath: "/api/v1/operations", method: "PATCH" }, legacyPATCH);
+export const POST = shimOrFallback({ legacyRoute: "/api/guard", nestPath: "/api/v1/operations", method: "POST" }, legacyPOST);

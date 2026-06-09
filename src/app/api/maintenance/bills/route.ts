@@ -1,5 +1,4 @@
 import { getSession } from "@/lib/auth";
-import { buildDeprecationHeaders, jsonWithHeaders } from "@/lib/api/nest-proxy";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import { getCurrentPeriod } from "@/lib/utils";
@@ -9,7 +8,20 @@ import { getBillingTargetsForSociety, targetsByFlatId } from "@/domain/billing";
 import { ensureMaintenanceBillInvoice } from "@/domain/maintenance-finance";
 import { billDueRecipientUserIds } from "@/domain/notification-recipients";
 
-export async function GET(request: NextRequest) {
+import {
+  buildDeprecationHeaders,
+  isNestShimEnabled,
+  jsonWithHeaders,
+  passThroughRateLimitHeaders,
+  proxyNestJson,
+} from "@/lib/api/nest-proxy";
+import { shimOrFallback } from "@/lib/api/nest-shim";
+
+const LEGACY_ROUTE = "/api/maintenance/bills";
+const NEST_GET = "/api/v1/finance-core/maintenance/bills/list";
+const NEST_POST = "/api/v1/finance-core/maintenance/bills/generate";
+
+async function legacyGET(request: NextRequest) {
   const session = await getSession();
   if (!session?.societyId) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
@@ -131,7 +143,7 @@ export async function GET(request: NextRequest) {
   );
 }
 
-export async function POST(request: NextRequest) {
+async function legacyPOST(request: NextRequest) {
   const session = await getSession();
   if (!session?.societyId) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
@@ -256,3 +268,6 @@ export async function POST(request: NextRequest) {
     return Response.json({ error: "Something went wrong" }, { status: 500 });
   }
 }
+
+export const GET = shimOrFallback({ legacyRoute: "/api/maintenance/bills", nestPath: "/api/v1/finance-core", method: "GET" }, legacyGET);
+export const POST = shimOrFallback({ legacyRoute: "/api/maintenance/bills", nestPath: "/api/v1/finance-core", method: "POST" }, legacyPOST);

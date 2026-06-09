@@ -2,8 +2,21 @@ import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { broadcastNotification } from "@/lib/notifications";
 
+
+import {
+  buildDeprecationHeaders,
+  isNestShimEnabled,
+  jsonWithHeaders,
+  passThroughRateLimitHeaders,
+  proxyNestJson,
+} from "@/lib/api/nest-proxy";
+import { shimOrFallback } from "@/lib/api/nest-shim";
+
 // Apply late fees to overdue bills
-export async function POST() {
+const LEGACY_ROUTE = "/api/maintenance/late-fees";
+const NEST_POST = "/api/v1/finance-core/maintenance/late-fees/apply";
+
+async function legacyPOST() {
   const session = await getSession();
   if (!session?.societyId) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
@@ -62,3 +75,5 @@ export async function POST() {
     return Response.json({ error: "Failed to apply late fees" }, { status: 500 });
   }
 }
+
+export const POST = shimOrFallback({ legacyRoute: "/api/maintenance", nestPath: "/api/v1/finance-core", method: "POST" }, legacyPOST);

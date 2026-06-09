@@ -1,7 +1,20 @@
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function POST(request: NextRequest) {
+
+import {
+  buildDeprecationHeaders,
+  isNestShimEnabled,
+  jsonWithHeaders,
+  passThroughRateLimitHeaders,
+  proxyNestJson,
+} from "@/lib/api/nest-proxy";
+import { shimOrFallback } from "@/lib/api/nest-shim";
+
+const LEGACY_ROUTE = "/api/complaints/public";
+const NEST_POST = "/api/v1/community/helpdesk/public/create";
+
+async function legacyPOST(request: NextRequest) {
   try {
     const body = await request.json();
     const { societyId, flatNumber, raisedBy, title, description, category, priority } = body;
@@ -62,3 +75,5 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
   }
 }
+
+export const POST = shimOrFallback({ legacyRoute: "/api/complaints", nestPath: "/api/v1/community/helpdesk", method: "POST" }, legacyPOST);

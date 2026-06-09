@@ -5,7 +5,21 @@ import { logPayment, logUpdated } from "@/lib/activity-log";
 import { createNotification } from "@/lib/notifications";
 import { recordMaintenanceBillPayment } from "@/domain/maintenance-finance";
 
-export async function PATCH(
+
+import {
+  buildDeprecationHeaders,
+  isNestShimEnabled,
+  jsonWithHeaders,
+  passThroughRateLimitHeaders,
+  proxyNestJson,
+} from "@/lib/api/nest-proxy";
+import { shimOrFallback } from "@/lib/api/nest-shim";
+
+const LEGACY_ROUTE = "/api/maintenance/bills/[id]";
+const NEST_GET = "/api/v1/finance-core/maintenance/bills/detail/get";
+const NEST_PATCH = "/api/v1/finance-core/maintenance/bills/detail/update";
+
+async function legacyPATCH(
   request: NextRequest,
   ctx: RouteContext<"/api/maintenance/bills/[id]">
 ) {
@@ -143,7 +157,7 @@ export async function PATCH(
   return Response.json({ error: "Invalid status" }, { status: 400 });
 }
 
-export async function DELETE(
+async function legacyDELETE(
   _request: NextRequest,
   ctx: RouteContext<"/api/maintenance/bills/[id]">
 ) {
@@ -175,3 +189,6 @@ export async function DELETE(
 
   return Response.json({ success: true });
 }
+
+export const PATCH = shimOrFallback({ legacyRoute: "/api/maintenance/bills", nestPath: "/api/v1/finance-core", method: "PATCH" }, legacyPATCH);
+export const DELETE = shimOrFallback({ legacyRoute: "/api/maintenance/bills", nestPath: "/api/v1/finance-core", method: "DELETE" }, legacyDELETE);

@@ -424,6 +424,7 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const saved = localStorage.getItem("society-language") as AppLanguage | null;
     if (saved && LANGUAGE_OPTIONS.some((option) => option.code === saved)) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLanguageState(saved);
       document.documentElement.lang = saved === "hi" ? "hi-IN" : saved === "mr" ? "mr-IN" : "en";
     }

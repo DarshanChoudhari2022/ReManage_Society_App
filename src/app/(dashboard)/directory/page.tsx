@@ -38,7 +38,10 @@ export default function DirectoryPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  useEffect(() => { fetchDirectory(); }, [fetchDirectory]);
+  useEffect(() => { 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchDirectory(); 
+  }, [fetchDirectory]);
 
   const filtered = directory.filter((d) => {
     if (selectedWing !== "all" && (d.wing || "General") !== selectedWing) return false;

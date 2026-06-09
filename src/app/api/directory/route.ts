@@ -1,7 +1,20 @@
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 
-export async function GET() {
+
+import {
+  buildDeprecationHeaders,
+  isNestShimEnabled,
+  jsonWithHeaders,
+  passThroughRateLimitHeaders,
+  proxyNestJson,
+} from "@/lib/api/nest-proxy";
+import { shimOrFallback } from "@/lib/api/nest-shim";
+
+const LEGACY_ROUTE = "/api/directory";
+const NEST_GET = "/api/v1/society-core/directory/read";
+
+async function legacyGET() {
   try {
     const session = await getSession();
     if (!session?.societyId) {
@@ -84,3 +97,5 @@ export async function GET() {
     return Response.json({ error: "Failed to fetch directory" }, { status: 500 });
   }
 }
+
+export const GET = shimOrFallback({ legacyRoute: "/api/directory", nestPath: "/api/v1/society-core/directory/read", method: "GET" }, legacyGET);
