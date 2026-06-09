@@ -1,30 +1,11 @@
 import "server-only";
 
-function keycloakBaseUrl(): string {
-  return (process.env.KEYCLOAK_BASE_URL || "http://localhost:8080").replace(/\/$/, "");
-}
-
 export function isKeycloakEnabled(): boolean {
-  if (process.env.KEYCLOAK_ENABLED === "false") {
-    return false;
-  }
-
-  if (process.env.KEYCLOAK_ENABLED === "true") {
-    return Boolean(process.env.KEYCLOAK_CLIENT_SECRET?.trim());
-  }
-
-  const base = keycloakBaseUrl();
-  const hasSecret = Boolean(process.env.KEYCLOAK_CLIENT_SECRET?.trim());
-
-  if (!hasSecret) {
-    return false;
-  }
-
-  if (process.env.NODE_ENV === "production" && /localhost|127\.0\.0\.1/.test(base)) {
-    return false;
-  }
-
-  return true;
+  // Keycloak is opt-in only. Must be explicitly enabled with a client secret.
+  return (
+    process.env.KEYCLOAK_ENABLED === "true" &&
+    Boolean(process.env.KEYCLOAK_CLIENT_SECRET?.trim())
+  );
 }
 
 export function getKeycloakUnavailableMessage(): string {
