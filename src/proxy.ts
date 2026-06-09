@@ -48,7 +48,9 @@ export async function proxy(request: NextRequest) {
     const session = request.cookies.get("session")?.value;
     const payload = session ? await decryptSession(session) : null;
     const destination = payload ? getDefaultRoute(payload.role) : "/login";
-    return withSecurityHeaders(NextResponse.redirect(new URL(destination, request.url)));
+    const response = NextResponse.redirect(new URL(destination, request.url), 307);
+    response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate");
+    return withSecurityHeaders(response);
   }
 
   // Allow static assets

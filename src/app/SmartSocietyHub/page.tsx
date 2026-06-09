@@ -1,8 +1,12 @@
 import { getSession } from "@/lib/auth";
 import { getDefaultRoute } from "@/lib/role-access";
-import { redirect } from "next/navigation";
+import SmartSocietyHubClientRedirect from "./ClientRedirect";
+
+export const dynamic = "force-dynamic";
 
 export default async function SmartSocietyHubRedirectPage() {
   const session = await getSession();
-  redirect(session ? getDefaultRoute(session.role) : "/login");
+  const destination = session ? getDefaultRoute(session.role) : "/login";
+
+  return <SmartSocietyHubClientRedirect destination={destination} />;
 }

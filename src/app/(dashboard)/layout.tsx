@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Sidebar from "@/components/layout/Sidebar";
 import Header from "@/components/layout/Header";
 import BottomNav from "@/components/layout/BottomNav";
@@ -13,13 +13,6 @@ import { UserProvider, useUser } from "@/lib/user-context";
 function DashboardShell({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { user } = useUser();
-
-  useEffect(() => {
-    const path = window.location.pathname;
-    if (path === "/SmartSocietyHub" || path === "/SmartSocietyHub/") {
-      window.location.replace("/dashboard");
-    }
-  }, []);
 
   // Auto-subscribe to push notifications
   usePushNotifications();

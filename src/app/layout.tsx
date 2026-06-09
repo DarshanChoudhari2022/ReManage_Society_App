@@ -50,6 +50,11 @@ export default function RootLayout({
             __html: `
               (function () {
                 try {
+                  var path = location.pathname;
+                  if (path === '/SmartSocietyHub' || path === '/SmartSocietyHub/') {
+                    location.replace('/');
+                    return;
+                  }
                   var stored = localStorage.getItem('theme');
                   var systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
                   var dark = stored ? stored === 'dark' : systemDark;

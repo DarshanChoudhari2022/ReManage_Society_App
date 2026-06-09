@@ -1,6 +1,6 @@
 // Phase 7 service worker: push, shell caching, stale-while-revalidate API reads.
 
-const CACHE_VERSION = 'society-mobile-v5';
+const CACHE_VERSION = 'society-mobile-v6';
 const STATIC_CACHE = `${CACHE_VERSION}:static`;
 const API_CACHE = `${CACHE_VERSION}:api`;
 const STATIC_ASSETS = [
@@ -102,15 +102,29 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // Never cache legacy entry paths or auth routes — they must reach the server for redirects.
+  const bypassCache =
+    url.pathname === '/SmartSocietyHub' ||
+    url.pathname === '/SmartSocietyHub/' ||
+    url.pathname === '/login' ||
+    url.pathname === '/';
+
   if (request.mode === 'navigate') {
+    if (bypassCache) {
+      event.respondWith(fetch(request));
+      return;
+    }
+
     event.respondWith(
       fetch(request)
         .then((response) => {
-          const clone = response.clone();
-          caches.open(STATIC_CACHE).then((cache) => cache.put(request, clone));
+          if (response.ok && response.type === 'basic') {
+            const clone = response.clone();
+            caches.open(STATIC_CACHE).then((cache) => cache.put(request, clone));
+          }
           return response;
         })
-        .catch(() => caches.match(request).then((cached) => cached || caches.match('/dashboard')))
+        .catch(() => caches.match(request))
     );
   }
 });
