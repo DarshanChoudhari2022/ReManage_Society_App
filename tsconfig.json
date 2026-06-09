@@ -29,6 +29,7 @@
       "@society/finance-core": ["./packages/finance-core/src/index.ts"],
       "@society/operations-core": ["./packages/operations-core/src/index.ts"],
       "@society/security": ["./packages/security/src/index.ts"],
+      "@society/security/rate-limit-server": ["./packages/security/src/rate-limit-server.ts"],
       "@society/society-core": ["./packages/society-core/src/index.ts"],
       "@society/test": ["./packages/test/src/index.ts"],
       "@society/ux-core": ["./packages/ux-core/src/index.ts"]

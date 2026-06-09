@@ -1,0 +1,40 @@
+name: Load test
+
+on:
+  workflow_dispatch:
+    inputs:
+      vus:
+        description: Virtual users
+        required: false
+        default: "50"
+
+jobs:
+  k6-smoke:
+    name: k6 API smoke
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: project
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install k6
+        run: |
+          sudo gpg -k
+          sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+          echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+          sudo apt-get update
+          sudo apt-get install k6
+
+      - name: Run k6 smoke profile
+        run: node scripts/load/run-k6-smoke.mjs
+        env:
+          K6_VUS: ${{ inputs.vus }}
+          API_BASE_URL: ${{ vars.STAGING_API_URL || 'http://localhost:4000' }}

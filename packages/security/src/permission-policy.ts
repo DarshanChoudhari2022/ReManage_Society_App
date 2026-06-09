@@ -48,6 +48,7 @@ const ROLE_PERMISSIONS: Record<SocietyRole | "platform_admin", readonly Permissi
   ],
   resident: [
     "society:directory.read",
+    "society:finance.read",
     "operations:visitor.respond",
     "operations:read",
     "operations:booking.manage",
@@ -148,10 +149,16 @@ export function evaluatePermission(request: PermissionRequest): PermissionDecisi
   }
 
   if (MFA_REQUIRED_ACTIONS.has(request.action) && !tenantContext.mfaVerified) {
-    return {
-      allowed: false,
-      reason: `MFA is required for ${request.action}`,
-    };
+    const wouldBeAllowed = tenantContext.roles.some((role) =>
+      ROLE_PERMISSIONS[role].includes(request.action),
+    );
+
+    if (wouldBeAllowed) {
+      return {
+        allowed: false,
+        reason: `MFA is required for ${request.action}`,
+      };
+    }
   }
 
   const allowedRole = tenantContext.roles.find((role) =>

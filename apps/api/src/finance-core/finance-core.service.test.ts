@@ -39,12 +39,12 @@ describe("FinanceCoreService", () => {
     });
   });
 
-  it("blocks residents from finance reads", () => {
+  it("allows residents to read finance summaries for self-service billing", () => {
     const service = new FinanceCoreService(new SecurityPolicyService());
 
-    expect(() => service.ensureChartOfAccountsPlan(residentPrincipal, "society_a")).toThrow(
-      /Forbidden/,
-    );
+    expect(service.ensureChartOfAccountsPlan(residentPrincipal, "society_a")).toMatchObject({
+      societyId: "society_a",
+    });
   });
 
   it("authorizes finance management before creating a journal posting plan", () => {

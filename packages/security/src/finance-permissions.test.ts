@@ -76,7 +76,7 @@ describe("finance permissions", () => {
     });
   });
 
-  it("blocks residents from finance reads", () => {
+  it("allows residents to read their finance surfaces but not manage finance", () => {
     expect(
       evaluatePermission({
         principal: residentPrincipal,
@@ -84,8 +84,19 @@ describe("finance permissions", () => {
         societyId: "society_a",
       }),
     ).toEqual({
+      allowed: true,
+      reason: "Allowed by role resident",
+    });
+
+    expect(
+      evaluatePermission({
+        principal: residentPrincipal,
+        action: "society:finance.manage",
+        societyId: "society_a",
+      }),
+    ).toEqual({
       allowed: false,
-      reason: "No active role can perform society:finance.read",
+      reason: "No active role can perform society:finance.manage",
     });
   });
 });

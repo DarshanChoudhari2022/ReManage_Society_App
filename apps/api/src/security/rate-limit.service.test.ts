@@ -4,7 +4,8 @@ import { RateLimitService, type RateLimitStore } from "./rate-limit.service.ts";
 class MemoryStore implements RateLimitStore {
   private readonly counts = new Map<string, number>();
 
-  async increment(key: string): Promise<number> {
+  async increment(key: string, windowMs: number): Promise<number> {
+    void windowMs;
     const next = (this.counts.get(key) ?? 0) + 1;
     this.counts.set(key, next);
     return next;

@@ -1,9 +1,16 @@
 /**
  * Centralized Role-Based Access Control (RBAC)
  *
- * Defines which dashboard routes each role can access.
+ * Route access is enforced via @society/security permission policy.
  * Used by middleware (server-side) and sidebar/nav (client-side).
  */
+
+import {
+  canAccessLegacyRoute,
+  getDefaultRouteForRole,
+  isAdminLegacyRole,
+  isWatchmanLegacyRole,
+} from "@society/security";
 
 export type UserRole =
   | "chairman"
@@ -16,50 +23,22 @@ export type UserRole =
   | "vendor_staff"
   | "facility_manager";
 
-// Routes that ALL authenticated users can access (login, dashboard shell, API auth)
-const UNIVERSAL_ROUTES = [
-  "/dashboard",
-  "/api/auth",
-  "/api/dashboard",
-  "/api/mobile",
-  "/api/notifications",
-  "/api/push",
-  "/api/search",
-];
+export interface RouteAccessContext {
+  role: string;
+  societyId: string;
+  subject: string;
+  mfaVerified?: boolean;
+}
 
-/**
- * Per-role allowed route prefixes.
- * If a role is not listed here, they get UNIVERSAL_ROUTES only.
- */
-const ROLE_ROUTES: Record<string, string[]> = {
-  // ── Admin roles: full access ──────────────────────────
-  chairman: ["*"], // wildcard = everything
-  secretary: ["*"],
-  treasurer: ["*"],
-
-  // ── Watchman / Guard: visitors + packages only ────────
-  watchman: [
-    "/visitors",
-    "/packages",
-    "/api/visitors",
-    "/api/packages",
-    "/api/guard",
-  ],
-  guard: [
-    "/visitors",
-    "/packages",
-    "/api/visitors",
-    "/api/packages",
-    "/api/guard",
-  ],
-
-  // ── Society Member: community + personal features ─────
+const CLIENT_NAV_PREFIXES: Record<string, readonly string[]> = {
+  watchman: ["/visitors", "/packages", "/gate", "/dashboard"],
+  guard: ["/visitors", "/packages", "/gate", "/dashboard"],
   member: [
+    "/dashboard",
     "/my-society",
     "/services",
     "/profile",
     "/my-bills",
-    "/receipts",
     "/my-visitors",
     "/complaints",
     "/notices",
@@ -76,37 +55,13 @@ const ROLE_ROUTES: Record<string, string[]> = {
     "/documents",
     "/packages",
     "/staff",
-    // API routes
-    "/api/maintenance",
-    "/api/my-bills",
-    "/api/rent-invoices",
-    "/api/receipts",
-    "/api/my-visitors",
-    "/api/complaints",
-    "/api/notices",
-    "/api/directory",
-    "/api/forum",
-    "/api/events",
-    "/api/amenities",
-    "/api/facilities",
-    "/api/marketplace",
-    "/api/parking",
-    "/api/emergency",
-    "/api/meetings",
-    "/api/polls",
-    "/api/documents",
-    "/api/packages",
-    "/api/staff",
-    "/api/visitors",
   ],
-
-  // ── Tenant: same as member ────────────────────────────
   tenant: [
+    "/dashboard",
     "/my-society",
     "/services",
     "/profile",
     "/my-bills",
-    "/receipts",
     "/my-visitors",
     "/complaints",
     "/notices",
@@ -123,75 +78,51 @@ const ROLE_ROUTES: Record<string, string[]> = {
     "/documents",
     "/packages",
     "/staff",
-    // API routes
-    "/api/maintenance",
-    "/api/my-bills",
-    "/api/rent-invoices",
-    "/api/receipts",
-    "/api/my-visitors",
-    "/api/complaints",
-    "/api/notices",
-    "/api/directory",
-    "/api/forum",
-    "/api/events",
-    "/api/amenities",
-    "/api/facilities",
-    "/api/marketplace",
-    "/api/parking",
-    "/api/emergency",
-    "/api/meetings",
-    "/api/polls",
-    "/api/documents",
-    "/api/packages",
-    "/api/staff",
-    "/api/visitors",
   ],
 };
 
-/**
- * Check if a role can access a given pathname.
- */
-export function canAccess(role: string, pathname: string): boolean {
-  // Universal routes are always accessible
-  if (UNIVERSAL_ROUTES.some((r) => pathname.startsWith(r))) {
+function canAccessWithoutSession(role: string, pathname: string): boolean {
+  if (isAdminLegacyRole(role)) {
     return true;
   }
 
-  const allowed = ROLE_ROUTES[role];
-  if (!allowed) return false;
-
-  // Wildcard = full access
-  if (allowed.includes("*")) return true;
-
-  return allowed.some((route) => pathname.startsWith(route));
-}
-
-/**
- * Get the default landing page for a role after login.
- */
-export function getDefaultRoute(role: string): string {
-  switch (role) {
-    case "watchman":
-    case "guard":
-      return "/visitors";
-    case "member":
-    case "tenant":
-      return "/dashboard";
-    default:
-      return "/dashboard";
+  const prefixes = CLIENT_NAV_PREFIXES[role];
+  if (prefixes) {
+    return prefixes.some((route) => pathname.startsWith(route));
   }
+
+  return pathname.startsWith("/dashboard");
 }
 
 /**
- * Roles considered "admin" — full management access.
+ * Check if a role can access a given pathname using the central permission policy.
  */
+export function canAccess(
+  role: string,
+  pathname: string,
+  context?: Omit<RouteAccessContext, "role" | "pathname">,
+): boolean {
+  if (!context?.societyId || !context?.subject) {
+    return canAccessWithoutSession(role, pathname);
+  }
+
+  return canAccessLegacyRoute({
+    role,
+    pathname,
+    societyId: context.societyId,
+    subject: context.subject,
+    mfaVerified: context.mfaVerified,
+  });
+}
+
+export function getDefaultRoute(role: string): string {
+  return getDefaultRouteForRole(role);
+}
+
 export function isAdminRole(role: string): boolean {
-  return ["chairman", "secretary", "treasurer"].includes(role);
+  return isAdminLegacyRole(role);
 }
 
-/**
- * Roles that are watchman/guard type.
- */
 export function isWatchmanRole(role: string): boolean {
-  return ["watchman", "guard"].includes(role);
+  return isWatchmanLegacyRole(role);
 }

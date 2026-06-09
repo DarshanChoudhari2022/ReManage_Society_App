@@ -5,6 +5,12 @@ export {
 } from "./tenant-rls-manifest.ts";
 export { buildTenantRlsPolicySql } from "./rls-policy.ts";
 export {
+  clearTenantSession,
+  isTenantRlsEnabled,
+  setTenantSession,
+  withTenantSession,
+} from "./tenant-session.ts";
+export {
   createPrismaClient,
   createPrismaPool,
   getDatabaseTarget,

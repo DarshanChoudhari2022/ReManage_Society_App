@@ -81,7 +81,13 @@ export default async function middleware(request: NextRequest) {
   }
 
   // Enforce role-based access on dashboard routes (not API or public)
-  if (!canAccess(userRole, pathname)) {
+  if (
+    !canAccess(userRole, pathname, {
+      societyId: payload.societyId,
+      subject: payload.userId,
+      mfaVerified: payload.mfaVerified,
+    })
+  ) {
     if (pathname.startsWith("/api/")) {
       return withSecurityHeaders(NextResponse.json(
         { error: "Access denied. Your role does not have permission for this resource." },
@@ -93,7 +99,7 @@ export default async function middleware(request: NextRequest) {
     return withSecurityHeaders(NextResponse.redirect(new URL(defaultRoute, request.url)));
   }
 
-  if (pathname.startsWith("/api/") && !apiRateLimit(payload.userId)) {
+  if (pathname.startsWith("/api/") && !(await apiRateLimit(payload.userId))) {
     return withSecurityHeaders(NextResponse.json(
       { error: "Too many requests. Please try again shortly." },
       { status: 429 }

@@ -9,6 +9,19 @@ export {
   verifyBffBridgeToken,
 } from "./bff-bridge-token.ts";
 export { evaluatePermission } from "./permission-policy.ts";
+export {
+  canAccessLegacyRoute,
+  getDefaultRouteForRole,
+  isAdminLegacyRole,
+  isWatchmanLegacyRole,
+  resolveRequiredAction,
+} from "./legacy-route-policy.ts";
+export type { LegacyRouteAccessInput } from "./legacy-route-policy.ts";
+export {
+  hasLegacyModulePermission,
+  isAdminLegacyRole as isAdminRoleFromPolicy,
+  isCommitteeLegacyRole,
+} from "./legacy-module-policy.ts";
 export { mapOidcClaimsToPrincipal } from "./oidc-principal.ts";
 export { resolveTenantContext, TenantAccessError } from "./tenant-context.ts";
 export type { BffBridgeSessionClaims } from "./bff-bridge-token.ts";

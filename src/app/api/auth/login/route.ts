@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
     // Rate limit by IP
     const h = await headers();
     const ip = h.get("x-forwarded-for")?.split(",")[0] || "unknown";
-    if (!authRateLimit(ip)) {
+    if (!(await authRateLimit(ip))) {
       return Response.json(
         { error: "Too many login attempts. Please wait 1 minute." },
         { status: 429 }

@@ -1,49 +1,27 @@
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
+import {
+  createRateLimitStore,
+  type RateLimitDecision,
+  type RateLimitOptions,
+  type RateLimitStore,
+} from "@society/security/rate-limit-server";
 
-export interface RateLimitStore {
-  increment(key: string, windowMs: number): Promise<number>;
-}
-
-export interface RateLimitOptions {
-  limit: number;
-  windowMs: number;
-  keyPrefix: string;
-}
-
-export interface RateLimitDecision {
-  allowed: boolean;
-  limit: number;
-  remaining: number;
-  key: string;
-}
-
-class InMemoryRateLimitStore implements RateLimitStore {
-  private readonly buckets = new Map<string, { count: number; expiresAt: number }>();
-
-  async increment(key: string, windowMs: number): Promise<number> {
-    const now = Date.now();
-    const existing = this.buckets.get(key);
-
-    if (!existing || existing.expiresAt <= now) {
-      this.buckets.set(key, { count: 1, expiresAt: now + windowMs });
-      return 1;
-    }
-
-    existing.count += 1;
-    return existing.count;
-  }
-}
+export type { RateLimitStore, RateLimitDecision, RateLimitOptions };
 
 @Injectable()
 export class RateLimitService {
+  private readonly store: RateLimitStore;
+
   constructor(
-    private readonly store: RateLimitStore = new InMemoryRateLimitStore(),
+    store?: RateLimitStore,
     private readonly options: RateLimitOptions = {
       limit: 60,
       windowMs: 60_000,
       keyPrefix: "api",
     },
-  ) {}
+  ) {
+    this.store = store ?? createRateLimitStore();
+  }
 
   async check(societyId: string, actorId: string, action: string): Promise<RateLimitDecision> {
     const key = `${this.options.keyPrefix}:${societyId}:${actorId}:${action}`;
