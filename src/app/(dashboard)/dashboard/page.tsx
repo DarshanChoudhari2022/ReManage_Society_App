@@ -42,6 +42,7 @@ import {
   Wrench,
 } from "lucide-react";
 import { useLiveData } from "@/lib/use-live-data";
+import { LIVE_FAST_INTERVAL_MS, LIVE_STANDARD_INTERVAL_MS } from "@/lib/live-refresh";
 import { useUser } from "@/lib/user-context";
 import { formatCurrency } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
@@ -1117,21 +1118,21 @@ function AdminDashboard({
           </div>
 
           <aside className="grid gap-3 md:grid-cols-2 xl:col-span-4 xl:grid-cols-1">
-            <div className="rounded-[1.5rem] border border-[#FED7AA] bg-[#1C1917] p-4 text-white shadow-[0_18px_58px_-50px_rgba(28,25,23,0.78)] dark:border-[#303030] dark:bg-[#1E1E1E]">
+            <div className="rounded-[1.5rem] border border-[#FED7AA] bg-white/90 p-4 text-[#1C1917] shadow-[0_18px_58px_-50px_rgba(249,115,22,0.36)] dark:border-[#303030] dark:bg-[#1E1E1E]/92 dark:text-[#FAF7F5]">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-white/45">{t("This period")}</p>
-                  <h2 className="mt-1.5 text-2xl font-bold">{data?.period || "--"}</h2>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-[#1C1917]/45 dark:text-[#D6D3D1]/70">{t("This period")}</p>
+                  <h2 className="mt-1.5 text-2xl font-bold text-[#1C1917] dark:text-[#FAF7F5]">{data?.period || "--"}</h2>
                 </div>
-                <IndianRupee className="h-6 w-6 text-[#FDE68A]" />
+                <IndianRupee className="h-6 w-6 text-[#F97316]" />
               </div>
               <div className="mt-5 grid grid-cols-2 gap-2">
-                <div className="rounded-xl bg-white/10 p-2.5">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-white/42">{t("Collected")}</p>
-                  <p className="mt-1 truncate text-sm font-bold">{formatCurrency(collected)}</p>
+                <div className="rounded-xl border border-[#BBF7D0] bg-[#F0FDF4] p-2.5 dark:border-[#303030] dark:bg-[#141414]">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-[#1C1917]/45 dark:text-[#D6D3D1]/70">{t("Collected")}</p>
+                  <p className="mt-1 truncate text-sm font-bold text-[#059669]">{formatCurrency(collected)}</p>
                 </div>
-                <div className="rounded-xl bg-white/10 p-2.5">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-white/42">{t("Pending")}</p>
+                <div className="rounded-xl border border-[#FED7AA] bg-[#FFF7ED] p-2.5 dark:border-[#303030] dark:bg-[#141414]">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-[#1C1917]/45 dark:text-[#D6D3D1]/70">{t("Pending")}</p>
                   <p className="mt-1 truncate text-sm font-bold text-[#FDBA74]">{formatCurrency(pending)}</p>
                 </div>
               </div>
@@ -1286,20 +1287,20 @@ export default function DashboardPage() {
   const isAdmin = admin.includes(user?.role || "");
   const { t } = useI18n();
 
-  const { data, loading, isStale } = useLiveData<DashboardData>({ url: "/api/dashboard", interval: 60_000, enabled: true });
+  const { data, loading, isStale } = useLiveData<DashboardData>({ url: "/api/dashboard", interval: LIVE_STANDARD_INTERVAL_MS, enabled: true });
   const { data: myBills } = useLiveData<MyBillsData>({
     url: "/api/my-bills",
-    interval: 60_000,
+    interval: LIVE_FAST_INTERVAL_MS,
     enabled: loaded && !isAdmin && !!user?.flatNumber,
   });
   const { data: residentBootstrap } = useLiveData<ResidentBootstrapData>({
     url: "/api/mobile/bootstrap",
-    interval: 120_000,
+    interval: LIVE_FAST_INTERVAL_MS,
     enabled: loaded && !isAdmin,
   });
   const { data: adminAnalytics } = useLiveData<AdminAnalyticsData>({
     url: "/api/dashboard/analytics",
-    interval: 120_000,
+    interval: LIVE_STANDARD_INTERVAL_MS,
     enabled: loaded && isAdmin,
   });
 

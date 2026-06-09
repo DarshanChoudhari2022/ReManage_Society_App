@@ -6,6 +6,8 @@ import { getCurrentPeriod } from "@/lib/utils";
 import { logCreated } from "@/lib/activity-log";
 import { createNotification } from "@/lib/notifications";
 import { getBillingTargetsForSociety, targetsByFlatId } from "@/domain/billing";
+import { ensureMaintenanceBillInvoice } from "@/domain/maintenance-finance";
+import { billDueRecipientUserIds } from "@/domain/notification-recipients";
 
 export async function GET(request: NextRequest) {
   const session = await getSession();
@@ -203,23 +205,31 @@ export async function POST(request: NextRequest) {
         continue;
       }
 
-      await prisma.maintenanceBill.create({
-        data: {
-          flatId: flat.id,
+      await prisma.$transaction(async (tx) => {
+        const bill = await tx.maintenanceBill.create({
+          data: {
+            flatId: flat.id,
+            societyId: session!.societyId,
+            amount: invoiceAmount,
+            billType: targetBillType,
+            billingCycle: targetBillingCycle,
+            description: description || null,
+            totalAmount: invoiceAmount,
+            period: targetPeriod,
+            dueDate: billDueDate,
+          },
+        });
+        await ensureMaintenanceBillInvoice(tx, {
           societyId: session!.societyId,
-          amount: invoiceAmount,
-          billType: targetBillType,
-          billingCycle: targetBillingCycle,
-          description: description || null,
-          totalAmount: invoiceAmount,
-          period: targetPeriod,
-          dueDate: billDueDate,
-        },
+          billId: bill.id,
+          createdBy: session.userId,
+        });
       });
       generated++;
 
       const target = billingTargetByFlatId.get(flat.id);
-      await Promise.all((target?.userIds || []).map((userId) =>
+      const recipientUserIds = billDueRecipientUserIds(target);
+      await Promise.all(recipientUserIds.map((userId) =>
         createNotification({
           societyId: session!.societyId,
           userId,
@@ -238,21 +248,6 @@ export async function POST(request: NextRequest) {
         totalFlats: activeFlats.length,
         amount: invoiceAmount,
       });
-
-      const committeeUsers = await prisma.user.findMany({
-        where: { societyId: session!.societyId, role: { in: ["chairman", "secretary", "treasurer"] } },
-        select: { id: true },
-      });
-      await Promise.all(committeeUsers.map((user) =>
-        createNotification({
-          societyId: session!.societyId,
-          userId: user.id,
-          type: "bill_due",
-          title: "Maintenance invoices generated",
-          message: `${generated} maintenance invoices generated for ${targetPeriod}.`,
-          link: "/maintenance",
-        })
-      ));
     }
 
     return Response.json({ generated, skipped });

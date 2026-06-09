@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Building2, Menu, LogOut, Settings, User, Shield, ChevronDown, Copy, PhoneCall, Search } from "lucide-react";
+import { Building2, Menu, LogOut, Settings, User, Shield, ChevronDown, Copy, Search } from "lucide-react";
 import CommandPalette, { clearRecentActions, useCommandPalette } from "@/components/ux/CommandPalette";
 import { useUser } from "@/lib/user-context";
 import { usePersonaNav } from "@/lib/navigation/use-persona-nav";
@@ -128,14 +128,7 @@ export default function Header({
             >
               <Search className="h-5 w-5" />
             </button>
-            <button
-              type="button"
-              onClick={() => router.push("/emergency")}
-              className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-[#F97316] px-3.5 text-sm font-black text-white shadow-lg shadow-[#F97316]/18 active:scale-95"
-            >
-              <PhoneCall className="h-4 w-4" />
-              {t("Call")}
-            </button>
+            <LanguageSelector />
             <button
               onClick={onMenuToggle}
               className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#FED7AA] bg-white text-text-primary shadow-sm active:scale-95 dark:border-[#303030] dark:bg-[#1E1E1E]"
@@ -163,10 +156,9 @@ export default function Header({
               <Copy className="h-3.5 w-3.5 shrink-0" />
             </button>
           ) : (
-            <span className="text-xs font-semibold text-text-secondary">{t("Resident SuperApp")}</span>
+            <span aria-hidden="true" className="min-w-0 flex-1" />
           )}
           <div className="flex shrink-0 items-center gap-1.5">
-            <LanguageSelector />
             <ThemeToggle />
             <NotificationCenter />
           </div>

@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import { logPayment } from "@/lib/activity-log";
 import { createNotification } from "@/lib/notifications";
-import { generateSocietyReceiptNumber } from "@/lib/utils";
+import { recordMaintenanceBillPayment } from "@/domain/maintenance-finance";
 
 export async function POST(
   request: NextRequest,
@@ -46,42 +46,25 @@ export async function POST(
     return Response.json({ error: "Invoice amount is not set. Please contact society admin." }, { status: 400 });
   }
 
-  // Generate receipt number
-  const year = new Date().getFullYear();
-  const receiptPrefix = `${bill.society.joinCode || "SOC"}-${year}`;
-  const lastReceipt = await prisma.maintenanceBill.findFirst({
-    where: {
+  const paidVia = body.paidVia || "upi";
+  const receiptNote = body.utrNumber ? `UPI UTR: ${body.utrNumber}` : "Manual payment recorded from resident portal";
+  const updated = await prisma.$transaction(async (tx) => {
+    return recordMaintenanceBillPayment(tx, {
       societyId: session!.societyId,
-      receiptNumber: { startsWith: receiptPrefix },
-    },
-    orderBy: { receiptNumber: "desc" },
-  });
-
-  let sequence = 1;
-  if (lastReceipt?.receiptNumber) {
-    const lastSeq = parseInt(lastReceipt.receiptNumber.split("-")[2]);
-    sequence = lastSeq + 1;
-  }
-
-  const receiptNumber = generateSocietyReceiptNumber(bill.society.joinCode, year, sequence);
-
-  const updated = await prisma.maintenanceBill.update({
-    where: { id },
-    data: {
-      status: "paid",
+      billId: id,
+      desiredPaidAmount: totalAmount,
+      paidVia,
       paidAt: new Date(),
-      paidVia: body.paidVia || "upi",
-      paidAmount: totalAmount,
-      receiptNote: body.utrNumber ? `UPI UTR: ${body.utrNumber}` : "Online Payment via App",
-      receiptNumber,
-    },
-    include: { flat: true },
+      receiptNote,
+      reference: body.utrNumber || null,
+      createdBy: session.userId,
+    });
   });
 
   // Audit log
   await logPayment(id, `Flat ${bill.flat.flatNumber} - ${bill.period}`, {
     amount: totalAmount,
-    method: body.paidVia || "upi",
+    method: paidVia,
     status: "paid",
     ownerName: bill.flat.ownerName,
     utrNumber: body.utrNumber || null,

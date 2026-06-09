@@ -1,5 +1,6 @@
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { USER_SCOPED_NOTIFICATION_TYPES } from "@/domain/notification-recipients";
 
 export async function GET(request: Request) {
   const session = await getSession();
@@ -15,7 +16,7 @@ export async function GET(request: Request) {
       societyId: session!.societyId,
       OR: [
         { userId: session.userId },
-        { userId: null }, // broadcasts
+        { userId: null, type: { notIn: USER_SCOPED_NOTIFICATION_TYPES } }, // broadcasts
       ],
     },
     orderBy: { createdAt: "desc" },
@@ -28,7 +29,7 @@ export async function GET(request: Request) {
       isRead: false,
       OR: [
         { userId: session.userId },
-        { userId: null },
+        { userId: null, type: { notIn: USER_SCOPED_NOTIFICATION_TYPES } },
       ],
     },
   });
@@ -52,7 +53,7 @@ export async function PATCH(request: Request) {
         isRead: false,
         OR: [
           { userId: session.userId },
-          { userId: null },
+          { userId: null, type: { notIn: USER_SCOPED_NOTIFICATION_TYPES } },
         ],
       },
       data: { isRead: true },

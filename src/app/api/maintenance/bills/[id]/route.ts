@@ -1,9 +1,9 @@
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
-import { generateSocietyReceiptNumber } from "@/lib/utils";
 import { logPayment, logUpdated } from "@/lib/activity-log";
 import { createNotification } from "@/lib/notifications";
+import { recordMaintenanceBillPayment } from "@/domain/maintenance-finance";
 
 export async function PATCH(
   request: NextRequest,
@@ -74,41 +74,26 @@ export async function PATCH(
       return Response.json({ error: "Invoice amount is zero. Edit invoice amount before recording payment." }, { status: 400 });
     }
 
-    // Generate receipt number
-    const year = new Date().getFullYear();
-    const receiptPrefix = `${bill.society.joinCode || "SOC"}-${year}`;
-    const lastReceipt = await prisma.maintenanceBill.findFirst({
-      where: {
+    const paidAt = body.paidAt ? new Date(body.paidAt) : new Date();
+    const paidVia = body.paidVia || "cash";
+    const updated = await prisma.$transaction(async (tx) => {
+      return recordMaintenanceBillPayment(tx, {
         societyId: session!.societyId,
-        receiptNumber: { startsWith: receiptPrefix },
-      },
-      orderBy: { receiptNumber: "desc" },
-    });
-
-    let sequence = 1;
-    if (lastReceipt?.receiptNumber) {
-      const lastSeq = parseInt(lastReceipt.receiptNumber.split("-")[2]);
-      sequence = lastSeq + 1;
-    }
-
-    const updated = await prisma.maintenanceBill.update({
-      where: { id },
-      data: {
-        status: body.status,
-        paidAt: body.paidAt ? new Date(body.paidAt) : new Date(),
-        paidVia: body.paidVia || "cash",
-        paidAmount,
+        billId: id,
+        desiredPaidAmount: paidAmount,
+        paidVia,
+        paidAt,
         receiptNote: body.receiptNote || null,
-        receiptNumber: bill.receiptNumber || generateSocietyReceiptNumber(bill.society.joinCode, year, sequence),
-      },
-      include: { flat: true },
+        reference: body.receiptNote || null,
+        createdBy: session.userId,
+      });
     });
 
     // Audit log
     await logPayment(id, `Flat ${bill.flat.flatNumber} - ${bill.period}`, {
       amount: paidAmount,
-      method: body.paidVia || "cash",
-      status: body.status,
+      method: paidVia,
+      status: updated.status,
       ownerName: bill.flat.ownerName,
     });
 
@@ -122,7 +107,7 @@ export async function PATCH(
         userId: user.id,
         type: "bill_paid",
         title: `Payment Received - Flat ${bill.flat.flatNumber}`,
-        message: `₹${paidAmount} ${body.status === "partial" ? "partial payment" : "full payment"} recorded via ${(body.paidVia || "cash").toUpperCase()}.`,
+        message: `₹${paidAmount} ${updated.status === "partial" ? "partial payment" : "full payment"} recorded via ${paidVia.toUpperCase()}.`,
         link: "/maintenance",
       })
     ));

@@ -19,6 +19,7 @@ import {
   Users,
 } from "lucide-react";
 import toast from "react-hot-toast";
+import { LIVE_FAST_INTERVAL_MS } from "@/lib/live-refresh";
 
 interface GuardSession {
   id: string;
@@ -191,8 +192,17 @@ export default function GuardGatePage() {
 
   useEffect(() => {
     fetchGateData();
-    const interval = setInterval(fetchGateData, 30000);
-    return () => clearInterval(interval);
+    const refreshOnVisible = () => {
+      if (document.visibilityState === "visible") fetchGateData();
+    };
+    const interval = window.setInterval(fetchGateData, LIVE_FAST_INTERVAL_MS);
+    window.addEventListener("focus", fetchGateData);
+    document.addEventListener("visibilitychange", refreshOnVisible);
+    return () => {
+      window.clearInterval(interval);
+      window.removeEventListener("focus", fetchGateData);
+      document.removeEventListener("visibilitychange", refreshOnVisible);
+    };
   }, [fetchGateData]);
 
   const handleLogin = async (e: React.FormEvent) => {

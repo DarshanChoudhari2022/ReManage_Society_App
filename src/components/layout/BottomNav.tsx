@@ -39,6 +39,10 @@ export default function BottomNav({
   userId,
   societyId,
 }: BottomNavProps) {
+  void userRole;
+  void userId;
+  void societyId;
+
   const pathname = usePathname();
   const { user } = useUser();
   const [showActions, setShowActions] = useState(false);

@@ -5,6 +5,7 @@ import { useUser } from "@/lib/user-context";
 import PageState from "@/components/ux/PageState";
 import toast from "react-hot-toast";
 import { useSearchParams } from "next/navigation";
+import { LIVE_FAST_INTERVAL_MS } from "@/lib/live-refresh";
 import {
   Plus, UserCheck, LogOut as LogOutIcon, Clock, Users, ShieldCheck,
   Phone, Car, Search, X, KeyRound, CheckCircle2, XCircle, Bell, Copy,
@@ -68,22 +69,36 @@ function VisitorsContent() {
     expectedAt: "",
   });
 
-  const isAdmin = ["chairman", "secretary", "treasurer", "guard"].includes(user?.role || "");
-
-  const fetchVisitors = useCallback(() => {
-    setLoading(true);
+  const fetchVisitors = useCallback((isBackground = false) => {
+    if (!isBackground) setLoading(true);
     fetch("/api/visitors/preapprove")
       .then((r) => r.json())
       .then((d) => {
         setVisitors(d.visitors || []);
         setStats(d.stats || { totalToday: 0, pending: 0, inside: 0 });
       })
-      .catch(() => toast.error("Failed to load visitor records"))
-      .finally(() => setLoading(false));
+      .catch(() => {
+        if (!isBackground) toast.error("Failed to load visitor records");
+      })
+      .finally(() => {
+        if (!isBackground) setLoading(false);
+      });
   }, []);
 
   useEffect(() => {
     fetchVisitors();
+    const refresh = () => fetchVisitors(true);
+    const interval = window.setInterval(refresh, LIVE_FAST_INTERVAL_MS);
+    const refreshOnVisible = () => {
+      if (document.visibilityState === "visible") refresh();
+    };
+    window.addEventListener("focus", refresh);
+    document.addEventListener("visibilitychange", refreshOnVisible);
+    return () => {
+      window.clearInterval(interval);
+      window.removeEventListener("focus", refresh);
+      document.removeEventListener("visibilitychange", refreshOnVisible);
+    };
   }, [fetchVisitors]);
 
   useEffect(() => {
