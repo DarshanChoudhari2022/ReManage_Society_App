@@ -1,6 +1,6 @@
 // Phase 7 service worker: push, shell caching, stale-while-revalidate API reads.
 
-const CACHE_VERSION = 'society-mobile-v6';
+const CACHE_VERSION = 'society-mobile-v7';
 const STATIC_CACHE = `${CACHE_VERSION}:static`;
 const API_CACHE = `${CACHE_VERSION}:api`;
 const STATIC_ASSETS = [
@@ -12,8 +12,7 @@ const STATIC_ASSETS = [
   '/emergency',
   '/packages',
   '/manifest.json',
-  '/icons/icon-192.png',
-  '/icons/icon-512.png',
+  '/icons/icon.svg',
 ];
 const CRITICAL_API_PREFIXES = [
   '/api/dashboard',
@@ -35,8 +34,8 @@ self.addEventListener('push', function(event) {
     const data = event.data.json();
     const options = {
       body: data.body || '',
-      icon: data.icon || '/icons/icon-192.png',
-      badge: data.badge || '/icons/icon-192.png',
+      icon: data.icon || '/icons/icon.svg',
+      badge: data.badge || '/icons/icon.svg',
       tag: data.tag || 'default',
       renotify: data.priority === 'emergency',
       data: { url: data.url || data.link || '/dashboard', actions: data.actions || null },

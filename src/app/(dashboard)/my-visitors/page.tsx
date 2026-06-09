@@ -47,8 +47,18 @@ export default function MyVisitorsPage() {
   const fetchVisitors = useCallback(async (isBackground = false) => {
     if (!isBackground) setLoading(true);
     try {
-      const res = await fetch(`/api/my-visitors${showHistory ? "?history=all" : ""}`);
+      const res = await fetch(`/api/my-visitors${showHistory ? "?history=all" : ""}`, {
+        credentials: "include",
+        cache: "no-store",
+      });
       const data = await res.json();
+      if (data.noFlatLinked) {
+        setVisitors([]);
+        if (!isBackground) {
+          toast.error("No flat linked to your account. Ask your society admin to assign your flat.");
+        }
+        return;
+      }
       if (data.visitors) {
         setVisitors(data.visitors);
       }

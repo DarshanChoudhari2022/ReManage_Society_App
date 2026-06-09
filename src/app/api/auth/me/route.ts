@@ -1,6 +1,7 @@
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { cached } from "@/lib/api-cache";
+import { getResidentFlatForSession } from "@/lib/resident-flat";
 
 export async function GET() {
   const session = await getSession();
@@ -15,13 +16,17 @@ export async function GET() {
   const user = await cached(cacheKey, async () => {
     return prisma.user.findUnique({
       where: { id: session.userId },
-      include: { society: true, flat: { select: { flatNumber: true } } },
+      include: { society: true, flat: { select: { flatNumber: true, wing: true } } },
     });
   }, 30_000);
 
   if (!user) {
     return Response.json({ error: "User not found" }, { status: 404 });
   }
+
+  const resolvedFlat = user.flat
+    ? { flatNumber: user.flat.flatNumber, wing: user.flat.wing }
+    : await getResidentFlatForSession(session);
 
   return Response.json({
     user: {
@@ -30,10 +35,11 @@ export async function GET() {
       email: user.email,
       role: user.role,
       societyId: user.societyId,
-      flatId: user.flatId,
-      flatNumber: user.flat?.flatNumber,
+      flatId: user.flatId || (resolvedFlat && "id" in resolvedFlat ? resolvedFlat.id : null),
+      flatNumber: user.flat?.flatNumber || (resolvedFlat && "flatNumber" in resolvedFlat ? resolvedFlat.flatNumber : null),
       society: user.society,
       joinCode: user.society?.joinCode,
+      noFlatLinked: !user.flatId && !resolvedFlat,
     },
   });
 }

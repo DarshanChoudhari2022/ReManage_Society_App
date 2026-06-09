@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { getResidentFlatForSession } from "@/lib/resident-flat";
+import { getResidentFlatForSession, noFlatLinkedPayload } from "@/lib/resident-flat";
 import { shimOrFallback } from "@/lib/api/nest-shim";
 
 const LEGACY_ROUTE = "/api/staff/payments";
@@ -27,7 +27,14 @@ async function legacyGET() {
 
     const flat = await getResidentFlatForSession(session);
     if (!flat) {
-      return Response.json({ error: "No flat linked to this account" }, { status: 400 });
+      return Response.json({
+        flat: null,
+        linkedStaff: [],
+        payments: [],
+        stats: { pending: 0, paid: 0, linkedStaff: 0 },
+        defaultMonth: currentMonth(),
+        ...noFlatLinkedPayload(),
+      });
     }
 
     const [staffLinks, payments] = await Promise.all([

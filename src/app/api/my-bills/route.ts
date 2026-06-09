@@ -1,6 +1,7 @@
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getBillingTargetsForSociety, targetsByFlatId } from "@/domain/billing";
+import { getResidentFlatForSession, noFlatLinkedPayload } from "@/lib/resident-flat";
 
 export async function GET() {
   const session = await getSession();
@@ -8,13 +9,13 @@ export async function GET() {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  // Get user to find their flatId
-  const user = await prisma.user.findUnique({
-    where: { id: session.userId },
-  });
-
-  if (!user || !user.flatId) {
-    return Response.json({ error: "No flat assigned to this user" }, { status: 400 });
+  const flat = await getResidentFlatForSession(session);
+  if (!flat) {
+    return Response.json({
+      bills: [],
+      stats: { totalPending: 0, totalPaid: 0 },
+      ...noFlatLinkedPayload(),
+    });
   }
 
   const billingTargets = await getBillingTargetsForSociety(session.societyId);
@@ -22,8 +23,8 @@ export async function GET() {
 
   const bills = await prisma.maintenanceBill.findMany({
     where: {
-      societyId: session!.societyId,
-      flatId: user.flatId,
+      societyId: session.societyId,
+      flatId: flat.id,
     },
     include: {
       flat: true,

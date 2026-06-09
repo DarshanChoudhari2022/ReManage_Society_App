@@ -2,6 +2,7 @@ import { getSession } from "@/lib/auth";
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { logCreated } from "@/lib/activity-log";
+import { getResidentFlatForSession, noFlatLinkedPayload } from "@/lib/resident-flat";
 
 export async function GET(request: Request) {
   const session = await getSession();
@@ -9,12 +10,9 @@ export async function GET(request: Request) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const user = await prisma.user.findUnique({
-    where: { id: session.userId },
-  });
-
-  if (!user || !user.flatId) {
-    return Response.json({ error: "No flat assigned" }, { status: 400 });
+  const flat = await getResidentFlatForSession(session);
+  if (!flat) {
+    return Response.json({ visitors: [], ...noFlatLinkedPayload() });
   }
 
   const { searchParams } = new URL(request.url);
@@ -23,14 +21,14 @@ export async function GET(request: Request) {
 
   const visitors = await prisma.visitor.findMany({
     where: {
-      societyId: session!.societyId,
-      flatId: user.flatId,
+      societyId: session.societyId,
+      flatId: flat.id,
     },
     orderBy: { createdAt: "desc" },
     take: limit,
   });
 
-  return Response.json({ visitors });
+  return Response.json({ visitors, flatNumber: flat.flatNumber });
 }
 
 export async function POST(request: NextRequest) {
@@ -40,13 +38,9 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const user = await prisma.user.findUnique({
-      where: { id: session.userId },
-      include: { flat: true }
-    });
-
-    if (!user || !user.flatId || !user.flat) {
-      return Response.json({ error: "No flat assigned" }, { status: 400 });
+    const flat = await getResidentFlatForSession(session);
+    if (!flat) {
+      return Response.json(noFlatLinkedPayload(), { status: 400 });
     }
 
     const body = await request.json();
@@ -60,9 +54,9 @@ export async function POST(request: NextRequest) {
 
     const visitor = await prisma.visitor.create({
       data: {
-        societyId: session!.societyId,
-        flatId: user.flatId,
-        flatNumber: user.flat.flatNumber,
+        societyId: session.societyId,
+        flatId: flat.id,
+        flatNumber: flat.flatNumber,
         visitorName,
         phone: phone || null,
         purpose,
@@ -78,7 +72,7 @@ export async function POST(request: NextRequest) {
     });
 
     // Audit log
-    await logCreated("visitor", visitor.id, `Expected: ${visitorName} → Flat ${user.flat.flatNumber}`, {
+    await logCreated("visitor", visitor.id, `Expected: ${visitorName} → Flat ${flat.flatNumber}`, {
       purpose,
       isPreApproved: true,
     });
@@ -96,12 +90,9 @@ export async function PATCH(request: NextRequest) {
   }
 
   try {
-    const user = await prisma.user.findUnique({
-      where: { id: session.userId },
-    });
-
-    if (!user?.flatId) {
-      return Response.json({ error: "No flat assigned" }, { status: 400 });
+    const flat = await getResidentFlatForSession(session);
+    if (!flat) {
+      return Response.json(noFlatLinkedPayload(), { status: 400 });
     }
 
     const { visitorId, action } = await request.json();
@@ -113,7 +104,7 @@ export async function PATCH(request: NextRequest) {
       where: {
         id: visitorId,
         societyId: session.societyId,
-        flatId: user.flatId,
+        flatId: flat.id,
         status: "expected",
       },
     });
