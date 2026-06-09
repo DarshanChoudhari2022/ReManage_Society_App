@@ -45,7 +45,10 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   if (pathname === "/SmartSocietyHub" || pathname === "/SmartSocietyHub/") {
-    return withSecurityHeaders(NextResponse.redirect(new URL("/login", request.url)));
+    const session = request.cookies.get("session")?.value;
+    const payload = session ? await decryptSession(session) : null;
+    const destination = payload ? getDefaultRoute(payload.role) : "/login";
+    return withSecurityHeaders(NextResponse.redirect(new URL(destination, request.url)));
   }
 
   // Allow static assets

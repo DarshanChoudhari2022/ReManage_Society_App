@@ -1,6 +1,6 @@
 // Phase 7 service worker: push, shell caching, stale-while-revalidate API reads.
 
-const CACHE_VERSION = 'society-mobile-v4';
+const CACHE_VERSION = 'society-mobile-v5';
 const STATIC_CACHE = `${CACHE_VERSION}:static`;
 const API_CACHE = `${CACHE_VERSION}:api`;
 const STATIC_ASSETS = [
@@ -16,7 +16,6 @@ const STATIC_ASSETS = [
   '/icons/icon-512.png',
 ];
 const CRITICAL_API_PREFIXES = [
-  '/api/auth/me',
   '/api/dashboard',
   '/api/notifications',
   '/api/my-visitors',

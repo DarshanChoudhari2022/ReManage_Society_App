@@ -87,6 +87,7 @@ export async function mobileFetchJson<T>(url: string, options: MobileFetchOption
       ...options,
       method,
       headers,
+      credentials: "include",
       cache: "no-store",
     });
 

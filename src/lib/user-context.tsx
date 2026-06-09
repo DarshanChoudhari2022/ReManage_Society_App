@@ -36,14 +36,23 @@ const UserContext = createContext<UserContextValue>({
 export function UserProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<UserSession>(defaultUser);
   const [loaded, setLoaded] = useState(false);
-  const fetchedRef = useRef(false);
+  const abortRef = useRef<AbortController | null>(null);
 
   const fetchUser = useCallback(() => {
-    // Single fetch for the entire app — no duplicates
-    fetch("/api/auth/me")
-      .then((r) => r.json())
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+
+    const timeout = window.setTimeout(() => setLoaded(true), 10_000);
+
+    fetch("/api/auth/me", {
+      credentials: "include",
+      cache: "no-store",
+      signal: controller.signal,
+    })
+      .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
-        if (data.user) {
+        if (data?.user) {
           setUser({
             id: data.user.id,
             name: data.user.name,
@@ -59,14 +68,15 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         }
       })
       .catch(() => {})
-      .finally(() => setLoaded(true));
+      .finally(() => {
+        window.clearTimeout(timeout);
+        setLoaded(true);
+      });
   }, []);
 
   useEffect(() => {
-    // Prevent double-mount in StrictMode
-    if (fetchedRef.current) return;
-    fetchedRef.current = true;
     fetchUser();
+    return () => abortRef.current?.abort();
   }, [fetchUser]);
 
   return (
