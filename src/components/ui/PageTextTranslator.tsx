@@ -1,13 +1,50 @@
 "use client";
 
 import { useEffect } from "react";
-import { translateLegacyPageText } from "@/lib/page-translations";
-import { translateStaticText, useI18n } from "@/lib/i18n";
+import { translateLegacyPageText, pageTranslations } from "@/lib/page-translations";
+import { translateStaticText, useI18n, dictionary, AppLanguage } from "@/lib/i18n";
 
 const textOriginals = new WeakMap<Text, string>();
 const attrOriginals = new WeakMap<Element, Map<string, string>>();
 const TRANSLATABLE_ATTRS = ["placeholder", "title", "aria-label"];
 const SKIP_TAGS = new Set(["SCRIPT", "STYLE", "TEXTAREA", "INPUT", "CODE", "PRE"]);
+
+// Lazy cache for reverse translation lookup
+const reverseCache: Record<string, Map<string, string>> = {};
+
+function getReverseMap(language: AppLanguage): Map<string, string> {
+  if (language === "en") return new Map();
+  if (reverseCache[language]) return reverseCache[language];
+
+  const map = new Map<string, string>();
+
+  // Populate from dictionary
+  const dict = dictionary[language];
+  if (dict) {
+    for (const [englishKey, transVal] of Object.entries(dict)) {
+      map.set(transVal.trim(), englishKey);
+    }
+  }
+
+  // Populate from pageTranslations
+  const pageTrans = pageTranslations[language as Exclude<AppLanguage, "en">];
+  if (pageTrans) {
+    for (const [englishKey, transVal] of Object.entries(pageTrans)) {
+      map.set(transVal.trim(), englishKey);
+    }
+  }
+
+  reverseCache[language] = map;
+  return map;
+}
+
+function findOriginalText(translatedText: string, language: AppLanguage): string | null {
+  const trimmed = translatedText.trim();
+  if (!trimmed || language === "en") return null;
+  const reverseMap = getReverseMap(language);
+  const original = reverseMap.get(trimmed);
+  return original || null;
+}
 
 function withOriginalWhitespace(original: string, translated: string) {
   const leading = original.match(/^\s*/)?.[0] || "";
@@ -27,8 +64,23 @@ function translateTextNode(node: Text, language: ReturnType<typeof useI18n>["lan
   const parent = node.parentElement;
   if (!parent || SKIP_TAGS.has(parent.tagName) || parent.closest("[data-no-translate]")) return;
 
-  const original = textOriginals.get(node) ?? node.textContent ?? "";
-  if (!textOriginals.has(node)) textOriginals.set(node, original);
+  let original = textOriginals.get(node);
+  if (original === undefined) {
+    const currentText = node.textContent ?? "";
+    const foundOriginal = findOriginalText(currentText, language);
+    if (foundOriginal) {
+      original = withOriginalWhitespace(currentText, foundOriginal);
+    } else {
+      // If it contains Devanagari characters, it is already a translated text.
+      // We do not treat it as original English text.
+      if (/[\u0900-\u097F]/.test(currentText)) {
+        return;
+      }
+      original = currentText;
+    }
+    textOriginals.set(node, original);
+  }
+
   const nextText = language === "en" ? original : translateValue(original, language);
   if (node.textContent !== nextText) node.textContent = nextText;
 }
@@ -45,9 +97,21 @@ function translateElementAttributes(element: Element, language: ReturnType<typeo
       originals = new Map();
       attrOriginals.set(element, originals);
     }
-    if (!originals.has(attr)) originals.set(attr, current);
 
-    const original = originals.get(attr) || current;
+    let original = originals.get(attr);
+    if (original === undefined) {
+      const foundOriginal = findOriginalText(current, language);
+      if (foundOriginal) {
+        original = withOriginalWhitespace(current, foundOriginal);
+      } else {
+        if (/[\u0900-\u097F]/.test(current)) {
+          continue;
+        }
+        original = current;
+      }
+      originals.set(attr, original);
+    }
+
     const nextValue = language === "en" ? original : translateValue(original, language);
     if (element.getAttribute(attr) !== nextValue) element.setAttribute(attr, nextValue);
   }
