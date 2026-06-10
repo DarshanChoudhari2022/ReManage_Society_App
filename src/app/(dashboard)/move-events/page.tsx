@@ -10,10 +10,18 @@ interface MoveEvent {
   residentName: string;
   residentType: string;
   status: string;
+  workflowStatus?: string;
   checklist: string;
   notes: string | null;
   createdAt: string;
   completedAt: string | null;
+  shiftingChargePaid?: boolean;
+  shiftingChargeAmount?: number;
+  policeVerificationFileName?: string | null;
+  policeVerificationDataUrl?: string | null;
+  leaseAgreementFileName?: string | null;
+  leaseAgreementDataUrl?: string | null;
+  gatePassCode?: string | null;
   flat: { flatNumber: string; wing: string | null; ownerName: string };
 }
 
@@ -100,7 +108,29 @@ export default function MoveEventsPage() {
     finally { setUpdatingItem(null); }
   };
 
-  const active = events.filter((e) => e.status !== "completed" && e.status !== "cancelled");
+  const wizardAction = async (eventId: string, action: "approve" | "reject", reason?: string) => {
+    try {
+      const res = await fetch(`/api/move-wizard/${eventId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action, reason }),
+      });
+      const result = await res.json();
+      if (!res.ok) {
+        toast.error(result.error || "Action failed");
+        return;
+      }
+      toast.success(result.message || "Updated");
+      fetchEvents();
+    } catch {
+      toast.error("Something went wrong");
+    }
+  };
+
+  const pendingWizard = events.filter((e) => e.workflowStatus === "pending_approval");
+  const active = events.filter(
+    (e) => e.status !== "completed" && e.status !== "cancelled" && e.workflowStatus !== "pending_approval",
+  );
   const completed = events.filter((e) => e.status === "completed");
 
   return (
@@ -137,6 +167,75 @@ export default function MoveEventsPage() {
           </div>
         ))}
       </div>
+
+      {/* Pending wizard approvals */}
+      {pendingWizard.length > 0 && (
+        <div className="card border-l-4 border-l-warning mb-6">
+          <h2 className="text-sm font-bold text-text-primary mb-3">
+            Pending self-serve requests ({pendingWizard.length})
+          </h2>
+          <div className="space-y-3">
+            {pendingWizard.map((event) => (
+              <div key={event.id} className="rounded-xl border border-border p-4 bg-surface/40">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <p className="font-semibold text-sm">{event.residentName}</p>
+                    <p className="text-xs text-text-secondary">
+                      {event.type === "move_in" ? "Move in" : "Move out"} · Flat{" "}
+                      {event.flat.wing ? `${event.flat.wing}-` : ""}
+                      {event.flat.flatNumber} · {event.residentType}
+                    </p>
+                    <p className="text-xs text-text-secondary mt-1">
+                      Shifting: {event.shiftingChargePaid ? "Paid" : "Unpaid"}
+                      {event.shiftingChargeAmount
+                        ? ` · ₹${event.shiftingChargeAmount.toLocaleString("en-IN")}`
+                        : ""}
+                    </p>
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {event.policeVerificationDataUrl && (
+                        <a
+                          href={event.policeVerificationDataUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="btn btn-secondary btn-sm !py-1 !px-2 text-xs"
+                        >
+                          Police verification
+                        </a>
+                      )}
+                      {event.leaseAgreementDataUrl && (
+                        <a
+                          href={event.leaseAgreementDataUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="btn btn-secondary btn-sm !py-1 !px-2 text-xs"
+                        >
+                          Lease agreement
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => wizardAction(event.id, "approve")}
+                      className="btn btn-primary btn-sm"
+                    >
+                      Approve & issue gate pass
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => wizardAction(event.id, "reject", "Documents incomplete")}
+                      className="btn btn-secondary btn-sm"
+                    >
+                      Reject
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Active Events */}
       {loading ? (

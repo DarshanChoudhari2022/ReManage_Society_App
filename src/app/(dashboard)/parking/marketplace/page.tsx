@@ -8,6 +8,8 @@ import {
   AlertCircle, Share2, Search, Phone, Pencil
 } from "lucide-react";
 import Link from "next/link";
+import DuesEnforcementBanner from "@/components/ux/DuesEnforcementBanner";
+import { useDuesEnforcementStatus } from "@/lib/use-dues-enforcement";
 
 interface Listing {
   id: string;
@@ -38,6 +40,7 @@ export default function ParkingMarketplace() {
   const [editing, setEditing] = useState<Listing | null>(null);
   const [selectedShare, setSelectedShare] = useState<Listing | null>(null);
   const [saving, setSaving] = useState(false);
+  const { status: duesStatus, blocked: duesBlocked } = useDuesEnforcementStatus();
 
   const [form, setForm] = useState({
     date: new Date().toISOString().split("T")[0],
@@ -192,6 +195,8 @@ export default function ParkingMarketplace() {
         </div>
       </div>
 
+      <DuesEnforcementBanner status={duesStatus} featureLabel="guest parking requests" />
+
       {/* Hero Action Card */}
       <div className="bg-gradient-to-r from-primary to-indigo-600 rounded-[2.5rem] p-10 text-white shadow-2xl shadow-primary/20 relative overflow-hidden group">
          <div className="absolute -right-20 -bottom-20 opacity-10 group-hover:scale-110 transition-transform duration-700">
@@ -204,7 +209,7 @@ export default function ParkingMarketplace() {
                <button onClick={() => setShowModal("share")} className="btn !bg-white !text-primary border-none px-8 py-4 rounded-2xl font-black shadow-xl hover:scale-105 active:scale-100 transition-all flex items-center gap-2">
                   <Share2 className="w-5 h-5" /> Share Assigned Slot
                </button>
-               <button onClick={() => setShowModal("request")} className="btn bg-white/20 hover:bg-white/30 border-none text-white backdrop-blur-md px-8 py-4 rounded-2xl font-black flex items-center gap-2">
+               <button onClick={() => setShowModal("request")} className="btn bg-white/20 hover:bg-white/30 border-none text-white backdrop-blur-md px-8 py-4 rounded-2xl font-black flex items-center gap-2" disabled={duesBlocked}>
                   <Search className="w-5 h-5" /> Request Parking
                </button>
             </div>
@@ -454,7 +459,7 @@ export default function ParkingMarketplace() {
 
                 <div className="flex gap-4 pt-4">
                   <button type="button" onClick={closeModal} className="flex-1 btn btn-secondary !rounded-[1.25rem] py-4 font-black">Discard</button>
-                  <button type="submit" disabled={saving} className="flex-[2] btn btn-primary !rounded-[1.25rem] py-4 font-black shadow-xl shadow-primary/30">
+                  <button type="submit" disabled={saving || (duesBlocked && showModal === "request")} className="flex-[2] btn btn-primary !rounded-[1.25rem] py-4 font-black shadow-xl shadow-primary/30">
                     {saving ? "Saving..." : editing ? "Save Changes" : showModal === 'share' ? "List Available Slot" : "Post Request"}
                   </button>
                 </div>

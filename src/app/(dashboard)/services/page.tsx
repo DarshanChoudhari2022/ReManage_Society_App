@@ -4,6 +4,9 @@ import {
   Briefcase,
   Building2,
   Car,
+  ClipboardList,
+  CreditCard,
+  FileBadge,
   MessageCircleMore,
   Package,
   Phone,
@@ -23,6 +26,27 @@ export default function ServicesPage() {
       icon={MessageCircleMore}
       iconAccent="bg-[#FFF7ED] text-[#F97316]"
       links={[
+        {
+          href: "/move-wizard",
+          label: t("Move-In / Out"),
+          description: t("Upload documents, pay shifting fee, get gate pass"),
+          icon: ClipboardList,
+          accent: "bg-[#F5F3FF] text-[#8B5CF6]",
+        },
+        {
+          href: "/noc",
+          label: t("Society NOC"),
+          description: t("Instant clearance certificate when dues are zero"),
+          icon: FileBadge,
+          accent: "bg-[#ECFDF5] text-[#059669]",
+        },
+        {
+          href: "/my-bills",
+          label: t("My Bills"),
+          description: t("Pay maintenance and view dues"),
+          icon: CreditCard,
+          accent: "bg-[#EFF6FF] text-[#2563EB]",
+        },
         {
           href: "/amenities",
           label: t("Amenity Booking"),

@@ -8,6 +8,8 @@ import {
   MapPin, IndianRupee, CheckCircle, ChevronLeft, ChevronRight,
 } from "lucide-react";
 import { useAppDialog } from "@/components/ui/AppDialogProvider";
+import DuesEnforcementBanner from "@/components/ux/DuesEnforcementBanner";
+import { useDuesEnforcementStatus } from "@/lib/use-dues-enforcement";
 
 interface Facility {
   id: string;
@@ -89,6 +91,7 @@ export default function AmenitiesPage() {
   });
 
   const isAdmin = ["chairman", "secretary", "treasurer"].includes(user?.role || "");
+  const { status: duesStatus, blocked: duesBlocked } = useDuesEnforcementStatus();
 
   const fetchFacilities = useCallback(() => {
     setLoading(true);
@@ -256,6 +259,8 @@ export default function AmenitiesPage() {
         )}
       </div>
 
+      <DuesEnforcementBanner status={duesStatus} />
+
       {/* Tabs */}
       <div className="flex gap-2">
         {(["facilities", "my-bookings"] as const).map((tab) => (
@@ -306,7 +311,7 @@ export default function AmenitiesPage() {
                           {f.description && <p className="text-xs text-text-secondary mt-0.5">{f.description}</p>}
                         </div>
                       </div>
-                      <button onClick={() => openBooking(f)} className="btn btn-primary !rounded-xl !py-2 !px-4 text-xs font-bold opacity-80 group-hover:opacity-100 transition-opacity">
+                      <button onClick={() => openBooking(f)} className="btn btn-primary !rounded-xl !py-2 !px-4 text-xs font-bold opacity-80 group-hover:opacity-100 transition-opacity" disabled={duesBlocked && !isAdmin}>
                         Book
                       </button>
                     </div>
@@ -491,7 +496,7 @@ export default function AmenitiesPage() {
               )}
               <div className="flex justify-end gap-3 pt-2">
                 <button type="button" onClick={() => setShowBookingModal(false)} className="btn btn-secondary !rounded-xl !py-2.5 !px-6 text-xs font-bold">Cancel</button>
-                <button type="submit" disabled={saving || selectedRangeBlocked} className="btn btn-primary !rounded-xl !py-2.5 !px-6 text-xs font-bold flex items-center gap-2">
+                <button type="submit" disabled={saving || selectedRangeBlocked || (duesBlocked && !isAdmin)} className="btn btn-primary !rounded-xl !py-2.5 !px-6 text-xs font-bold flex items-center gap-2">
                   {saving ? <div className="spinner !w-4 !h-4" /> : <CheckCircle className="w-4 h-4" />}
                   {saving ? "Booking..." : "Confirm Booking"}
                 </button>

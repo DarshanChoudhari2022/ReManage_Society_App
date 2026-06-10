@@ -43,10 +43,11 @@ async function legacyGET(request: Request) {
   const totalLateFees = paidBills.reduce((sum, b) => sum + b.lateFee, 0);
   const totalGST = paidBills.reduce((sum, b) => sum + b.gstAmount, 0);
 
-  // Expenses
+  // Expenses (approved only — pending items excluded from P&L)
   const expenses = await prisma.expense.findMany({
     where: {
       societyId: session!.societyId,
+      approvalStatus: "approved",
       ...(fromDate || toDate ? { paidOn: dateFilter } : {}),
     },
     select: { amount: true, category: true, tdsAmount: true },

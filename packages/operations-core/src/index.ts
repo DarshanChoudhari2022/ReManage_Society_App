@@ -856,3 +856,38 @@ function requireDate(value: Date, field: string): Date {
 
   return value;
 }
+
+export {
+  DEFAULT_DUES_ENFORCEMENT_DAYS,
+  assertDuesEnforcementAllows,
+  buildDuesEnforcementMessage,
+  evaluateDuesEnforcement,
+  type DuesBillSnapshot,
+  type DuesEnforcementEvaluation,
+  type DuesEnforcementFeature,
+} from "./dues-enforcement.ts";
+
+export {
+  NOC_PURPOSES,
+  NOC_VALIDITY_DAYS,
+  assertValidNocPurpose,
+  buildNocVerificationCode,
+  evaluateNocEligibility,
+  nocPurposeLabel,
+  type NocBillSnapshot,
+  type NocEligibilityResult,
+  type NocPurpose,
+} from "./noc-eligibility.ts";
+
+export {
+  AMC_COMPLIANCE_ALERT_DAYS,
+  complianceAlertDedupeKey,
+  mapVendorCategoryToComplaintCategory,
+  planSocietyComplianceAlerts,
+  planVendorComplianceAlerts,
+  shouldOpenComplianceTicket,
+  type ComplianceAlertKind,
+  type ComplianceAlertPlan,
+  type ComplianceCoverageStatus,
+  type VendorComplianceSnapshot,
+} from "./amc-compliance.ts";

@@ -55,6 +55,8 @@ const CLIENT_NAV_PREFIXES: Record<string, readonly string[]> = {
     "/documents",
     "/packages",
     "/staff",
+    "/noc",
+    "/move-wizard",
   ],
   tenant: [
     "/dashboard",
@@ -78,6 +80,8 @@ const CLIENT_NAV_PREFIXES: Record<string, readonly string[]> = {
     "/documents",
     "/packages",
     "/staff",
+    "/noc",
+    "/move-wizard",
   ],
 };
 

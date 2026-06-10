@@ -45,6 +45,7 @@ async function calculateActuals(societyId: string, fiscalYear: string, category:
     where: {
       societyId,
       category,
+      approvalStatus: "approved",
       paidOn: window,
     },
     select: { amount: true, fundId: true, title: true },
@@ -94,7 +95,7 @@ async function legacyGET() {
       orderBy: [{ fiscalYear: "desc" }, { category: "asc" }],
     }),
     prisma.expense.findMany({
-      where: { societyId: session!.societyId },
+      where: { societyId: session!.societyId, approvalStatus: "approved" },
       select: { category: true, paidOn: true },
     }),
     prisma.fundTransaction.findMany({

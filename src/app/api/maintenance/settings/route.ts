@@ -52,6 +52,12 @@ async function legacyPUT(request: NextRequest) {
         maintenanceAmt: body.maintenanceAmt ? parseFloat(body.maintenanceAmt) : undefined,
         dueDayOfMonth: body.dueDayOfMonth ? parseInt(body.dueDayOfMonth) : undefined,
         ...(body.lateFee !== undefined ? { lateFee: body.lateFee ? parseFloat(body.lateFee) : 0 } : {}),
+        ...(body.duesEnforcementEnabled !== undefined
+          ? { duesEnforcementEnabled: !!body.duesEnforcementEnabled }
+          : {}),
+        ...(body.duesEnforcementDays !== undefined
+          ? { duesEnforcementDays: Math.max(1, parseInt(String(body.duesEnforcementDays), 10) || 60) }
+          : {}),
       },
     });
 

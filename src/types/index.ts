@@ -103,6 +103,14 @@ export interface ExpenseType {
   billProofUploadedAt: Date | null;
   billProofVerifiedAt: Date | null;
   billProofVerifiedBy: string | null;
+  approvalStatus: string;
+  submittedBy: string | null;
+  submittedAt: Date | null;
+  approvedBy: string | null;
+  approvedAt: Date | null;
+  rejectedBy: string | null;
+  rejectedAt: Date | null;
+  rejectionReason: string | null;
   createdAt: Date;
 }
 

@@ -46,6 +46,8 @@ export async function postJournalVoucher(params: {
   narration: string;
   voucherDate?: Date;
   lines: JournalLineInput[];
+  financialSourceType?: string;
+  financialSourceId?: string;
 }) {
   if (params.lines.length < 2) {
     throw new Error("A journal voucher needs at least two ledger lines");
@@ -106,8 +108,8 @@ export async function postJournalVoucher(params: {
     const transaction = await tx.financialTransaction.create({
       data: {
         societyId: params.societyId,
-        sourceType: "JOURNAL",
-        sourceId: voucher.id,
+        sourceType: params.financialSourceType || "JOURNAL",
+        sourceId: params.financialSourceId || voucher.id,
         description: params.narration,
         transactionDate: voucherDate,
         createdBy: params.createdBy,

@@ -1,6 +1,8 @@
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { assertAmenityBookable, ensureAmenityForFacility, getOccupancyContext } from "@/domain/community";
+import { shouldSkipDuesEnforcement } from "@/lib/dues-enforcement-access";
+import { assertFlatDuesClear } from "@society/db";
 import { NextRequest } from "next/server";
 
 
@@ -29,6 +31,26 @@ async function legacyPOST(request: NextRequest) {
 
     if (!facilityId || !flatNumber || !date || !startTime || !endTime) {
       return Response.json({ error: "All fields are required" }, { status: 400 });
+    }
+
+    const context = await getOccupancyContext(session);
+    const targetFlatId = context?.flat?.id;
+    if (targetFlatId && !shouldSkipDuesEnforcement(session.role)) {
+      try {
+        await assertFlatDuesClear({
+          societyId: session.societyId,
+          flatId: targetFlatId,
+          feature: "amenity_booking",
+        });
+      } catch (error) {
+        return Response.json(
+          {
+            error: error instanceof Error ? error.message : "Dues enforcement blocked this booking",
+            code: "DUES_ENFORCEMENT",
+          },
+          { status: 403 },
+        );
+      }
     }
 
     // Check for conflicts
@@ -69,7 +91,6 @@ async function legacyPOST(request: NextRequest) {
       return Response.json({ error: policyError }, { status: 400 });
     }
 
-    const context = await getOccupancyContext(session);
     const hours = (parseInt(endTime.split(":")[0]) - parseInt(startTime.split(":")[0]));
     const amount = (facility?.ratePerHour || 0) * Math.max(hours, 1);
 

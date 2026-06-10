@@ -5,6 +5,8 @@ import { useUser } from "@/lib/user-context";
 import toast from "react-hot-toast";
 import { Plus, CalendarCheck, Clock, Info, User, Home, ShieldCheck } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
+import DuesEnforcementBanner from "@/components/ux/DuesEnforcementBanner";
+import { useDuesEnforcementStatus } from "@/lib/use-dues-enforcement";
 
 interface Facility {
   id: string;
@@ -54,6 +56,7 @@ export default function FacilitiesPage() {
   });
 
   const isAdmin = user?.role === "chairman" || user?.role === "secretary" || user?.role === "treasurer";
+  const { status: duesStatus, blocked: duesBlocked } = useDuesEnforcementStatus();
 
   const fetchData = useCallback(() => {
     setLoading(true);
@@ -139,11 +142,13 @@ export default function FacilitiesPage() {
               <Plus className="w-4 h-4 mr-2" /> Add Amenity
             </button>
           )}
-          <button onClick={() => setShowBooking(true)} className="btn btn-primary !rounded-xl px-5 sm:px-8 py-2.5 sm:py-3 font-bold text-xs sm:text-sm shadow-md shadow-primary/10 transition-all hover:scale-[1.01] active:scale-[0.98] shrink-0" disabled={facilities.length === 0}>
+          <button onClick={() => setShowBooking(true)} className="btn btn-primary !rounded-xl px-5 sm:px-8 py-2.5 sm:py-3 font-bold text-xs sm:text-sm shadow-md shadow-primary/10 transition-all hover:scale-[1.01] active:scale-[0.98] shrink-0" disabled={facilities.length === 0 || (duesBlocked && !isAdmin)}>
             <CalendarCheck className="w-4 h-4 sm:w-5 sm:h-5 mr-2" /> New Booking
           </button>
         </div>
       </div>
+
+      <DuesEnforcementBanner status={duesStatus} />
 
       {/* Tabs */}
       <div className="flex gap-1 bg-white border border-border rounded-xl p-1 mb-6 w-fit shadow-sm">
@@ -198,7 +203,7 @@ export default function FacilitiesPage() {
                       ))}
                       {f.bookings.length > 3 && <div className="w-7 h-7 rounded-full border-2 border-white bg-surface flex items-center justify-center text-[10px] font-bold text-text-secondary">+{f.bookings.length - 3}</div>}
                    </div>
-                   <button onClick={() => { setBookingForm({ ...bookingForm, facilityId: f.id }); setShowBooking(true); }} className="btn btn-primary btn-sm px-4">
+                   <button onClick={() => { setBookingForm({ ...bookingForm, facilityId: f.id }); setShowBooking(true); }} className="btn btn-primary btn-sm px-4" disabled={duesBlocked && !isAdmin}>
                     Book Now
                   </button>
                 </div>
@@ -343,7 +348,7 @@ export default function FacilitiesPage() {
 
               <div className="flex gap-3 pt-2">
                 <button type="button" onClick={() => setShowBooking(false)} className="btn btn-secondary flex-1">Dismiss</button>
-                <button type="submit" disabled={saving} className="btn btn-primary flex-1">{saving ? "Confirming..." : "Book Now"}</button>
+                <button type="submit" disabled={saving || (duesBlocked && !isAdmin)} className="btn btn-primary flex-1">{saving ? "Confirming..." : "Book Now"}</button>
               </div>
             </form>
           </div>

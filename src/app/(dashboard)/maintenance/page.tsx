@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { ChevronLeft, ChevronRight, Search, FileText, Bell, Zap, RefreshCcw, Save, Settings2, Trash2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Search, FileText, Bell, Zap, RefreshCcw, Save, Settings2, Trash2, MessageCircle, Link2, Copy, Send, Gauge } from "lucide-react";
 import StatusBadge from "@/components/ui/StatusBadge";
 import { formatCurrency } from "@/lib/utils";
 import type { BillWithFlat, BillingSummary } from "@/types";
@@ -40,6 +40,8 @@ export default function MaintenancePage() {
     maintenanceAmt: "",
     dueDayOfMonth: "10",
     lateFee: "",
+    duesEnforcementEnabled: true,
+    duesEnforcementDays: "60",
   });
   const [payForm, setPayForm] = useState({
     paidAmount: "",
@@ -51,6 +53,15 @@ export default function MaintenancePage() {
     amount: "",
     dueDate: "",
   });
+  const [payLinkModal, setPayLinkModal] = useState<{
+    flatNumber: string;
+    payUrl: string;
+    whatsAppUrl: string;
+    message: string;
+    payerPhone: string | null;
+  } | null>(null);
+  const [creatingPayLink, setCreatingPayLink] = useState<string | null>(null);
+  const [sendingBulkReminders, setSendingBulkReminders] = useState(false);
 
   // Optimized query hook with live polling
   const { 
@@ -123,6 +134,8 @@ export default function MaintenancePage() {
           maintenanceAmt: data.society.maintenanceAmt?.toString() || "",
           dueDayOfMonth: data.society.dueDayOfMonth?.toString() || "10",
           lateFee: data.society.lateFee?.toString() || "",
+          duesEnforcementEnabled: data.society.duesEnforcementEnabled !== false,
+          duesEnforcementDays: String(data.society.duesEnforcementDays ?? 60),
         });
       })
       .catch(() => {});
@@ -348,6 +361,72 @@ export default function MaintenancePage() {
     });
   };
 
+  const createPayLink = async (bill: BillWithFlat, sentVia: "copy" | "whatsapp" = "copy") => {
+    setCreatingPayLink(bill.id);
+    try {
+      const res = await fetch(`/api/maintenance/bills/${bill.id}/payment-link`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sentVia,
+          payerPhone: bill.billingRecipient?.payerPhone || null,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        toast.error(data.error || "Failed to create payment link");
+        return;
+      }
+
+      if (sentVia === "whatsapp") {
+        window.open(data.whatsAppUrl, "_blank", "noopener,noreferrer");
+        toast.success(`WhatsApp opened for Flat ${bill.flat.flatNumber}`);
+      } else {
+        setPayLinkModal({
+          flatNumber: data.flatNumber,
+          payUrl: data.payUrl,
+          whatsAppUrl: data.whatsAppUrl,
+          message: data.message,
+          payerPhone: data.payerPhone,
+        });
+      }
+    } catch {
+      toast.error("Something went wrong");
+    } finally {
+      setCreatingPayLink(null);
+    }
+  };
+
+  const sendBulkPaymentLinks = async () => {
+    setSendingBulkReminders(true);
+    try {
+      const res = await fetch("/api/maintenance/payment-reminders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ period }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        toast.error(data.error || "Failed to prepare payment links");
+        return;
+      }
+      toast.success(`${data.count} pay links ready — open WhatsApp for each defaulter`);
+      if (data.reminders?.length > 0) {
+        setPayLinkModal({
+          flatNumber: `${data.count} flats`,
+          payUrl: data.reminders[0].payUrl,
+          whatsAppUrl: data.reminders[0].whatsAppUrl,
+          message: data.message || `Prepared ${data.count} payment reminders for ${periodLabel}`,
+          payerPhone: null,
+        });
+      }
+    } catch {
+      toast.error("Something went wrong");
+    } finally {
+      setSendingBulkReminders(false);
+    }
+  };
+
   const exportCsv = async () => {
     try {
       const res = await fetch(`/api/maintenance/bills?period=${period}`);
@@ -385,6 +464,10 @@ export default function MaintenancePage() {
               <ChevronRight className="w-4 h-4" />
             </button>
           </div>
+          <Link href="/maintenance/meter-readings" className="btn btn-secondary btn-sm flex items-center gap-2">
+            <Gauge className="w-4 h-4" />
+            Import meter readings
+          </Link>
         </div>
       </div>
 
@@ -418,6 +501,33 @@ export default function MaintenancePage() {
           <div>
             <label className="label">Late Fee (₹)</label>
             <input type="number" className="input" value={billingConfig.lateFee} onChange={(e) => setBillingConfig({ ...billingConfig, lateFee: e.target.value })} />
+          </div>
+        </div>
+        <div className="mt-5 pt-5 border-t border-border">
+          <p className="text-sm font-semibold text-text-primary mb-3">Default Prevention (The Enforcer)</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <label className="flex items-center gap-3 rounded-xl border border-border p-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={billingConfig.duesEnforcementEnabled}
+                onChange={(e) => setBillingConfig({ ...billingConfig, duesEnforcementEnabled: e.target.checked })}
+              />
+              <span>
+                <span className="text-sm font-medium text-text-primary block">Block amenity & guest parking for defaulters</span>
+                <span className="text-xs text-text-secondary">Residents with long-overdue dues cannot book clubhouse or request guest parking.</span>
+              </span>
+            </label>
+            <div>
+              <label className="label">Overdue threshold (days)</label>
+              <input
+                type="number"
+                min={1}
+                className="input"
+                value={billingConfig.duesEnforcementDays}
+                onChange={(e) => setBillingConfig({ ...billingConfig, duesEnforcementDays: e.target.value })}
+                disabled={!billingConfig.duesEnforcementEnabled}
+              />
+            </div>
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-2 mt-4">
@@ -485,7 +595,18 @@ export default function MaintenancePage() {
           </button>
         )}
         {summary && summary.pending > 0 && (
-          <Link href="/reminders" className="btn btn-secondary btn-sm"><Bell className="w-4 h-4" /> Send reminders</Link>
+          <>
+            <button
+              onClick={sendBulkPaymentLinks}
+              disabled={sendingBulkReminders}
+              className="btn btn-primary btn-sm"
+              title="Generate one-click pay links for all pending bills"
+            >
+              {sendingBulkReminders ? <div className="spinner !w-4 !h-4" /> : <Send className="w-4 h-4" />}
+              Pay links ({summary.pending})
+            </button>
+            <Link href="/reminders" className="btn btn-secondary btn-sm"><Bell className="w-4 h-4" /> Send reminders</Link>
+          </>
         )}
       </div>
 
@@ -542,6 +663,22 @@ export default function MaintenancePage() {
                     <div className="flex items-center justify-end gap-1">
                       {bill.status === "pending" ? (
                         <>
+                          <button
+                            onClick={() => createPayLink(bill, "whatsapp")}
+                            disabled={creatingPayLink === bill.id}
+                            className="btn btn-primary btn-sm !py-1 !px-2 text-xs"
+                            title="Send WhatsApp pay link"
+                          >
+                            {creatingPayLink === bill.id ? <div className="spinner !w-3 !h-3" /> : <MessageCircle className="w-3 h-3" />}
+                          </button>
+                          <button
+                            onClick={() => createPayLink(bill, "copy")}
+                            disabled={creatingPayLink === bill.id}
+                            className="btn btn-secondary btn-sm !py-1 !px-2 text-xs"
+                            title="Copy pay link"
+                          >
+                            <Link2 className="w-3 h-3" />
+                          </button>
                           <button onClick={() => openEditInvoice(bill)} className="btn btn-secondary btn-sm !py-1 !px-2 text-xs">Edit Invoice</button>
                           <button onClick={() => openMarkPaid(bill)} className="btn btn-secondary btn-sm !py-1 !px-2 text-xs">Record Offline</button>
                           <button onClick={() => deleteInvoice(bill)} className="btn btn-secondary btn-sm !py-1 !px-2 text-xs text-danger" title="Delete pending invoice">
@@ -833,6 +970,58 @@ export default function MaintenancePage() {
                 )}
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {payLinkModal && (
+        <div className="modal-overlay" onClick={() => setPayLinkModal(null)}>
+          <div className="modal-content max-w-lg" onClick={(e) => e.stopPropagation()}>
+            <div className="mb-5">
+              <h3 className="text-lg font-semibold flex items-center gap-2">
+                <Link2 className="w-5 h-5 text-primary" />
+                One-Click Pay Link
+              </h3>
+              <p className="text-sm text-text-secondary mt-1">
+                Flat {payLinkModal.flatNumber} · Residents can pay via UPI without logging in.
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              <div className="bg-surface/50 rounded-xl p-4 border border-border/40">
+                <p className="text-[10px] font-bold text-text-tertiary uppercase tracking-wider mb-2">Payment link</p>
+                <p className="text-xs font-mono break-all text-primary">{payLinkModal.payUrl}</p>
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(payLinkModal.payUrl);
+                    toast.success("Link copied!");
+                  }}
+                  className="btn btn-secondary btn-sm mt-3"
+                >
+                  <Copy className="w-3 h-3" /> Copy link
+                </button>
+              </div>
+
+              <div className="bg-surface/50 rounded-xl p-4 border border-border/40">
+                <p className="text-[10px] font-bold text-text-tertiary uppercase tracking-wider mb-2">WhatsApp message preview</p>
+                <pre className="text-xs whitespace-pre-wrap text-text-secondary font-sans max-h-40 overflow-y-auto">{payLinkModal.message}</pre>
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-2 mt-8">
+              <button onClick={() => setPayLinkModal(null)} className="btn btn-secondary flex-1">Close</button>
+              <button
+                onClick={() => window.open(payLinkModal.whatsAppUrl, "_blank", "noopener,noreferrer")}
+                className="btn btn-primary flex-[2] flex items-center justify-center gap-2"
+              >
+                <MessageCircle className="w-4 h-4" /> Send on WhatsApp
+              </button>
+            </div>
+            {!payLinkModal.payerPhone && (
+              <p className="text-[10px] text-text-tertiary mt-3 text-center">
+                No phone on file — WhatsApp will open without a pre-filled contact.
+              </p>
+            )}
           </div>
         </div>
       )}

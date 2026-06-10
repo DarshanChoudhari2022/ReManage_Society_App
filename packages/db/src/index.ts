@@ -20,3 +20,10 @@ export {
   requireDatabaseUrl,
 } from "./prisma.ts";
 export type { DatabaseRuntimeConfig } from "./prisma.ts";
+export {
+  assertFlatDuesClear,
+  assertFlatNumberDuesClear,
+  getFlatDuesEnforcement,
+  getFlatDuesEnforcementByFlatNumber,
+} from "./dues-enforcement.ts";
+export type { FlatDuesEnforcementInput } from "./dues-enforcement.ts";

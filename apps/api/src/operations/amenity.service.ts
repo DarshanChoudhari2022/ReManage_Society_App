@@ -35,7 +35,12 @@ export class AmenityService {
 
   async createBooking(principal: AuthenticatedPrincipal, command: CreateBookingCommand) {
     this.securityPolicy.authorizeOrThrow(principal, "operations:booking.manage", command.societyId);
-    return this.repository.createBooking(command);
+    const membership = principal.memberships.find((entry) => entry.societyId === command.societyId);
+    const skipDuesEnforcement =
+      membership?.roles.some((role) =>
+        role === "treasurer" || role === "committee" || role === "society_admin",
+      ) ?? false;
+    return this.repository.createBooking({ ...command, skipDuesEnforcement });
   }
 
   async cancelBooking(principal: AuthenticatedPrincipal, command: CancelBookingCommand) {
@@ -45,7 +50,12 @@ export class AmenityService {
 
   async joinWaitlist(principal: AuthenticatedPrincipal, command: JoinWaitlistCommand) {
     this.securityPolicy.authorizeOrThrow(principal, "operations:booking.manage", command.societyId);
-    return this.repository.joinWaitlist(command);
+    const membership = principal.memberships.find((entry) => entry.societyId === command.societyId);
+    const skipDuesEnforcement =
+      membership?.roles.some((role) =>
+        role === "treasurer" || role === "committee" || role === "society_admin",
+      ) ?? false;
+    return this.repository.joinWaitlist({ ...command, skipDuesEnforcement });
   }
 
   async listBookings(principal: AuthenticatedPrincipal, societyId: string, facilityId?: string) {

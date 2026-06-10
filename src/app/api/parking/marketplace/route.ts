@@ -1,6 +1,8 @@
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { findParkingOverlap, getOccupancyContext, parseParkingEndDate } from "@/domain/community";
+import { shouldSkipDuesEnforcement } from "@/lib/dues-enforcement-access";
+import { assertFlatDuesClear } from "@society/db";
 import { NextRequest, NextResponse } from "next/server";
 
 
@@ -314,6 +316,23 @@ async function legacyPOST(request: NextRequest) {
     } else {
       if (!occupancy) {
         return NextResponse.json({ error: "Active occupancy is required to request parking" }, { status: 400 });
+      }
+      if (!shouldSkipDuesEnforcement(session.role)) {
+        try {
+          await assertFlatDuesClear({
+            societyId: session.societyId,
+            flatId: session.flatId,
+            feature: "guest_parking",
+          });
+        } catch (error) {
+          return NextResponse.json(
+            {
+              error: error instanceof Error ? error.message : "Dues enforcement blocked guest parking",
+              code: "DUES_ENFORCEMENT",
+            },
+            { status: 403 },
+          );
+        }
       }
       if (sharingId) {
         const share = await prisma.parkingSharing.findFirst({

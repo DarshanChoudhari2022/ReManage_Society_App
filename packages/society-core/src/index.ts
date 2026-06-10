@@ -332,3 +332,22 @@ function unitStatusForRelationship(
 ): "OWNER_OCCUPIED" | "TENANT_OCCUPIED" {
   return relationshipType === "TENANT" ? "TENANT_OCCUPIED" : "OWNER_OCCUPIED";
 }
+
+export {
+  MOVE_RESIDENT_TYPES,
+  MOVE_WIZARD_STATUS,
+  MOVE_WIZARD_TYPES,
+  assertCanApproveMoveWizard,
+  assertCanRejectMoveWizard,
+  assertCanSubmitMoveWizard,
+  buildMoveWizardChecklist,
+  generateGatePassCode,
+  isCommitteeMoveApprover,
+  markChecklistItemCompleted,
+  moveWizardStatusLabel,
+  requiresTenantDocuments,
+  shiftingChargeForMoveType,
+  type MoveWizardRecord,
+  type MoveWizardStatus,
+  type MoveWizardType,
+} from "./move-wizard.ts";

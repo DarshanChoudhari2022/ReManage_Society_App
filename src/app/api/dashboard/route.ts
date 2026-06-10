@@ -67,7 +67,7 @@ export async function GET() {
         }),
         prisma.poll.count({ where: { societyId, status: "active" } }),
         prisma.expense.aggregate({
-          where: { societyId, paidOn: { gte: startDate, lte: endDate } },
+          where: { societyId, approvalStatus: "approved", paidOn: { gte: startDate, lte: endDate } },
           _sum: { amount: true },
         }),
         prisma.maintenanceBill.aggregate({
@@ -75,7 +75,7 @@ export async function GET() {
           _sum: { paidAmount: true },
         }),
         prisma.expense.aggregate({
-          where: { societyId },
+          where: { societyId, approvalStatus: "approved" },
           _sum: { amount: true },
         }),
         prisma.maintenanceBill.findMany({

@@ -2,6 +2,7 @@ import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import { logCreated } from "@/lib/activity-log";
+import { scanVendorComplianceAlerts } from "@/lib/amc-compliance-service";
 
 
 import {
@@ -28,6 +29,10 @@ async function legacyGET() {
     orderBy: { name: "asc" },
   });
 
+  void scanVendorComplianceAlerts({ societyId: session!.societyId }).catch((error) => {
+    console.error("AMC compliance scan failed:", error);
+  });
+
   return Response.json({ vendors });
 }
 
@@ -39,7 +44,7 @@ async function legacyPOST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { name, category, phone, email, hasAMC, amcAmount, amcStartDate, amcEndDate } = body;
+    const { name, category, phone, email, hasAMC, amcAmount, amcStartDate, amcEndDate, insuranceExpiryDate } = body;
 
     if (!name || !category) {
       return Response.json({ error: "Name and category are required" }, { status: 400 });
@@ -56,12 +61,17 @@ async function legacyPOST(request: NextRequest) {
         amcAmount: amcAmount ? parseFloat(amcAmount) : null,
         amcStartDate: amcStartDate ? new Date(amcStartDate) : null,
         amcEndDate: amcEndDate ? new Date(amcEndDate) : null,
+        insuranceExpiryDate: insuranceExpiryDate ? new Date(insuranceExpiryDate) : null,
       },
     });
 
     await logCreated("settings", vendor.id, `Added Vendor: ${name}`, {
       category,
       hasAMC,
+    });
+
+    void scanVendorComplianceAlerts({ societyId: session!.societyId }).catch((error) => {
+      console.error("AMC compliance scan failed:", error);
     });
 
     return Response.json({ vendor }, { status: 201 });

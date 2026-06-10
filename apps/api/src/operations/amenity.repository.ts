@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { prisma } from "../../../../packages/db/src/index.ts";
+import { assertFlatNumberDuesClear } from "../../../../packages/db/src/dues-enforcement.ts";
 import {
   assertCancellationAllowed,
   computeBookingAmount,
@@ -117,6 +118,7 @@ export interface CreateBookingCommand {
   endTime: string;
   purpose?: string;
   now: Date;
+  skipDuesEnforcement?: boolean;
 }
 
 export interface CancelBookingCommand {
@@ -133,6 +135,7 @@ export interface JoinWaitlistCommand {
   date: Date;
   startTime: string;
   endTime: string;
+  skipDuesEnforcement?: boolean;
 }
 
 @Injectable()
@@ -209,6 +212,15 @@ export class AmenityRepository {
     const facility = await this.client.facility.findUnique({ where: { id: command.facilityId } });
     if (!facility || facility.societyId !== command.societyId) {
       throw new Error(`Facility ${command.facilityId} does not exist in society ${command.societyId}.`);
+    }
+
+    if (!command.skipDuesEnforcement) {
+      await assertFlatNumberDuesClear({
+        societyId: command.societyId,
+        flatNumber: command.flatNumber,
+        now: command.now,
+        feature: "amenity_booking",
+      });
     }
 
     const policy = await this.resolvePolicy(command.societyId, command.amenityId);
@@ -320,6 +332,15 @@ export class AmenityRepository {
   async joinWaitlist(
     command: JoinWaitlistCommand,
   ): Promise<{ joined: true; replayed: boolean; waitlistId: string }> {
+    if (!command.skipDuesEnforcement) {
+      await assertFlatNumberDuesClear({
+        societyId: command.societyId,
+        flatNumber: command.flatNumber,
+        now: new Date(),
+        feature: "amenity_booking",
+      });
+    }
+
     const existing = await this.client.facilityWaitlist.findFirst({
       where: {
         societyId: command.societyId,

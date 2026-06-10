@@ -26,6 +26,9 @@ const publicPaths = [
   "/expired",             // Subscription expired page
   "/complaint/submit",    // Public complaint submission
   "/api/complaint/public",
+  "/pay",                 // Public one-click bill payment (no login)
+  "/api/pay",             // Public payment link API
+  "/api/noc/verify",      // Public NOC certificate verification
   "/api/subscription",    // Subscription check
   "/api/health/db",       // DB connectivity diagnostic (redacted host only)
 ];

@@ -36,7 +36,7 @@ export async function GET() {
               _count: { id: true },
             }),
             prisma.expense.aggregate({
-              where: { societyId, paidOn: { gte: monthStart, lte: monthEnd } },
+              where: { societyId, approvalStatus: "approved", paidOn: { gte: monthStart, lte: monthEnd } },
               _sum: { amount: true },
             }),
             prisma.maintenanceBill.count({
@@ -68,7 +68,7 @@ export async function GET() {
       const [categoryGroup, methodGroup, agingResults, topDefaultersData] = await Promise.all([
         prisma.expense.groupBy({
           by: ["category"],
-          where: { societyId, paidOn: { gte: startDate, lte: endDate } },
+          where: { societyId, approvalStatus: "approved", paidOn: { gte: startDate, lte: endDate } },
           _sum: { amount: true },
         }),
         prisma.maintenanceBill.groupBy({

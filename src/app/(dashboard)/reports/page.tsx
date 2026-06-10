@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Download, BarChart3, TrendingUp, PieChart, IndianRupee, AlertTriangle } from "lucide-react";
+import { Download, BarChart3, TrendingUp, PieChart, IndianRupee, AlertTriangle, Landmark, Archive } from "lucide-react";
+import Link from "next/link";
+import toast from "react-hot-toast";
 import { formatCurrency } from "@/lib/utils";
 import { BarChart, DonutChart, LineChart } from "@/components/ui/Charts";
 import { expenseCategoryLabel } from "@/lib/finance-categories";
@@ -65,6 +67,13 @@ export default function ReportsPage() {
   const [annual, setAnnual] = useState<AnnualReport | null>(null);
   const [financial, setFinancial] = useState<FinancialReport | null>(null);
   const [loading, setLoading] = useState(true);
+  const [exportingAuditor, setExportingAuditor] = useState(false);
+  const [auditorFiscalYear, setAuditorFiscalYear] = useState(() => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth() + 1;
+    return month >= 4 ? `${year}-${String(year + 1).slice(-2)}` : `${year - 1}-${String(year).slice(-2)}`;
+  });
   const [period] = useState(() => {
     const now = new Date();
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
@@ -101,6 +110,32 @@ export default function ReportsPage() {
     return () => { cancelled = true; };
   }, [tab, period]);
 
+  const downloadAuditorExport = async () => {
+    setExportingAuditor(true);
+    try {
+      const res = await fetch(`/api/reports/auditor-export?year=${encodeURIComponent(auditorFiscalYear)}`);
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        toast.error(data.error || "Could not generate auditor export");
+        return;
+      }
+      const blob = await res.blob();
+      const disposition = res.headers.get("Content-Disposition") || "";
+      const match = /filename="([^"]+)"/.exec(disposition);
+      const fileName = match?.[1] || `auditor_export_${auditorFiscalYear}.zip`;
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = fileName;
+      link.click();
+      URL.revokeObjectURL(link.href);
+      toast.success("Auditor export downloaded");
+    } catch {
+      toast.error("Something went wrong");
+    } finally {
+      setExportingAuditor(false);
+    }
+  };
+
   return (
     <div>
       <div className="page-header">
@@ -113,9 +148,52 @@ export default function ReportsPage() {
             </p>
           </div>
         </div>
-        <button className="btn btn-secondary btn-sm">
-          <Download className="w-4 h-4" /> Export PDF
-        </button>
+        <div className="flex flex-wrap items-center gap-2">
+          <Link href="/reports/reconciliation" className="btn btn-primary btn-sm">
+            <Landmark className="w-4 h-4" /> Bank Reconciliation
+          </Link>
+          <div className="flex items-center gap-2 rounded-lg border border-border bg-white px-2 py-1">
+            <label htmlFor="auditor-fy" className="text-[10px] font-bold uppercase tracking-widest text-text-secondary">
+              FY
+            </label>
+            <select
+              id="auditor-fy"
+              className="select !py-1 !px-2 !text-sm !border-0 !shadow-none !bg-transparent"
+              value={auditorFiscalYear}
+              onChange={(e) => setAuditorFiscalYear(e.target.value)}
+            >
+              {[0, 1, 2].map((offset) => {
+                const now = new Date();
+                const baseYear = now.getMonth() + 1 >= 4 ? now.getFullYear() : now.getFullYear() - 1;
+                const start = baseYear - offset;
+                const label = `${start}-${String(start + 1).slice(-2)}`;
+                return (
+                  <option key={label} value={label}>
+                    {label}
+                  </option>
+                );
+              })}
+            </select>
+            <button
+              type="button"
+              onClick={downloadAuditorExport}
+              disabled={exportingAuditor}
+              className="btn btn-secondary btn-sm"
+              title="Trial balance, balance sheet, ledger, expense proofs"
+            >
+              {exportingAuditor ? (
+                <div className="spinner !w-4 !h-4" />
+              ) : (
+                <>
+                  <Archive className="w-4 h-4" /> Auditor ZIP
+                </>
+              )}
+            </button>
+          </div>
+          <button className="btn btn-secondary btn-sm">
+            <Download className="w-4 h-4" /> Export PDF
+          </button>
+        </div>
       </div>
 
       {/* Tabs */}
