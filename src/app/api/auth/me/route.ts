@@ -39,7 +39,7 @@ export async function GET() {
       flatNumber: user.flat?.flatNumber || (resolvedFlat && "flatNumber" in resolvedFlat ? resolvedFlat.flatNumber : null),
       society: user.society,
       joinCode: user.society?.joinCode,
-      noFlatLinked: !user.flatId && !resolvedFlat,
+      noFlatLinked: !(user.flatId || resolvedFlat),
     },
   });
 }
