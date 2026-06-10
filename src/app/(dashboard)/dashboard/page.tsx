@@ -676,7 +676,7 @@ function ResidentDashboard({
           <Link href="/complaints" className="flex-1 flex flex-col items-center">
             <span className="text-[11px] font-bold text-gray-500 dark:text-gray-400 mb-1">{t("Complaints")}</span>
             <span className="text-xl font-extrabold text-gray-900 dark:text-[#FAF7F5] leading-none">{String(openComplaints).padStart(2, "0")}</span>
-            <span className="text-[10px] text-gray-400 dark:text-gray-500 mt-1 font-medium">{t("Open")}</span>
+            <span className="text-[10px] text-gray-400 dark:text-gray-500 mt-1 font-medium">{t("Open (Stats)")}</span>
           </Link>
           <div className="w-px h-10 bg-gray-100 dark:bg-[#303030]"></div>
           <Link href="/my-visitors" className="flex-1 flex flex-col items-center">
@@ -764,6 +764,21 @@ function ResidentDashboard({
             </div>
           </div>
         </div>
+
+        {/* SECTION 6 - Consult an Advocate Banner */}
+        <div className="bg-red-50 dark:bg-red-950/20 rounded-2xl p-4 flex items-start gap-3 relative overflow-hidden border border-red-100 dark:border-red-900/40 shadow-sm">
+          <div className="relative z-10 flex-shrink-0 mt-0.5">
+            <Scale className="w-5 h-5 text-red-600 dark:text-red-400" strokeWidth={2.5} />
+          </div>
+          <div className="relative z-10 flex-1">
+            <h3 className="text-red-800 dark:text-red-300 font-bold text-xs uppercase tracking-wider mb-1">
+              {t("Consult an Advocate")}
+            </h3>
+            <p className="text-red-700/80 dark:text-red-400/80 text-[10px] font-semibold leading-relaxed">
+              {t("Take your complaints to a legal case if not solved. Defaulters and rulebreakers will face legal action.")}
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* Desktop view: visible on lg screens, hidden on mobile/tablet */}
@@ -822,7 +837,7 @@ function ResidentDashboard({
                     <Link href="/complaints" className="flex flex-col items-center bg-[#FEF3C7] dark:bg-[#78350F]/25 rounded-2xl p-3 border border-yellow-100 dark:border-[#78350F]/40 hover:border-yellow-200 dark:hover:border-[#92400E] transition-colors">
                       <span className="text-[11px] font-semibold text-[#B45309] dark:text-[#FDE68A]">{t("Complaints")}</span>
                       <span className="text-2xl font-extrabold text-[#92400E] dark:text-[#FBBF24] mt-1">{String(openComplaints).padStart(2, "0")}</span>
-                      <span className="text-[10px] text-gray-500 dark:text-gray-400 mt-1 font-medium">{t("Open")}</span>
+                      <span className="text-[10px] text-gray-500 dark:text-gray-400 mt-1 font-medium">{t("Open (Stats)")}</span>
                     </Link>
                     <Link href="/my-visitors" className="flex flex-col items-center bg-[#EFF6FF] dark:bg-[#1E3A8A]/25 rounded-2xl p-3 border border-blue-100 dark:border-[#1E3A8A]/40 hover:border-blue-200 dark:hover:border-[#2563EB] transition-colors">
                       <span className="text-[11px] font-semibold text-[#1D4ED8] dark:text-[#93C5FD]">{t("Visitors")}</span>
@@ -881,6 +896,23 @@ function ResidentDashboard({
                       <div className="w-8 h-1 bg-[#D1FAE5] dark:bg-[#064E3B]/50 rounded-full"></div>
                     </div>
                   </div>
+                </div>
+              </div>
+
+              {/* Consult an Advocate Banner */}
+              <div className="rounded-[1.5rem] border border-red-100 dark:border-red-900/40 bg-red-50 dark:bg-red-950/20 p-6 shadow-sm flex items-start gap-4 relative overflow-hidden">
+                <div className="relative z-10 flex-shrink-0 mt-1">
+                  <div className="w-10 h-10 rounded-xl bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 flex items-center justify-center">
+                    <Scale className="w-5 h-5" strokeWidth={2.5} />
+                  </div>
+                </div>
+                <div className="relative z-10 flex-1">
+                  <h3 className="text-red-800 dark:text-red-300 font-bold text-sm uppercase tracking-wider mb-1">
+                    {t("Consult an Advocate")}
+                  </h3>
+                  <p className="text-red-700/80 dark:text-red-400/80 text-xs font-semibold leading-relaxed">
+                    {t("Take your complaints to a legal case if not solved. Defaulters and rulebreakers will face legal action.")}
+                  </p>
                 </div>
               </div>
 

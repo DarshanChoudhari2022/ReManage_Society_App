@@ -132,6 +132,9 @@ export default function Header({
               <ThemeToggle compact />
             </div>
             <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#FED7AA] bg-white dark:border-[#303030] dark:bg-[#1E1E1E]">
+              <LanguageSelector compact />
+            </div>
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#FED7AA] bg-white dark:border-[#303030] dark:bg-[#1E1E1E]">
               <NotificationCenter compact />
             </div>
             <button

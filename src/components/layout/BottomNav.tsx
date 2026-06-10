@@ -20,6 +20,7 @@ import {
 import { useUser } from "@/lib/user-context";
 import { usePersonaNav } from "@/lib/navigation/use-persona-nav";
 import { getNavIcon } from "@/lib/navigation/nav-icons";
+import { useI18n } from "@/lib/i18n";
 
 interface BottomNavProps {
   userRole?: string;
@@ -39,6 +40,7 @@ export default function BottomNav({
   userId,
   societyId,
 }: BottomNavProps) {
+  const { t } = useI18n();
   void userRole;
   void userId;
   void societyId;
@@ -88,7 +90,7 @@ export default function BottomNav({
           {guardTabs.map((tab) => (
             <Link key={tab.href} href={tab.href} className={navLinkClass(tab.href)}>
               <tab.icon className="h-[22px] w-[22px]" strokeWidth={iconStroke(tab.href)} />
-              <span className="text-[10px] font-semibold">{tab.label}</span>
+              <span className="text-[10px] font-semibold">{t(tab.label)}</span>
             </Link>
           ))}
         </div>
@@ -107,7 +109,7 @@ export default function BottomNav({
             return (
               <Link key={tab.href} href={tab.href} className={navLinkClass(tab.href)}>
                 <Icon className="h-[22px] w-[22px]" strokeWidth={iconStroke(tab.href)} />
-                <span className="text-[10px] font-semibold">{tab.label}</span>
+                <span className="text-[10px] font-semibold">{t(tab.label)}</span>
               </Link>
             );
           })}
@@ -129,7 +131,7 @@ export default function BottomNav({
             className="absolute bottom-[4.5rem] left-1/2 z-50 w-[min(18rem,calc(100%-2rem))] -translate-x-1/2 rounded-2xl border border-gray-100 bg-white p-2 shadow-xl"
           >
             <div className="mb-1 flex items-center justify-between px-2 py-1">
-              <p className="text-xs font-bold uppercase tracking-wider text-gray-500">Quick Add</p>
+              <p className="text-xs font-bold uppercase tracking-wider text-gray-500">{t("Quick Add")}</p>
               <button
                 type="button"
                 onClick={() => setShowActions(false)}
@@ -147,7 +149,7 @@ export default function BottomNav({
                 className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-gray-700 transition-colors hover:bg-[#FFF7ED]"
               >
                 <action.icon className="h-4 w-4 text-[#F97316]" />
-                {action.label}
+                {t(action.label)}
               </Link>
             ))}
           </div>
@@ -156,12 +158,12 @@ export default function BottomNav({
         <div className="relative flex h-16 items-center justify-around px-2">
           <Link href="/dashboard" className={navLinkClass("/dashboard")}>
             <Home className="h-[22px] w-[22px]" strokeWidth={iconStroke("/dashboard")} />
-            <span className="text-[10px] font-semibold">Home</span>
+            <span className="text-[10px] font-semibold">{t("Home")}</span>
           </Link>
 
           <Link href="/my-society" className={navLinkClass("/my-society")}>
             <Contact className="h-[22px] w-[22px]" strokeWidth={iconStroke("/my-society")} />
-            <span className="text-[10px] font-semibold">My Society</span>
+            <span className="text-[10px] font-semibold">{t("My Society")}</span>
           </Link>
 
           <div className="relative -mt-8 flex w-16 justify-center">
@@ -178,12 +180,12 @@ export default function BottomNav({
 
           <Link href="/services" className={navLinkClass("/services")}>
             <MessageCircleMore className="h-[22px] w-[22px]" strokeWidth={iconStroke("/services")} />
-            <span className="text-[10px] font-semibold">Services</span>
+            <span className="text-[10px] font-semibold">{t("Services")}</span>
           </Link>
 
           <Link href="/profile" className={navLinkClass("/profile")}>
             <UserIcon className="h-[22px] w-[22px]" strokeWidth={iconStroke("/profile")} />
-            <span className="text-[10px] font-semibold">Profile</span>
+            <span className="text-[10px] font-semibold">{t("Profile")}</span>
           </Link>
         </div>
       </div>
