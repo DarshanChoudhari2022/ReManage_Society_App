@@ -102,70 +102,67 @@ export default function Header({
   return (
     <>
     <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} />
-    <header className="sticky top-0 z-30 border-b border-[#FED7AA] bg-[#FFFBEB]/92 px-2 backdrop-blur-xl lg:px-4 dark:border-[#303030] dark:bg-[#141414]/96">
-      <div className="lg:hidden">
-        <div className="flex min-h-[56px] items-center justify-between gap-2">
-          <div className="flex min-w-0 items-center gap-2.5">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#F97316] text-white shadow-lg shadow-[#F97316]/18">
-              <Building2 className="h-5 w-5" />
+    <header className="sticky top-0 z-30 border-b border-[#FED7AA] bg-[#FFFBEB]/92 backdrop-blur-xl dark:border-[#303030] dark:bg-[#141414]/96">
+      <div className="lg:hidden px-2 py-2">
+        <div className="flex min-h-[48px] items-center justify-between gap-1.5">
+          <div className="flex min-w-0 items-center gap-2">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#F97316] text-white shadow-md shadow-[#F97316]/18">
+              <Building2 className="h-4 w-4" />
             </div>
             <div className="min-w-0">
-              <h1 className="truncate text-base font-black tracking-tight text-text-primary">
+              <h1 className="truncate text-sm font-black tracking-tight text-text-primary">
                 {t("SmartSocietyHub")}
               </h1>
-              <p className="truncate text-[10px] font-black uppercase tracking-[0.16em] text-text-secondary">
+              <p className="truncate text-[9px] font-black uppercase tracking-[0.14em] text-text-secondary">
                 {t(personaLabel)}
               </p>
             </div>
           </div>
 
-          <div className="flex shrink-0 items-center gap-2">
+          <div className="flex shrink-0 items-center gap-1">
             <button
               type="button"
               onClick={() => setPaletteOpen(true)}
-              className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#FED7AA] bg-white text-text-primary shadow-sm active:scale-95 dark:border-[#303030] dark:bg-[#1E1E1E]"
+              className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#FED7AA] bg-white text-text-primary shadow-sm active:scale-95 dark:border-[#303030] dark:bg-[#1E1E1E]"
               aria-label={t("Search")}
             >
-              <Search className="h-5 w-5" />
+              <Search className="h-4 w-4" />
             </button>
-            <LanguageSelector />
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#FED7AA] bg-white dark:border-[#303030] dark:bg-[#1E1E1E]">
+              <ThemeToggle compact />
+            </div>
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#FED7AA] bg-white dark:border-[#303030] dark:bg-[#1E1E1E]">
+              <NotificationCenter compact />
+            </div>
             <button
               onClick={onMenuToggle}
-              className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#FED7AA] bg-white text-text-primary shadow-sm active:scale-95 dark:border-[#303030] dark:bg-[#1E1E1E]"
+              className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#FED7AA] bg-white text-text-primary shadow-sm active:scale-95 dark:border-[#303030] dark:bg-[#1E1E1E]"
               aria-label={t("Open menu")}
             >
-              <Menu className="h-5 w-5" />
+              <Menu className="h-4 w-4" />
             </button>
           </div>
         </div>
 
-        <div className="flex items-center justify-between gap-2 pb-2">
-          {canShareJoinCode ? (
-            <button
-              type="button"
-              onClick={copyJoinCode}
-              className="flex min-w-0 items-center gap-2 rounded-xl border border-[#F97316]/20 bg-[#F97316]/8 px-3 py-1.5 text-[#F97316]"
-              title={t("Copy society join code")}
-            >
-              <span className="text-[9px] font-black uppercase tracking-widest text-primary/70">
-                {t("Join Code")}
-              </span>
-              <span className="truncate font-mono text-xs font-black tracking-widest">
-                {joinCode}
-              </span>
-              <Copy className="h-3.5 w-3.5 shrink-0" />
-            </button>
-          ) : (
-            <span aria-hidden="true" className="min-w-0 flex-1" />
-          )}
-          <div className="flex shrink-0 items-center gap-1.5">
-            <ThemeToggle />
-            <NotificationCenter />
-          </div>
-        </div>
+        {canShareJoinCode && (
+          <button
+            type="button"
+            onClick={copyJoinCode}
+            className="mt-1 flex w-full items-center justify-center gap-2 rounded-xl border border-[#F97316]/20 bg-[#F97316]/8 px-3 py-1.5 text-[#F97316]"
+            title={t("Copy society join code")}
+          >
+            <span className="text-[9px] font-black uppercase tracking-widest text-primary/70">
+              {t("Join Code")}
+            </span>
+            <span className="truncate font-mono text-xs font-black tracking-widest">
+              {joinCode}
+            </span>
+            <Copy className="h-3.5 w-3.5 shrink-0" />
+          </button>
+        )}
       </div>
 
-      <div className="hidden h-14 items-center justify-between lg:flex">
+      <div className="hidden h-14 items-center justify-between px-4 lg:flex">
         <div className="flex items-center gap-3">
           <div>
             <h1 className="text-sm font-bold text-text-secondary">
@@ -258,7 +255,7 @@ export default function Header({
                   <div className="my-1.5 border-t border-border/30" />
                   <button
                     onClick={handleLogout}
-                    className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-medium text-red-600 transition-colors hover:bg-red-50 dark:text-[#FCA5A5] dark:hover:bg-[#141414]"
+                    className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-medium text-[#B91C1C] transition-colors hover:bg-[#FEE2E2] dark:text-[#FCA5A5] dark:hover:bg-[#1E1E1E]"
                   >
                     <LogOut className="w-4 h-4" /> {t("Sign Out")}
                   </button>

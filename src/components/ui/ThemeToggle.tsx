@@ -12,7 +12,7 @@ function applyTheme(dark: boolean) {
     ?.setAttribute("content", dark ? "#0B1220" : "#3B82F6");
 }
 
-export default function ThemeToggle() {
+export default function ThemeToggle({ compact = false }: { compact?: boolean }) {
   const { t } = useI18n();
   const [mounted, setMounted] = useState(false);
   const [isDark, setIsDark] = useState(false);
@@ -45,8 +45,8 @@ export default function ThemeToggle() {
   // Prevent hydration mismatch
   if (!mounted) {
     return (
-      <button className="p-2 rounded-full opacity-0 pointer-events-none">
-        <Moon className="w-4.5 h-4.5" />
+      <button className={`${compact ? "p-0" : "p-2"} rounded-full opacity-0 pointer-events-none`}>
+        <Moon className="w-4 h-4" />
       </button>
     );
   }
@@ -56,13 +56,15 @@ export default function ThemeToggle() {
       type="button"
       onClick={toggleTheme}
       aria-pressed={isDark}
-      className="p-2 text-text-secondary hover:text-text-primary hover:bg-surface rounded-full transition-colors relative"
+      className={`text-text-secondary hover:text-text-primary transition-colors relative ${
+        compact ? "flex h-full w-full items-center justify-center" : "p-2 hover:bg-surface rounded-full"
+      }`}
       title={isDark ? t("Switch to light mode") : t("Switch to dark mode")}
     >
       {isDark ? (
-        <Sun className="w-4.5 h-4.5" />
+        <Sun className="w-4 h-4" />
       ) : (
-        <Moon className="w-4.5 h-4.5" />
+        <Moon className="w-4 h-4" />
       )}
     </button>
   );

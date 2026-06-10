@@ -7,6 +7,7 @@ import BottomNav from "@/components/layout/BottomNav";
 import MobileBackButton from "@/components/layout/MobileBackButton";
 import MobileRuntime from "@/components/mobile/MobileRuntime";
 import GuardRedirect from "@/components/layout/GuardRedirect";
+import FlatLinkBanner from "@/components/ux/FlatLinkBanner";
 import { usePushNotifications } from "@/lib/use-push";
 import { UserProvider, useUser } from "@/lib/user-context";
 
@@ -42,6 +43,7 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
         />
         <main className="flex-1 overflow-y-auto p-3 pb-28 lg:p-6 lg:pb-6">
           <MobileBackButton />
+          <FlatLinkBanner />
           {children}
         </main>
       </div>

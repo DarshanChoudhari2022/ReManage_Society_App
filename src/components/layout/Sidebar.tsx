@@ -230,7 +230,7 @@ export default function Sidebar({
           <button
             onClick={handleLogout}
             title={t("Sign Out")}
-            className={`flex items-center gap-3 border border-[#EF4444]/20 bg-[#EF4444] font-bold text-white shadow-lg shadow-[#EF4444]/15 transition-all hover:-translate-y-0.5 hover:bg-[#DC2626] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#EF4444] ${
+            className={`flex items-center gap-3 border border-[#FECACA] bg-[#FEE2E2] font-bold text-[#B91C1C] shadow-sm transition-all hover:bg-[#FECACA] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F87171] dark:border-[#7F1D1D]/40 dark:bg-[#7F1D1D]/20 dark:text-[#FCA5A5] dark:hover:bg-[#7F1D1D]/35 ${
               isCompact
                 ? "h-10 w-10 justify-center rounded-xl"
                 : "w-full rounded-xl px-3 py-2.5 text-sm"

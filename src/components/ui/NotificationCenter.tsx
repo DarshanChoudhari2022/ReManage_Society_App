@@ -34,6 +34,7 @@ const typeConfig: Record<string, { icon: typeof Bell; color: string }> = {
   visitor_entry: { icon: UserCheck, color: "text-cyan-600 bg-cyan-50" },
   late_fee: { icon: Receipt, color: "text-danger bg-danger-bg" },
   reminder: { icon: Bell, color: "text-warning bg-warning-bg" },
+  admin_request: { icon: Bell, color: "text-primary bg-blue-50" },
 };
 
 function timeAgo(dateStr: string): string {
@@ -50,7 +51,7 @@ function timeAgo(dateStr: string): string {
   return d.toLocaleDateString("en-IN", { day: "numeric", month: "short" });
 }
 
-export default function NotificationCenter() {
+export default function NotificationCenter({ compact = false }: { compact?: boolean }) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [open, setOpen] = useState(false);
@@ -134,10 +135,15 @@ export default function NotificationCenter() {
     <div className="relative" ref={panelRef}>
       <button
         onClick={() => setOpen(!open)}
-        className="relative p-2 rounded-lg hover:bg-surface transition-colors"
+        className={`relative transition-colors ${
+          compact
+            ? "flex h-full w-full items-center justify-center"
+            : "rounded-lg p-2 hover:bg-surface"
+        }`}
         id="notification-bell"
+        aria-label="Notifications"
       >
-        <Bell className="w-5 h-5 text-text-secondary" />
+        <Bell className="w-4 h-4 text-text-secondary" />
         {unreadCount > 0 && (
           <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] rounded-full bg-danger text-white text-[10px] font-bold flex items-center justify-center px-1 animate-pulse">
             {unreadCount > 99 ? "99+" : unreadCount}

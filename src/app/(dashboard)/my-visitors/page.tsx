@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
-import { UserCheck, Clock, Plus, Calendar, ShieldCheck, X, Phone, User, CheckCircle2, XCircle, Bell, ArrowDownLeft, ArrowUpRight, History } from "lucide-react";
+import { useEffect, useState, useCallback, useRef } from "react";
+import { UserCheck, Clock, Plus, Calendar, ShieldCheck, X, Phone, User, CheckCircle2, XCircle, Bell, ArrowDownLeft, ArrowUpRight, History, AlertCircle } from "lucide-react";
 import toast from "react-hot-toast";
 import { LIVE_FAST_INTERVAL_MS } from "@/lib/live-refresh";
+import NotifyAdminButton from "@/components/ux/NotifyAdminButton";
 
 interface Visitor {
   id: string;
@@ -37,6 +38,7 @@ export default function MyVisitorsPage() {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [highlightId, setHighlightId] = useState<string | null>(null);
   const [showHistory, setShowHistory] = useState(false);
+  const [noFlatLinked, setNoFlatLinked] = useState(false);
   const [form, setForm] = useState({
     visitorName: "",
     phone: "",
@@ -54,11 +56,10 @@ export default function MyVisitorsPage() {
       const data = await res.json();
       if (data.noFlatLinked) {
         setVisitors([]);
-        if (!isBackground) {
-          toast.error("No flat linked to your account. Ask your society admin to assign your flat.");
-        }
+        setNoFlatLinked(true);
         return;
       }
+      setNoFlatLinked(false);
       if (data.visitors) {
         setVisitors(data.visitors);
       }
@@ -198,6 +199,23 @@ export default function MyVisitorsPage() {
         </button>
       </div>
 
+      {noFlatLinked && (
+        <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-4 dark:border-amber-900/40 dark:bg-amber-950/30">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-amber-600" />
+              <div>
+                <p className="text-sm font-bold text-amber-950 dark:text-amber-100">Flat not linked yet</p>
+                <p className="mt-1 text-xs text-amber-800/80 dark:text-amber-200/80">
+                  Visitor records need your flat assigned. Notify the committee admin with one tap.
+                </p>
+              </div>
+            </div>
+            <NotifyAdminButton category="flat_link" className="w-full sm:w-auto shrink-0" />
+          </div>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 sm:gap-8 items-start">
         {/* Main List */}
         <div className="lg:col-span-3 space-y-4">
@@ -219,8 +237,19 @@ export default function MyVisitorsPage() {
           ) : visitors.length === 0 ? (
             <div className="card text-center py-24 bg-surface/30 border-dashed border-2">
               <Calendar className="w-12 h-12 text-text-tertiary mx-auto mb-4 opacity-20" />
-              <p className="text-text-primary font-bold">No visitor records.</p>
-              <p className="text-xs text-text-secondary mt-1">Gate entries and pre-approved guests will appear here.</p>
+              <p className="text-text-primary font-bold">
+                {noFlatLinked ? "Waiting for flat assignment" : "No visitor records."}
+              </p>
+              <p className="text-xs text-text-secondary mt-1">
+                {noFlatLinked
+                  ? "Once your flat is linked, gate entries and pre-approved guests will appear here."
+                  : "Gate entries and pre-approved guests will appear here."}
+              </p>
+              {noFlatLinked && (
+                <div className="mt-4 flex justify-center">
+                  <NotifyAdminButton category="flat_link" variant="secondary" />
+                </div>
+              )}
             </div>
           ) : (
             <div className="space-y-4">

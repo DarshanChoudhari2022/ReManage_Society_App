@@ -21,11 +21,11 @@ export default function MobileBackButton() {
   };
 
   return (
-    <div className="sticky top-0 z-20 -mx-3 mb-3 border-b border-[#FED7AA]/70 bg-[#FFFBEB]/95 px-3 py-2 backdrop-blur dark:border-[#303030] dark:bg-[#141414]/95 lg:hidden">
+    <div className="mb-3 lg:hidden">
       <button
         type="button"
         onClick={goBack}
-        className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-[#FED7AA] bg-white px-3 text-sm font-black text-[#1C1917] shadow-sm active:scale-95 dark:border-[#303030] dark:bg-[#1E1E1E] dark:text-[#FAF7F5]"
+        className="inline-flex min-h-9 items-center gap-2 rounded-xl border border-[#FED7AA] bg-white px-3 text-sm font-semibold text-[#1C1917] shadow-sm active:scale-95 dark:border-[#303030] dark:bg-[#1E1E1E] dark:text-[#FAF7F5]"
       >
         <ArrowLeft className="h-4 w-4 text-[#F97316]" />
         Back

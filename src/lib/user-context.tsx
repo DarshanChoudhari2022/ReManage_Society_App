@@ -13,6 +13,7 @@ interface UserSession {
   societyAddress?: string;
   societyUpiId?: string;
   joinCode?: string;
+  noFlatLinked?: boolean;
 }
 
 interface UserContextValue {
@@ -64,6 +65,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
             societyUpiId: data.user.society?.upiId,
             joinCode: data.user.joinCode,
             flatNumber: data.user.flatNumber,
+            noFlatLinked: Boolean(data.user.noFlatLinked),
           });
         }
       })
