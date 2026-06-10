@@ -1,3 +1,5 @@
+export {};
+
 async function testUser(email: string) {
   console.log(`\n==================================================`);
   console.log(`Testing email: ${email}`);
