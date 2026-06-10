@@ -14,7 +14,7 @@ export const dictionary: Record<AppLanguage, Record<string, string>> = {
   en: {},
   hi: {
     "Language": "भाषा",
-    "SmartSocietyHub": "स्मार्ट सोसाइटी हब",
+    "ReManage": "रीमैनेज",
     "Join Code": "प्रवेश कोड",
     "Copy society join code": "सोसाइटी प्रवेश कोड कॉपी करें",
     "Open menu": "मेनू खोलें",
@@ -257,7 +257,7 @@ export const dictionary: Record<AppLanguage, Record<string, string>> = {
   },
   mr: {
     "Language": "भाषा",
-    "SmartSocietyHub": "स्मार्ट सोसाइटी हब",
+    "ReManage": "रीमॅनेज",
     "Join Code": "सदस्य प्रवेश संकेत",
     "Copy society join code": "सोसायटीचा प्रवेश संकेत कॉपी करा",
     "Open menu": "मेनू उघडा",

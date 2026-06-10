@@ -152,7 +152,7 @@ export default function NotificationCenter({ compact = false }: { compact?: bool
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-2 w-[360px] max-h-[480px] bg-white rounded-xl shadow-xl border border-border z-50 overflow-hidden dark:bg-slate-900"
+        <div className="fixed left-4 right-4 top-[72px] md:absolute md:left-auto md:right-0 md:top-full md:mt-2 md:w-[360px] max-h-[480px] bg-white rounded-xl shadow-xl border border-border z-50 overflow-hidden dark:bg-slate-900"
           style={{ animation: "slideUp 0.15s ease" }}>
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-surface/50">

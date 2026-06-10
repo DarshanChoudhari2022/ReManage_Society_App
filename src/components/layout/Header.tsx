@@ -111,7 +111,7 @@ export default function Header({
             </div>
             <div className="min-w-0">
               <h1 className="truncate text-sm font-black tracking-tight text-text-primary">
-                {t("SmartSocietyHub")}
+                {t("ReManage")}
               </h1>
               <p className="truncate text-[9px] font-black uppercase tracking-[0.14em] text-text-secondary">
                 {t(personaLabel)}
@@ -169,7 +169,7 @@ export default function Header({
         <div className="flex items-center gap-3">
           <div>
             <h1 className="text-sm font-bold text-text-secondary">
-              {t("SmartSocietyHub")}
+              {t("ReManage")}
             </h1>
           </div>
         </div>
