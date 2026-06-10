@@ -48,6 +48,11 @@ async function legacyGET() {
     orderBy: { createdAt: "desc" },
   });
 
+  const society = await prisma.society.findUnique({
+    where: { id: session.societyId },
+    select: { legalAdviserName: true, legalAdviserPhone: true },
+  });
+
   const stats = {
     open: complaints.filter((c) => c.status === "open").length,
     inProgress: complaints.filter((c) => c.status === "in_progress").length,
@@ -56,7 +61,13 @@ async function legacyGET() {
   };
 
   return jsonWithHeaders(
-    { complaints, stats, societyId: session!.societyId },
+    {
+      complaints,
+      stats,
+      societyId: session!.societyId,
+      legalAdviserName: society?.legalAdviserName ?? null,
+      legalAdviserPhone: society?.legalAdviserPhone ?? null,
+    },
     {
       status: 200,
       extraHeaders: buildDeprecationHeaders({ routePath: LEGACY_ROUTE, successorPath: NEST_LIST }),

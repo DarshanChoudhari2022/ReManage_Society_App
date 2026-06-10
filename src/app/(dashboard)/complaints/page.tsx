@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
+import Link from "next/link";
 import { useUser } from "@/lib/user-context";
 import toast from "react-hot-toast";
-import { Plus, AlertTriangle, CheckCircle2, Clock, Share2, MessageSquare, Info, ShieldAlert, Calendar, X } from "lucide-react";
+import { Plus, AlertTriangle, CheckCircle2, Clock, Share2, MessageSquare, Info, ShieldAlert, Calendar, X, Scale, Phone } from "lucide-react";
 
 interface Complaint {
   id: string;
@@ -52,6 +53,10 @@ export default function ComplaintsPage() {
   const [resolveComplaint, setResolveComplaint] = useState<Complaint | null>(null);
   const [resolution, setResolution] = useState("");
   const [societyId, setSocietyId] = useState("");
+  const [legalAdviserName, setLegalAdviserName] = useState<string | null>(null);
+  const [legalAdviserPhone, setLegalAdviserPhone] = useState<string | null>(null);
+  const [legalEscalation, setLegalEscalation] = useState(false);
+  const legalEscalationInitialized = useRef(false);
   const { user } = useUser();
 
   const [form, setForm] = useState({
@@ -73,6 +78,8 @@ export default function ComplaintsPage() {
         setComplaints(d.complaints || []);
         setStats(d.stats || { open: 0, inProgress: 0, resolved: 0, total: 0 });
         if (d.societyId) setSocietyId(d.societyId);
+        setLegalAdviserName(d.legalAdviserName ?? null);
+        setLegalAdviserPhone(d.legalAdviserPhone ?? null);
       })
       .catch(() => toast.error("Failed to load complaints"))
       .finally(() => setLoading(false));
@@ -81,6 +88,26 @@ export default function ComplaintsPage() {
   useEffect(() => {
     fetchComplaints();
   }, [fetchComplaints]);
+
+  useEffect(() => {
+    if (legalEscalationInitialized.current) return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("escalate") !== "legal") return;
+
+    legalEscalationInitialized.current = true;
+    setLegalEscalation(true);
+    setShowForm(true);
+    setStatusFilter("open");
+    setForm((prev) => ({
+      ...prev,
+      priority: "high",
+      category: "security",
+      title: prev.title || "Legal escalation — unresolved complaint",
+      description:
+        prev.description ||
+        "I am requesting legal escalation for an unresolved society issue.\n\nExisting complaint ID / date (if any):\n\nIssue summary:\n\nAction requested:",
+    }));
+  }, []);
 
   useEffect(() => {
     if (user.name || user.flatNumber) {
@@ -178,6 +205,41 @@ export default function ComplaintsPage() {
           </button>
         </div>
       </div>
+
+      {legalEscalation && (
+        <div className="rounded-2xl border border-red-200 bg-red-50/80 p-4 sm:p-5 space-y-3">
+          <div className="flex items-start gap-3">
+            <div className="w-10 h-10 rounded-xl bg-red-100 text-red-700 flex items-center justify-center shrink-0">
+              <Scale className="w-5 h-5" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h2 className="font-bold text-red-900 text-sm sm:text-base">Legal escalation workflow</h2>
+              <p className="text-xs sm:text-sm text-red-800/90 mt-1 leading-relaxed">
+                Log or reference your unresolved complaint below. The committee reviews open tickets first;
+                persistent defaulters or rule violations may be referred to the society legal adviser.
+              </p>
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {legalAdviserPhone ? (
+              <a
+                href={`tel:${legalAdviserPhone.replace(/\s/g, "")}`}
+                className="btn btn-primary btn-sm flex items-center gap-2 !bg-red-700 hover:!bg-red-800"
+              >
+                <Phone className="w-4 h-4" />
+                Call {legalAdviserName || "Legal Adviser"}
+              </a>
+            ) : (
+              <span className="text-xs text-red-700/80 font-medium px-1">
+                Legal adviser contact not configured — committee will coordinate escalation.
+              </span>
+            )}
+            <Link href="/complaints" className="btn btn-secondary btn-sm flex items-center gap-2">
+              Dismiss
+            </Link>
+          </div>
+        </div>
+      )}
 
       {isAdmin ? (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">

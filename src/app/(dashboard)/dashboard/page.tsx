@@ -766,19 +766,23 @@ function ResidentDashboard({
         </div>
 
         {/* SECTION 6 - Consult an Advocate Banner */}
-        <div className="bg-red-50 dark:bg-red-950/20 rounded-2xl p-4 flex items-start gap-3 relative overflow-hidden border border-red-100 dark:border-red-900/40 shadow-sm">
+        <Link
+          href="/complaints?escalate=legal"
+          className="block bg-red-50 dark:bg-red-950/20 rounded-2xl p-4 flex items-start gap-3 relative overflow-hidden border border-red-100 dark:border-red-900/40 shadow-sm hover:border-red-200 dark:hover:border-red-800 transition-colors active:scale-[0.99]"
+        >
           <div className="relative z-10 flex-shrink-0 mt-0.5">
             <Scale className="w-5 h-5 text-red-600 dark:text-red-400" strokeWidth={2.5} />
           </div>
           <div className="relative z-10 flex-1">
-            <h3 className="text-red-800 dark:text-red-300 font-bold text-xs uppercase tracking-wider mb-1">
+            <h3 className="text-red-800 dark:text-red-300 font-bold text-xs uppercase tracking-wider mb-1 flex items-center gap-2">
               {t("Consult an Advocate")}
+              <ArrowRight className="w-3.5 h-3.5" />
             </h3>
             <p className="text-red-700/80 dark:text-red-400/80 text-[10px] font-semibold leading-relaxed">
               {t("Take your complaints to a legal case if not solved. Defaulters and rulebreakers will face legal action.")}
             </p>
           </div>
-        </div>
+        </Link>
       </div>
 
       {/* Desktop view: visible on lg screens, hidden on mobile/tablet */}
@@ -900,21 +904,25 @@ function ResidentDashboard({
               </div>
 
               {/* Consult an Advocate Banner */}
-              <div className="rounded-[1.5rem] border border-red-100 dark:border-red-900/40 bg-red-50 dark:bg-red-950/20 p-6 shadow-sm flex items-start gap-4 relative overflow-hidden">
+              <Link
+                href="/complaints?escalate=legal"
+                className="block rounded-[1.5rem] border border-red-100 dark:border-red-900/40 bg-red-50 dark:bg-red-950/20 p-6 shadow-sm flex items-start gap-4 relative overflow-hidden hover:border-red-200 dark:hover:border-red-800 transition-colors"
+              >
                 <div className="relative z-10 flex-shrink-0 mt-1">
                   <div className="w-10 h-10 rounded-xl bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 flex items-center justify-center">
                     <Scale className="w-5 h-5" strokeWidth={2.5} />
                   </div>
                 </div>
                 <div className="relative z-10 flex-1">
-                  <h3 className="text-red-800 dark:text-red-300 font-bold text-sm uppercase tracking-wider mb-1">
+                  <h3 className="text-red-800 dark:text-red-300 font-bold text-sm uppercase tracking-wider mb-1 flex items-center gap-2">
                     {t("Consult an Advocate")}
+                    <ArrowRight className="w-4 h-4" />
                   </h3>
                   <p className="text-red-700/80 dark:text-red-400/80 text-xs font-semibold leading-relaxed">
                     {t("Take your complaints to a legal case if not solved. Defaulters and rulebreakers will face legal action.")}
                   </p>
                 </div>
-              </div>
+              </Link>
 
             </div>
 
